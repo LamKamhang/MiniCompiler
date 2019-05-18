@@ -30,3 +30,22 @@
 *.exe
 *.out
 *.app
+
+# config file
+.vscode
+
+# build file
+build
+
+# Mac auto generated files
+.DS_Store
+__MACOSX
+
+# private file
+_*
+
+# doc
+*.dot
+*.dox
+*.dotx
+*.pdf
