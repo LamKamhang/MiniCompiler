@@ -52,3 +52,6 @@ _*
 *.dox
 *.dotx
 *.pdf
+
+# test yec file
+lex.yy.c
