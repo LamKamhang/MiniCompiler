@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
-#include "prettyPrint.h"
+#include <prettyPrint.h>
 
 std::string pretty::setColor(const std::string &str, int color)
 {
