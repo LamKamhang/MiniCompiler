@@ -1,4 +1,4 @@
-#include "../../include/json/jsoncpp.cc"
+#include "include/json/jsoncpp.cc"
 #include <string>
 #include <sstream>
 #include <iostream>
