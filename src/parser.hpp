@@ -102,7 +102,9 @@ extern int yydebug;
     GOTO = 312,
     CONTINUE = 313,
     BREAK = 314,
-    RETURN = 315
+    RETURN = 315,
+    CONSTANT_INT,
+    CONSTANT_FLOAT,
   };
 #endif
 
