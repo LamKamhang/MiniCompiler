@@ -49,3 +49,8 @@ _*
 *.dox
 *.dotx
 *.pdf
+
+# remove auto generated files
+parser.cpp
+parser.hpp
+scanner.cpp
