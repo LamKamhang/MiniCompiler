@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "parser.hpp"
 
-#define DEBUG
+// #define DEBUG_LEX
 
 %}
 
@@ -58,7 +58,7 @@ e_float         ({num}e-{num})|({float_num}e[+-]?{num})
 {identifier}    { return IDENTIFIER;}
 {comment}       {/*this is a comment.*/}
 {whitespace}    {/*this is a whitespace*/}
-{newline}       {/*this is a newline*/return 5;}
+{newline}       {/*this is a newline*/}
 {string}		{return STRING_LITERAL; }
 
 {num}           { return CONSTANT_INT;}
@@ -115,7 +115,7 @@ e_float         ({num}e-{num})|({float_num}e[+-]?{num})
 "|"				{ return '|'; }
 "?"				{ return '?'; }
 
-.                 {/* error code. */ return -1;}
+.               {/* error code. */ return -1;}
 %%
 
 int yywrap()
@@ -123,7 +123,7 @@ int yywrap()
 	return(1);
 }
 
-#ifdef DEBUG
+#ifdef DEBUG_LEX
 int main(void)
 {
 	while (1)
