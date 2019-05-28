@@ -8,15 +8,10 @@ set(target_name ncc)
 
 set(source_files
 	src/main.cxx
+	src/parser.cpp
+	src/scanner.cpp
 )
 
-set(lex_source
-	src/scanner.lex
-)
-
-set(yacc_source
-	src/parser.ypp
-)
 # +----------------------------------------------+
 # | Complilation flags                           |
 # +--------------------------------------------- +
@@ -40,30 +35,12 @@ endif (PROFILE_FLAG)
 # +----------------------------------------------+
 # | Third Party Libray                           |
 # +--------------------------------------------- +
-find_package(FLEX)
-if (NOT FLEX_FOUND)
-	message("Not found a proper flex program.")
-	return ()
-endif ()
-message (STATUS "FLEX_VERSION: ${FLEX_VERSION}")
-
-find_package(BISON)
-if (NOT BISON_FOUND)
-	message("Not found a proper bison program.")
-	return ()
-endif()
-message (STATUS "BISON_VERSION: ${BISON_VERSION}")
-
+include_directories(${PROJECT_SOURCE_DIR}/src)
+message("${PROJECT_SOURCE_DIR}")
 # +----------------------------------------------+
 # | Build executable                             |
 # +--------------------------------------------- +
-BISON_TARGET(MyParser ${yacc_source} ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp)
-FLEX_TARGET(MyScanner ${lex_source}  ${CMAKE_CURRENT_BINARY_DIR}/scanner.cpp)
-ADD_FLEX_BISON_DEPENDENCY(MyScanner MyParser)
-
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_executable(${target_name}
    ${source_files}
-   ${BISON_MyParser_OUTPUTS}
-   ${FLEX_MyScanner_OUTPUTS}
 )
