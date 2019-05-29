@@ -2,13 +2,18 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
+#include <cmath>
 #include <memory>
 #include "ast/ast.h"
+
 #define YYSTYPE std::shared_ptr<ast::Node>
 #include "parser.hpp"
 
 // #define DEBUG_LEX
 static int ypos = 0;
+
+inline std::string hex2num();
+inline std::string e2float();
 
 %}
 
@@ -23,8 +28,7 @@ comment			\/\*([^*]*\*+[^/*])*([^*]*\*+)\/
 num				{digit}+
 hex_num			0[xX][a-fA-F0-9]+
 float_num		({digit}*\.{digit}+)|({digit}+\.{digit}*)
-e_num			{num}e[+]?{num}
-e_float			({num}e-{num})|({float_num}e[+-]?{num})
+e_float			({num}|{float_num})[eE][+-]?{num}
 
 %%
 
@@ -73,10 +77,9 @@ e_float			({num}e-{num})|({float_num}e[+-]?{num})
 {string}		{yylval = std::make_shared<ast::Node>("string"	,	yytext, yylineno, ypos, yylineno, ypos+=yyleng); return STRING_LITERAL; }
 
 {num}			{yylval = std::make_shared<ast::Node>("int"		,	yytext, yylineno, ypos, yylineno, ypos+=yyleng); return CONSTANT_INT;}
-{hex_num}		{yylval = std::make_shared<ast::Node>("int"		,	yytext, yylineno, ypos, yylineno, ypos+=yyleng); return CONSTANT_INT;}
+{hex_num}		{yylval = std::make_shared<ast::Node>("int"		,hex2num(), yylineno, ypos, yylineno, ypos+=yyleng); return CONSTANT_INT;}
 {float_num}		{yylval = std::make_shared<ast::Node>("float"	,	yytext, yylineno, ypos, yylineno, ypos+=yyleng); return CONSTANT_FLOAT;}
-{e_num}			{yylval = std::make_shared<ast::Node>("int"		,	yytext, yylineno, ypos, yylineno, ypos+=yyleng); return CONSTANT_INT;}
-{e_float}		{yylval = std::make_shared<ast::Node>("float"	,	yytext, yylineno, ypos, yylineno, ypos+=yyleng); return CONSTANT_FLOAT;}
+{e_float}		{yylval = std::make_shared<ast::Node>("float"	,e2float(), yylineno, ypos, yylineno, ypos+=yyleng); return CONSTANT_FLOAT;}
 
 "..."			{yylval = std::make_shared<ast::Node>("..."		,	yytext, yylineno, ypos, yylineno, ypos+=yyleng); return ELLIPSIS; }
 ">>="			{yylval = std::make_shared<ast::Node>(">>="		,	yytext, yylineno, ypos, yylineno, ypos+=yyleng); return RIGHT_ASSIGN; }
@@ -131,6 +134,35 @@ e_float			({num}e-{num})|({float_num}e[+-]?{num})
 int yywrap()
 {
 	return(1);
+}
+
+inline std::string hex2num()
+{
+	unsigned long res = 0;
+	char c;
+	for (int i = 2; i < yyleng; ++i)
+	{
+		c = yytext[i];
+		res = res * 16 + (c <= '9' ? (c - '0')
+								   : (c & 0xdf) - 'A' + 10);
+	}
+	return std::to_string(res);
+}
+
+inline std::string e2float()
+{
+	double head = 0;
+	long exp = 0;
+	for (int i = 0; i < yyleng; ++i)
+	{
+		if ((yytext[i] & 0xdf) == 'E')
+		{
+			head = std::stod(std::string(yytext).substr(0, i));
+			exp = std::stoi(std::string(yytext).substr(i+1));
+			break;
+		}
+	}
+	return std::to_string(pow(10, exp)*head);
 }
 
 #ifdef DEBUG_LEX
