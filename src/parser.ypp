@@ -2,10 +2,14 @@
 #include <stdio.h>
 #include <memory>
 #include "ast/ast.h"
+#include "ast/include/json/include/json-forwards.h"
+#include "ast/include/json/include/json.h"
 
 #define YYSTYPE std::shared_ptr<ast::Node>
 extern int yylex(void);
 void yyerror(const char *);
+
+
 
 %}
 %token IDENTIFIER CONSTANT_INT CONSTANT_FLOAT STRING_LITERAL SIZEOF
@@ -27,19 +31,29 @@ void yyerror(const char *);
 %%
 
 program
-	: translation_unit {printf("ok\n");}
+	: translation_unit	{
+			printf("ok\n");
+			Json::StyledStreamWriter writer(" ");
+			writer.write(std::cout, ast::exports($1));
+		}
 	;
 
 primary_expression
 	: IDENTIFIER
-	| CONSTANT_INT
+	| CONSTANT_INT	{
+			$$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| CONSTANT_FLOAT
 	| STRING_LITERAL
 	| '(' expression ')'
 	;
 
 postfix_expression
-	: primary_expression
+	: primary_expression	{
+			$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| postfix_expression '[' expression ']'
 	| postfix_expression '(' ')'
 	| postfix_expression '(' argument_expression_list ')'
@@ -55,7 +69,10 @@ argument_expression_list
 	;
 
 unary_expression
-	: postfix_expression
+	: postfix_expression	{
+			$$ = std::make_shared<ast::Node>("unary_expression", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| INC_OP unary_expression
 	| DEC_OP unary_expression
 	| unary_operator cast_expression
@@ -142,7 +159,12 @@ conditional_expression
 
 assignment_expression
 	: conditional_expression
-	| unary_expression assignment_operator assignment_expression
+	| unary_expression assignment_operator assignment_expression	{
+			$$ = std::make_shared<ast::Node>("assignment_expression", $1->get_left(), $3->get_right());
+			$$->children.emplace_back($1);
+			$$->children.emplace_back($2);
+			$$->children.emplace_back($3);
+		}
 	;
 
 assignment_operator
@@ -160,7 +182,10 @@ assignment_operator
 	;
 
 expression
-	: assignment_expression
+	: assignment_expression	{
+			$$ = std::make_shared<ast::Node>("expression", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| expression ',' assignment_expression
 	;
 
@@ -176,7 +201,10 @@ declaration
 declaration_specifiers
 	: storage_class_specifier
 	| storage_class_specifier declaration_specifiers
-	| type_specifier
+	| type_specifier	{
+			$$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| type_specifier declaration_specifiers
 	| type_qualifier
 	| type_qualifier declaration_specifiers
@@ -204,7 +232,10 @@ type_specifier
 	: VOID
 	| CHAR
 	| SHORT
-	| INT
+	| INT	{
+			$$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| LONG
 	| FLOAT
 	| DOUBLE
@@ -276,7 +307,10 @@ type_qualifier
 
 declarator
 	: pointer direct_declarator
-	| direct_declarator
+	| direct_declarator	{
+			$$ = std::make_shared<ast::Node>("declarator", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	;
 
 direct_declarator
@@ -284,7 +318,11 @@ direct_declarator
 	| '(' declarator ')'
 	| direct_declarator '[' constant_expression ']'
 	| direct_declarator '[' ']'
-	| direct_declarator '(' parameter_type_list ')'
+	| direct_declarator '(' parameter_type_list ')'	{
+			$$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $4->get_right());
+			$$->children.emplace_back($1);
+			$$->children.emplace_back($3);
+		}
 	| direct_declarator '(' identifier_list ')'
 	| direct_declarator '(' ')'
 	;
@@ -303,19 +341,28 @@ type_qualifier_list
 
 
 parameter_type_list
-	: parameter_list
+	: parameter_list	{
+			$$ = std::make_shared<ast::Node>("parameter_type_list", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| parameter_list ',' ELLIPSIS
 	;
 
 parameter_list
-	: parameter_declaration
+	: parameter_declaration	{
+			$$ = std::make_shared<ast::Node>("parameter_list", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| parameter_list ',' parameter_declaration
 	;
 
 parameter_declaration
 	: declaration_specifiers declarator
 	| declaration_specifiers abstract_declarator
-	| declaration_specifiers
+	| declaration_specifiers	{
+			$$ = std::make_shared<ast::Node>("parameter_declaration", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	;
 
 identifier_list
@@ -363,7 +410,10 @@ statement
 	| expression_statement
 	| selection_statement
 	| iteration_statement
-	| jump_statement
+	| jump_statement	{
+			$$ = std::make_shared<ast::Node>("statement", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	;
 
 labeled_statement
@@ -374,7 +424,10 @@ labeled_statement
 
 compound_statement
 	: '{' '}'
-	| '{' statement_list '}'
+	| '{' statement_list '}'	{
+			$$ = std::make_shared<ast::Node>("compound_statement", $1->get_left(), $3->get_right());
+			$$->children.emplace_back($2);
+		}
 	| '{' declaration_list '}'
 	| '{' declaration_list statement_list '}'
 	;
@@ -385,7 +438,10 @@ declaration_list
 	;
 
 statement_list
-	: statement
+	: statement	{
+			$$ = std::make_shared<ast::Node>("statement_list", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| statement_list statement
 	;
 
@@ -412,22 +468,37 @@ jump_statement
 	| CONTINUE ';'
 	| BREAK ';'
 	| RETURN ';'
-	| RETURN expression ';'
+	| RETURN expression ';'	{
+			$$ = std::make_shared<ast::Node>("jump_statement", $1->get_left(), $3->get_right());
+			$$->children.emplace_back($1);
+			$$->children.emplace_back($2);
+		}
 	;
 
 translation_unit
-	: external_declaration
+	: external_declaration	{
+			$$ = std::make_shared<ast::Node>("translation_unit", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| translation_unit external_declaration
 	;
 
 external_declaration
-	: function_definition
+	: function_definition	{
+			$$ = std::make_shared<ast::Node>("external_declaration", $1->get_left(), $1->get_right());
+			$$->children.emplace_back($1);
+		}
 	| declaration
 	;
 
 function_definition
 	: declaration_specifiers declarator declaration_list compound_statement
-	| declaration_specifiers declarator compound_statement
+	| declaration_specifiers declarator compound_statement	{
+			$$ = std::make_shared<ast::Node>("function_definition", $1->get_left(), $3->get_right());
+			$$->children.emplace_back($1);
+			$$->children.emplace_back($2);
+			$$->children.emplace_back($3);
+		}
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
 	;

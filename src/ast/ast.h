@@ -14,9 +14,14 @@ public:
 	Node(const std::string &type) : type(type){};
 	Node(const std::string &type, const std::string &value, int x1, int y1, int x2, int y2)
 		: type(type)
-		//, pos({x1, y1, x2, y2})
 		, value(value)
 	{pos[0] = x1; pos[1] = y1; pos[2] = x2; pos[3] = y2;}
+	Node(const std::string &type, std::pair<int, int> left, std::pair<int, int> right)
+		: type(type)
+	{pos[0] = left.first; pos[1] = left.second; pos[2] = right.first; pos[3] = right.second;}
+
+	std::pair<int, int> get_left()	const	{ return {pos[0], pos[1]}; }
+	std::pair<int, int> get_right()	const	{ return {pos[2], pos[3]}; }
 
 public:
 	std::string type;
