@@ -37,9 +37,6 @@
 # build file
 build
 
-# test fold
-test
-
 # Mac auto generated files
 .DS_Store
 __MACOSX
@@ -53,5 +50,7 @@ _*
 *.dotx
 *.pdf
 
-# test yec file
-lex.yy.c
+# remove auto generated files
+parser.cpp
+parser.hpp
+scanner.cpp
