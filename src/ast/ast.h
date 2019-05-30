@@ -2,7 +2,8 @@
 #include <iostream>
 #include <memory>
 #include <vector>
-#include "include/json/jsoncpp.cc"
+#include "include/json/include/json.h"
+#include <include/json/include/json-forwards.h>
 
 namespace ast
 {
@@ -12,7 +13,7 @@ public:
     std::string type;
     int pos[4] = {0};
     std::vector<std::shared_ptr<Node>> children;
-    std::string value; // only used for a few non-terminals
+    std::string value; // only used for a few non-terminals // <optinal>
     Node() = default;
     Node(const std::string &type) : type(type){};
 };
