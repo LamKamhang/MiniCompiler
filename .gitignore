@@ -36,6 +36,7 @@
 
 # build file
 build
+CMakeFiles
 
 # Mac auto generated files
 .DS_Store

@@ -11,7 +11,7 @@ set(source_files
 	src/parser.cpp
 	src/scanner.cpp
 	src/ast/ast.cc
-	src/ast/include/json/jsoncpp.cc
+	src/lib/json/jsoncpp.cc
 )
 
 # +----------------------------------------------+
