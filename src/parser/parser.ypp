@@ -36,14 +36,26 @@ program
 ;
 
 primary_expression
-: IDENTIFIER
+: IDENTIFIER	{
+  $$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
+ }
 | CONSTANT_INT	{
   $$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $1->get_right());
   $$->children.emplace_back($1);
  }
-| CONSTANT_FLOAT
-| STRING_LITERAL
-| '(' expression ')'
+| CONSTANT_FLOAT	{
+  $$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
+ }
+| STRING_LITERAL	{
+  $$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
+ }
+| '(' expression ')'	{
+  $$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $3->get_right());
+  $$->children.emplace_back($2);
+ }
 ;
 
 postfix_expression
@@ -51,14 +63,47 @@ postfix_expression
   $$ = $1;
  }
 | postfix_expression '[' expression ']'	{
-	  		
-  }
-| postfix_expression '(' ')'
-| postfix_expression '(' argument_expression_list ')'
-| postfix_expression '.' IDENTIFIER
-| postfix_expression PTR_OP IDENTIFIER
-| postfix_expression INC_OP
-| postfix_expression DEC_OP
+	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $4->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+	$$->children.emplace_back($4);
+}
+| postfix_expression '(' ')'	{
+	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+}
+| postfix_expression '(' argument_expression_list ')'	{
+	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $4->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+	$$->children.emplace_back($4);
+}
+| postfix_expression '.' IDENTIFIER	{
+	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+}
+| postfix_expression PTR_OP IDENTIFIER	{
+	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+}
+| postfix_expression INC_OP	{
+	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
+| postfix_expression DEC_OP	{
+	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
 ;
 
 argument_expression_list
@@ -288,10 +333,15 @@ logical_or_expression
 ;
 
 conditional_expression
-: logical_or_expression		{
+: logical_or_expression	{
   $$ = $1;
  }
-| logical_or_expression '?' expression ':' conditional_expression
+| logical_or_expression '?' expression ':' conditional_expression	{
+  $$ = std::make_shared<ast::Node>("conditional_expression", $1->get_left(), $5->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($3);
+  $$->children.emplace_back($5);
+ }
 ;
 
 assignment_expression
@@ -358,46 +408,106 @@ expression
   $$ = std::make_shared<ast::Node>("expression", $1->get_left(), $1->get_right());
   $$->children.emplace_back($1);
  }
-| expression ',' assignment_expression
+| expression ',' assignment_expression	{
+  $$ = $1;
+  $$->type = "comma_expression";
+  $$->children.emplace_back($3);
+ }
 ;
 
 constant_expression
-: conditional_expression
+: conditional_expression	{
+	$$ = std::make_shared<ast::Node>("constant_expression", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
 ;
 
 declaration
-: declaration_specifiers ';'
-| declaration_specifiers init_declarator_list ';'
+: declaration_specifiers ';'	{
+	$$ = std::make_shared<ast::Node>("declaration", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+}
+| declaration_specifiers init_declarator_list ';'	{
+	$$ = std::make_shared<ast::Node>("declaration", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
 ;
 
 declaration_specifiers
-: storage_class_specifier
-| storage_class_specifier declaration_specifiers
+: storage_class_specifier	{
+  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
+ }
+| storage_class_specifier declaration_specifiers	{
+  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $2->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+ }
 | type_specifier	{
   $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $1->get_right());
   $$->children.emplace_back($1);
  }
-| type_specifier declaration_specifiers
-| type_qualifier
-| type_qualifier declaration_specifiers
+| type_specifier declaration_specifiers	{
+  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $2->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+ }
+| type_qualifier	{
+  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
+ }
+| type_qualifier declaration_specifiers	{
+  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $2->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+ }
 ;
 
 init_declarator_list
-: init_declarator
-| init_declarator_list ',' init_declarator
+: init_declarator	{
+	$$ = std::make_shared<ast::Node>("init_declarator_list", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| init_declarator_list ',' init_declarator	{
+	$$ = $1;
+	$$->set_right($3->get_right());
+	$$->children.emplace_back($3);
+}
 ;
 
 init_declarator
-: declarator
-| declarator '=' initializer
+: declarator	{
+	$$ = $1;
+}
+| declarator '=' initializer	{
+	$$ = std::make_shared<ast::Node>("init_declarator", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($3);
+}
 ;
 
 storage_class_specifier
-: TYPEDEF
-| EXTERN
-| STATIC
-| AUTO
-| REGISTER
+: TYPEDEF	{
+	$$ = $1;
+	$$->type = "storage_class_specifier";
+}
+| EXTERN	{
+	$$ = $1;
+	$$->type = "storage_class_specifier";
+}
+| STATIC	{
+	$$ = $1;
+	$$->type = "storage_class_specifier";
+}
+| AUTO	{
+	$$ = $1;
+	$$->type = "storage_class_specifier";
+}
+| REGISTER	{
+	$$ = $1;
+	$$->type = "storage_class_specifier";
+}
 ;
 
 type_specifier
@@ -452,66 +562,158 @@ type_specifier
 ;
 
 struct_or_union_specifier
-: struct_or_union IDENTIFIER '{' struct_declaration_list '}'
-| struct_or_union '{' struct_declaration_list '}'
-| struct_or_union IDENTIFIER
+: struct_or_union IDENTIFIER '{' struct_declaration_list '}'	{
+	$$ = std::make_shared<ast::Node>("struct_or_union_specifier", $1->get_left(), $5->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($4);
+}
+| struct_or_union '{' struct_declaration_list '}'	{
+	$$ = std::make_shared<ast::Node>("struct_or_union_specifier", $1->get_left(), $4->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($3);
+}
+| struct_or_union IDENTIFIER	{
+	$$ = std::make_shared<ast::Node>("struct_or_union_specifier", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
 ;
 
 struct_or_union
-: STRUCT
-| UNION
+: STRUCT	{
+	$$ = $1;
+}
+| UNION	{
+	$$ = $1;
+}
 ;
 
 struct_declaration_list
-: struct_declaration
-| struct_declaration_list struct_declaration
+: struct_declaration	{
+	$$ = std::make_shared<ast::Node>("struct_declaration_list", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| struct_declaration_list struct_declaration	{
+	$$ = $1;
+	$$->set_right($2->get_right());
+	$$->children.emplace_back($2);
+}
 ;
 
 struct_declaration
-: specifier_qualifier_list struct_declarator_list ';'
+: specifier_qualifier_list struct_declarator_list ';'	{
+	$$ = std::make_shared<ast::Node>("struct_declaration", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
 ;
 
 specifier_qualifier_list
-: type_specifier specifier_qualifier_list
-| type_specifier
-| type_qualifier specifier_qualifier_list
-| type_qualifier
+: specifier_qualifier_list type_specifier	{
+	$$ = $1;
+	$$->children.emplace_back($2);
+}
+| type_specifier	{
+	$$ = std::make_shared<ast::Node>("specifier_qualifier_list", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| specifier_qualifier_list type_qualifier	{
+	$$ = $1;
+	$$->children.emplace_back($2);
+}
+| type_qualifier	{
+	$$ = std::make_shared<ast::Node>("specifier_qualifier_list", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
 ;
 
 struct_declarator_list
-: struct_declarator
-| struct_declarator_list ',' struct_declarator
+: struct_declarator	{
+	$$ = std::make_shared<ast::Node>("struct_declarator_list", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| struct_declarator_list ',' struct_declarator	{
+	$$ = $1;
+	$$->children.emplace_back($3);
+}
 ;
 
 struct_declarator
-: declarator
-| ':' constant_expression
-| declarator ':' constant_expression
+: declarator	{
+	$$ = std::make_shared<ast::Node>("struct_declarator", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| ':' constant_expression	{
+	$$ = std::make_shared<ast::Node>("struct_declarator", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
+| declarator ':' constant_expression	{
+	$$ = std::make_shared<ast::Node>("struct_declarator", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+}
 ;
 
 enum_specifier
-: ENUM '{' enumerator_list '}'
-| ENUM IDENTIFIER '{' enumerator_list '}'
-| ENUM IDENTIFIER
+: ENUM '{' enumerator_list '}'	{
+	$$ = std::make_shared<ast::Node>("enum_specifier", $1->get_left(), $4->get_right());
+	$$->children.emplace_back($3);
+}
+| ENUM IDENTIFIER '{' enumerator_list '}'	{
+	$$ = std::make_shared<ast::Node>("enum_specifier", $1->get_left(), $5->get_right());
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($4);
+}
+| ENUM IDENTIFIER	{
+	$$ = std::make_shared<ast::Node>("enum_specifier", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($2);
+}
 ;
 
 enumerator_list
-: enumerator
-| enumerator_list ',' enumerator
+: enumerator	{
+	$$ = std::make_shared<ast::Node>("enumerator_list", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| enumerator_list ',' enumerator	{
+	$$ = $1;
+	$$->set_right($3->get_right());
+	$$->children.emplace_back($3);
+}
 ;
 
 enumerator
-: IDENTIFIER
-| IDENTIFIER '=' constant_expression
+: IDENTIFIER	{
+	$$ = std::make_shared<ast::Node>("enumerator", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| IDENTIFIER '=' constant_expression	{
+	$$ = std::make_shared<ast::Node>("enumerator", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($3);
+}
 ;
 
 type_qualifier
-: CONST
-| VOLATILE
+: CONST	{
+	$$ = $1;
+	$$->type = "type_qualifier";
+}
+| VOLATILE	{
+	$$ = $1;
+	$$->type = "type_qualifier";
+}
 ;
 
 declarator
-: pointer direct_declarator
+: pointer direct_declarator	{
+  $$ = std::make_shared<ast::Node>("declarator", $1->get_left(), $2->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+ }
 | direct_declarator	{
   $$ = std::make_shared<ast::Node>("declarator", $1->get_left(), $1->get_right());
   $$->children.emplace_back($1);
@@ -519,24 +721,72 @@ declarator
 ;
 
 direct_declarator
-: IDENTIFIER
-| '(' declarator ')'
-| direct_declarator '[' constant_expression ']'
-| direct_declarator '[' ']'
+: IDENTIFIER	{
+  $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
+ }
+| '(' declarator ')'	{
+  $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $3->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+  $$->children.emplace_back($3);
+ }
+| direct_declarator '[' constant_expression ']'	{
+  $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $4->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+  $$->children.emplace_back($3);
+  $$->children.emplace_back($4);
+ }
+| direct_declarator '[' ']'	{
+  $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $3->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+  $$->children.emplace_back($3);
+ }
 | direct_declarator '(' parameter_list ')'	{
   $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $4->get_right());
   $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+  $$->children.emplace_back($3);
+  $$->children.emplace_back($4);
+ }
+| direct_declarator '(' identifier_list ')'	{
+  $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $4->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+  $$->children.emplace_back($3);
+  $$->children.emplace_back($4);
+ }
+| direct_declarator '(' ')'	{
+  $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $3->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
   $$->children.emplace_back($3);
  }
-| direct_declarator '(' identifier_list ')'
-| direct_declarator '(' ')'
 ;
 
 pointer
-: '*'
-| '*' type_qualifier_list
-| '*' pointer
-| '*' type_qualifier_list pointer
+: '*'	{
+	$$ = std::make_shared<ast::Node>("pointer", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| '*' type_qualifier_list	{
+	$$ = std::make_shared<ast::Node>("pointer", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
+| '*' pointer	{
+	$$ = std::make_shared<ast::Node>("pointer", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
+| '*' type_qualifier_list pointer	{
+	$$ = std::make_shared<ast::Node>("pointer", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+}
 ;
 
 type_qualifier_list
@@ -562,8 +812,16 @@ parameter_list
 ;
 
 parameter_declaration
-: declaration_specifiers declarator
-| declaration_specifiers abstract_declarator
+: declaration_specifiers declarator	{
+  $$ = std::make_shared<ast::Node>("parameter_declaration", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+ }
+| declaration_specifiers abstract_declarator	{
+  $$ = std::make_shared<ast::Node>("parameter_declaration", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+ }
 | declaration_specifiers	{
   $$ = std::make_shared<ast::Node>("parameter_declaration", $1->get_left(), $1->get_right());
   $$->children.emplace_back($1);
@@ -582,26 +840,88 @@ identifier_list
 ;
 
 type_name
-: specifier_qualifier_list
-| specifier_qualifier_list abstract_declarator
+: specifier_qualifier_list	{
+	$$ = std::make_shared<ast::Node>("type_name", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| specifier_qualifier_list abstract_declarator	{
+	$$ = std::make_shared<ast::Node>("type_name", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
 ;
 
 abstract_declarator
-: pointer
-| direct_abstract_declarator
-| pointer direct_abstract_declarator
+: pointer	{
+	$$ = std::make_shared<ast::Node>("abstract_declarator", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| direct_abstract_declarator	{
+	$$ = std::make_shared<ast::Node>("abstract_declarator", $1->get_left(), $1->get_right());
+	$$->children.emplace_back($1);
+}
+| pointer direct_abstract_declarator	{
+	$$ = std::make_shared<ast::Node>("abstract_declarator", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
 ;
 
 direct_abstract_declarator
-: '(' abstract_declarator ')'
-| '[' ']'
-| '[' constant_expression ']'
-| direct_abstract_declarator '[' ']'
-| direct_abstract_declarator '[' constant_expression ']'
-| '(' ')'
-| '(' parameter_list ')'
-| direct_abstract_declarator '(' ')'
-| direct_abstract_declarator '(' parameter_list ')'
+: '(' abstract_declarator ')'	{
+	$$ = std::make_shared<ast::Node>("direct_abstract_declarator", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+}
+| '[' ']'	{
+	$$ = std::make_shared<ast::Node>("direct_abstract_declarator", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
+| '[' constant_expression ']'	{
+	$$ = std::make_shared<ast::Node>("direct_abstract_declarator", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+}
+| direct_abstract_declarator '[' ']'	{
+	$$ = std::make_shared<ast::Node>("direct_abstract_declarator", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+}
+| direct_abstract_declarator '[' constant_expression ']'	{
+	$$ = std::make_shared<ast::Node>("direct_abstract_declarator", $1->get_left(), $4->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+	$$->children.emplace_back($4);
+}
+| '(' ')'	{
+	$$ = std::make_shared<ast::Node>("direct_abstract_declarator", $1->get_left(), $2->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+}
+| '(' parameter_list ')'	{
+	$$ = std::make_shared<ast::Node>("direct_abstract_declarator", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+}
+| direct_abstract_declarator '(' ')'	{
+	$$ = std::make_shared<ast::Node>("direct_abstract_declarator", $1->get_left(), $3->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+}
+| direct_abstract_declarator '(' parameter_list ')'	{
+	$$ = std::make_shared<ast::Node>("direct_abstract_declarator", $1->get_left(), $4->get_right());
+	$$->children.emplace_back($1);
+	$$->children.emplace_back($2);
+	$$->children.emplace_back($3);
+	$$->children.emplace_back($4);
+}
 ;
 
 initializer
