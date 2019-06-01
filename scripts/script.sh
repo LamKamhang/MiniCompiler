@@ -19,7 +19,7 @@ function test(){
 			extension=${dir_or_file##*.}
 			if [[ $extension == "c" ]]; then
 				./build/release/ncc $dir_or_file > _res
-				if [[ `diff _res $filename.res` != "" ]]; then
+				if [[ `diff _res $filename.json` != "" ]]; then
 					echo "$filename failed."
 					exit_code=2
 				fi
