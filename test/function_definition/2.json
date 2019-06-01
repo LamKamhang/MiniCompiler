@@ -56,36 +56,42 @@
              [
               
               {
-               "children" : 
-               [
-                
-                {
-                 "pos" : [ 1, 9, 1, 13 ],
-                 "type" : "void",
-                 "value" : "void"
-                }
-               ],
-               "pos" : [ 1, 9, 1, 13 ],
-               "type" : "type_specifier"
+               "pos" : [ 1, 9, 1, 12 ],
+               "type" : "int",
+               "value" : "int"
               }
              ],
-             "pos" : [ 1, 9, 1, 13 ],
-             "type" : "declaration_specifiers"
+             "pos" : [ 1, 9, 1, 12 ],
+             "type" : "type_specifier"
             }
            ],
-           "pos" : [ 1, 9, 1, 13 ],
-           "type" : "parameter_declaration"
+           "pos" : [ 1, 9, 1, 12 ],
+           "type" : "declaration_specifiers"
+          },
+          
+          {
+           "children" : 
+           [
+            
+            {
+             "pos" : [ 1, 19, 1, 23 ],
+             "type" : "char",
+             "value" : "char"
+            }
+           ],
+           "pos" : [ 1, 19, 1, 23 ],
+           "type" : "type_specifier"
           }
          ],
-         "pos" : [ 1, 9, 1, 13 ],
+         "pos" : [ 1, 9, 1, 12 ],
          "type" : "parameter_list"
         }
        ],
-       "pos" : [ 1, 4, 1, 14 ],
+       "pos" : [ 1, 4, 1, 38 ],
        "type" : "direct_declarator"
       }
      ],
-     "pos" : [ 1, 4, 1, 14 ],
+     "pos" : [ 1, 4, 1, 38 ],
      "type" : "declarator"
     },
     
@@ -112,7 +118,7 @@
               {
                "pos" : [ 3, 8, 3, 9 ],
                "type" : "int",
-               "value" : "1"
+               "value" : "0"
               }
              ],
              "pos" : [ 3, 8, 3, 9 ],
