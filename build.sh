@@ -1,5 +1,7 @@
 #!/bin/bash
 
+parser_path="src/parser"
+
 if [ $# -eq 0 ]; then
 	folder="build/debug"
 	flag="-DCMAKE_BUILD_TYPE=Debug"
@@ -19,7 +21,7 @@ fi
 
 pre_build(){
 	echo "ready to build yacc and lex file"
-	cd src
+	cd $parser_path
 	bison -d parser.ypp -o parser.cpp
 	if [ $? -ne 0 ]; then
 		echo "yacc generate failed."
@@ -32,7 +34,7 @@ pre_build(){
 		fi
 	fi
 	echo "pre build finished."
-	cd ..
+	cd ../../
 }
 
 pre_build
