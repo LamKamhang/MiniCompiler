@@ -10,4 +10,5 @@ public:
     void init();
     llvm::Value *generate(std::vector<std::shared_ptr<ast::Node>> &root);
 };
+llvm::Value *LogError(const char *str);
 } // namespace ir

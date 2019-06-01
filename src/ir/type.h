@@ -2,20 +2,16 @@
 #include <llvm/IR/Type.h>
 #include <stack>
 #include <string>
+#include <map>
 namespace ir
 {
-template <typename type, typename... T>
 class Type : public llvm::Type
 {
 public:
     std::stack<llvm::Type> typeStack;
-    Type(type, T... args);
+    Type() = default;
 };
 
-class TypeManager
-{
-public:
-    TypeManager();
-    Type produce(std::string types[]);
-};
+template <typename... T>
+std::shared_ptr<ir::Type> getType(T... args);
 } // namespace ir

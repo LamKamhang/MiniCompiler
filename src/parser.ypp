@@ -2,8 +2,7 @@
 #include <stdio.h>
 #include <memory>
 #include "ast/ast.h"
-#include "ast/include/json/include/json-forwards.h"
-#include "ast/include/json/include/json.h"
+#include "lib/json/json.h"
 
 #define YYSTYPE std::shared_ptr<ast::Node>
 extern int yylex(void);
