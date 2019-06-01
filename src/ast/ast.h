@@ -31,6 +31,8 @@ public:
     std::pair<int, int> get_left() const { return {pos[0], pos[1]}; }
     std::pair<int, int> get_right() const { return {pos[2], pos[3]}; }
 
+    void set_left(const std::pair<int, int> &xy)     {pos[0] = xy.first; pos[1] = xy.second;}
+    void set_right(const std::pair<int, int> &xy)    {pos[2] = xy.first; pos[3] = xy.second;}
 public:
     std::string type;
     int pos[4] = {0};
