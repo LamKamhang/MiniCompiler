@@ -1,333 +1,80 @@
 [
     {
         "type": "function_definition",
-        "pos": [
-            7,
-            0,
-            10,
-            1
-        ],
         "children": [
             {
                 "type": "declaration_specifiers_i",
-                "pos": [
-                    7,
-                    0,
-                    7,
-                    3
-                ],
-                "value": "\"int\""
+                "value": "int"
             },
             {
                 "type": "direct_declarator",
-                "pos": [
-                    7,
-                    4,
-                    7,
-                    34
-                ],
+                "value": "main"
+            },
+            {
+                "type": "parameter_declaration",
                 "children": [
                     {
-                        "type": "direct_declarator",
-                        "pos": [
-                            7,
-                            4,
-                            7,
-                            8
-                        ],
-                        "children": [
-                            [
-                                "IDENTIFIER",
-                                "main",
-                                [
-                                    7,
-                                    4,
-                                    7,
-                                    8
-                                ]
-                            ]
-                        ]
+                        "type": "declaration_specifiers_p",
+                        "value": "int"
                     },
-                    [
-                        "\"(\"",
-                        "(",
-                        [
-                            7,
-                            8,
-                            7,
-                            9
-                        ]
-                    ],
                     {
-                        "type": "parameter_declaration",
-                        "pos": [
-                            7,
-                            10,
-                            7,
-                            18
-                        ],
+                        "type": "direct_declarator",
+                        "value": "argc"
+                    }
+                ]
+            },
+            {
+                "type": "parameter_declaration",
+                "children": [
+                    {
+                        "type": "declaration_specifiers_p",
+                        "value": "char"
+                    },
+                    {
+                        "type": "declarator",
                         "children": [
                             {
-                                "type": "declaration_specifiers_p",
-                                "pos": [
-                                    7,
-                                    10,
-                                    7,
-                                    13
-                                ],
-                                "children": [
-                                    [
-                                        "\"int\"",
-                                        "int",
-                                        [
-                                            7,
-                                            10,
-                                            7,
-                                            13
-                                        ]
-                                    ]
-                                ]
+                                "type": "pointer"
                             },
                             {
                                 "type": "direct_declarator",
-                                "pos": [
-                                    7,
-                                    14,
-                                    7,
-                                    18
-                                ],
                                 "children": [
-                                    [
-                                        "IDENTIFIER",
-                                        "argc",
-                                        [
-                                            7,
-                                            14,
-                                            7,
-                                            18
-                                        ]
-                                    ]
-                                ]
-                            }
-                        ]
-                    },
-                    [
-                        "\",\"",
-                        ",",
-                        [
-                            7,
-                            18,
-                            7,
-                            19
-                        ]
-                    ],
-                    {
-                        "type": "parameter_declaration",
-                        "pos": [
-                            7,
-                            20,
-                            7,
-                            32
-                        ],
-                        "children": [
-                            {
-                                "type": "declaration_specifiers_p",
-                                "pos": [
-                                    7,
-                                    20,
-                                    7,
-                                    24
-                                ],
-                                "children": [
-                                    [
-                                        "\"char\"",
-                                        "char",
-                                        [
-                                            7,
-                                            20,
-                                            7,
-                                            24
-                                        ]
-                                    ]
-                                ]
-                            },
-                            {
-                                "type": "declarator",
-                                "pos": [
-                                    7,
-                                    25,
-                                    7,
-                                    32
-                                ],
-                                "children": [
-                                    {
-                                        "type": "pointer",
-                                        "pos": [
-                                            7,
-                                            25,
-                                            7,
-                                            26
-                                        ],
-                                        "children": [
-                                            [
-                                                "\"*\"",
-                                                "*",
-                                                [
-                                                    7,
-                                                    25,
-                                                    7,
-                                                    26
-                                                ]
-                                            ]
-                                        ]
-                                    },
                                     {
                                         "type": "direct_declarator",
-                                        "pos": [
-                                            7,
-                                            26,
-                                            7,
-                                            32
-                                        ],
-                                        "children": [
-                                            {
-                                                "type": "direct_declarator",
-                                                "pos": [
-                                                    7,
-                                                    26,
-                                                    7,
-                                                    30
-                                                ],
-                                                "children": [
-                                                    [
-                                                        "IDENTIFIER",
-                                                        "argv",
-                                                        [
-                                                            7,
-                                                            26,
-                                                            7,
-                                                            30
-                                                        ]
-                                                    ]
-                                                ]
-                                            },
-                                            [
-                                                "\"[\"",
-                                                "[",
-                                                [
-                                                    7,
-                                                    30,
-                                                    7,
-                                                    31
-                                                ]
-                                            ],
-                                            [
-                                                "\"]\"",
-                                                "]",
-                                                [
-                                                    7,
-                                                    31,
-                                                    7,
-                                                    32
-                                                ]
-                                            ]
-                                        ]
+                                        "value": "argv"
                                     }
                                 ]
                             }
                         ]
-                    },
-                    [
-                        "\")\"",
-                        ")",
-                        [
-                            7,
-                            33,
-                            7,
-                            34
-                        ]
-                    ]
+                    }
                 ]
+            }
+        ]
+    },
+    {
+        "type": "compound_statement",
+        "children": [
+            {
+                "type": "jump_statement",
+                "value": "return"
             },
             {
-                "type": "compound_statement",
+                "type": "primary_expression",
                 "pos": [
+                    9,
                     8,
-                    0,
-                    10,
-                    1
+                    9,
+                    9
                 ],
                 "children": [
                     [
-                        "\"{\"",
-                        "{",
+                        "INTEGER",
+                        "0",
                         [
-                            8,
-                            0,
-                            8,
-                            1
-                        ]
-                    ],
-                    {
-                        "type": "jump_statement",
-                        "pos": [
                             9,
-                            1,
+                            8,
                             9,
-                            10
-                        ],
-                        "children": [
-                            [
-                                "\"return\"",
-                                "return",
-                                [
-                                    9,
-                                    1,
-                                    9,
-                                    7
-                                ]
-                            ],
-                            {
-                                "type": "primary_expression",
-                                "pos": [
-                                    9,
-                                    8,
-                                    9,
-                                    9
-                                ],
-                                "children": [
-                                    [
-                                        "INTEGER",
-                                        "0",
-                                        [
-                                            9,
-                                            8,
-                                            9,
-                                            9
-                                        ]
-                                    ]
-                                ]
-                            },
-                            [
-                                "\";\"",
-                                ";",
-                                [
-                                    9,
-                                    9,
-                                    9,
-                                    10
-                                ]
-                            ]
-                        ]
-                    },
-                    [
-                        "\"}\"",
-                        "}",
-                        [
-                            10,
-                            0,
-                            10,
-                            1
+                            9
                         ]
                     ]
                 ]

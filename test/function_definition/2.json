@@ -38,14 +38,14 @@
                                                     "type": "parameter_list",
                                                     "children": [
                                                         {
-                                                            "type": "parameter_declaration",
+                                                            "type": "declaration_specifiers",
                                                             "children": [
                                                                 {
-                                                                    "type": "declaration_specifiers",
+                                                                    "type": "type_specifier",
                                                                     "children": [
                                                                         {
-                                                                            "type": "void",
-                                                                            "value": "void"
+                                                                            "type": "int",
+                                                                            "value": "int"
                                                                         }
                                                                     ]
                                                                 }
@@ -89,7 +89,7 @@
                                                                                     "children": [
                                                                                         {
                                                                                             "type": "int",
-                                                                                            "value": "1"
+                                                                                            "value": "0"
                                                                                         }
                                                                                     ]
                                                                                 }
