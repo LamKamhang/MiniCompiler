@@ -1,6 +1,4 @@
-#include <map>
-#include <string>
-#include <functional>
+#pragma once
 #include <memory>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Module.h>
@@ -14,6 +12,5 @@ namespace ir
 static std::unique_ptr<llvm::LLVMContext> Context;
 static std::unique_ptr<llvm::IRBuilder<>> Builder;
 static std::unique_ptr<llvm::Module> Module;
-static std::unique_ptr<std::map<std::string, ir::Type>> TypeMap;
-void createModule();
+void createIrUnit();
 } // namespace ir

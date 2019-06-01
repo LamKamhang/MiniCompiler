@@ -1,82 +1,82 @@
-#include <generator.h>
-#include <ir.h>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
+#include <block.h>
+#include <generator.h>
+#include <ir.h>
 #include <type.h>
+#include <value.h>
 #include <memory>
+#include <exception>
 
-template <typename... T>
-std::shared_ptr<ir::Type> getType(T... args)
+llvm::Value *ir::Generator::LogError(const char *str)
 {
-	auto &context = ir::Context;
-	auto &typeMap = ir::TypeMap;
-	return llvm::Type::getInt32Ty(context);
-}
-
-llvm::Value *ir::LogError(const char *str)
-{
-	std::cout << str << std::endl;
-	return nullptr;
+    std::cout << str << std::endl;
+    return nullptr;
 }
 
 void ir::Generator::init()
 {
-	static auto &table = ir::Generator::table;
-	table.insert({"function_definition",
-				  [&](std::shared_ptr<ast::Node> node) -> llvm::Value * {
-					  const auto &children = node->children;
-					  const auto type_spec = children[0]->children[0];
-					  const auto ret_type = ir::getType(type_spec->children[0]->value);
-					  if (!ret_type)
-					  {
-						  return ir::LogError("error at function return type");
-					  }
+    static auto &table = ir::Generator::table;
+    table.insert({"function_definition",
+                  [&](std::shared_ptr<ast::Node> node, const ir::Block &block) -> llvm::Value * {
+                      const auto &children = node->children;
+                      const auto type_spec = children[0]->children[0];
+                      auto ret_type = ir::Type::getInt32Ty(*ir::Context);
+                      if (!ret_type)
+                      {
+                          return ir::Generator::LogError("error at function return type");
+                      }
 
-					  const std::string &id = children[1]->children[0]->children[0]->value;
-					  auto para_type = children[1]->children[0]->children[1]->children[0]->children[0]->children[0]->if (!direct_decl);
-					  {
-						  return ir::LogError("error at function id");
-					  }
-					  auto comp_stat = table["compound_statement"](children[2]);
-					  if (!comp_stat)
-					  {
-						  return ir::LogError("error at function statement");
-					  }
-				  }});
-	table.insert({"parameter_declaration",
-				  [&](std::shared_ptr<ast::Node> node) -> llvm::Value * {}});
-	table.insert({"declaration_specifiers_p",
-				  [&](std::shared_ptr<ast::Node> node) -> llvm::Value * {}});
-	table.insert({"compound_statement",
-				  [&](std::shared_ptr<ast::Node> node) -> llvm::Value * {}});
-	table.insert({"jump_statement",
-				  [&](std::shared_ptr<ast::Node> node) -> llvm::Value * {}});
-	table.insert({"primary_expression",
-				  [&](std::shared_ptr<ast::Node> node) -> llvm::Value * {}});
+                      const std::string &id = children[1]->children[0]->children[0]->value;
+                  }});
 }
 
 llvm::Value *ir::Generator::generate(
-	std::vector<std::shared_ptr<ast::Node>> &objects)
+    std::vector<std::shared_ptr<ast::Node>> &objects)
 {
-	auto &table = ir::Generator::table;
-	for (auto i = objects.begin(); i != objects.end(); ++i)
-	{
-		auto &node = (*i);
-		auto &type = node->type;
-		auto res = table.at(type)(node);
-		// if an ast errors when generating IR
-		if (!res)
-		{
-			res->print(llvm::errs()); // print error msg if has
-			break;
-		}
-	}
-	ir::Module->print(llvm::errs(), nullptr); // print error msg
+    auto &table = ir::Generator::table;
+    try
+    {
+        // Main loop
+        for (auto i = objects.begin(); i != objects.end(); ++i)
+        {
+            // Create infrastructure
+            ir::createIrUnit();
+            ir::Block global;
+            auto &root = (*i);
+            auto &type = root->type;
+            if (type != "translation_unit")
+            {
+                throw "error, type is not translation_unit";
+            }
+
+            for (auto node : root->children)
+            {
+                auto res = table.at(type)(node, global);
+                if (!res)
+                {
+                    res->print(llvm::errs()); // print error msg if has
+                    throw "error at parsing one node";
+                }
+            }
+        }
+    }
+    catch (const std::string &error)
+    {
+        std::cout << error << std::endl;
+    }
+
+    // if an ast errors when generating IR
+    ir::Module->print(llvm::errs(), nullptr); // print error msg
 }
-void ir::createModule()
+void ir::createIrUnit()
 {
-	ir::Context = std::make_unique<llvm::LLVMContext>();
-	ir::Builder = std::make_unique<llvm::IRBuilder<>>("my JIT", *ir::Context);
-	ir::Module = std::make_unique<llvm::Module>();
-	ir::TypeMap = std::make_unique<std::map<std::string, ir::Type>>();
+    ir::Context = std::make_unique<llvm::LLVMContext>();
+    ir::Builder = std::make_unique<llvm::IRBuilder<>>("my JIT", *ir::Context);
+    ir::Module = std::make_unique<llvm::Module>();
+}
+void ir::CustomValue::setType(ir::Type *type)
+{
+    this->type = type;
+    this->pos = this->type->typeStack.size();
 }

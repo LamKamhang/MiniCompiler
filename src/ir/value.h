@@ -1,11 +1,18 @@
+#pragma once
 #include <ir.h>
+#include <type.h>
 #include <llvm/IR/Value.h>
+#include <llvm/IR/Type.h>
 
 namespace ir
 {
-class Value : public llvm::Value
+class CustomValue : public llvm::Value
 {
-
-    llvm::Value deRef();
+public:
+    ir::Type *type;
+    int pos;
+    CustomValue() = default;
+    void setType(ir::Type *type);
+    llvm::CustomValue deRef();
 };
 } // namespace ir

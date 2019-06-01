@@ -2,27 +2,27 @@
     "type": "translation_unit",
     "children": [
         {
-            "type": "external_declaration",
+            "type": "function_definition",
             "children": [
                 {
-                    "type": "function_definition",
+                    "type": "declaration_specifiers",
                     "children": [
                         {
-                            "type": "declaration_specifiers",
+                            "type": "type_specifier",
                             "children": [
                                 {
-                                    "type": "type_specifier",
-                                    "children": [
-                                        {
-                                            "type": "int",
-                                            "value": "int"
-                                        }
-                                    ]
+                                    "type": "int",
+                                    "value": "int"
                                 }
                             ]
-                        },
+                        }
+                    ]
+                },
+                {
+                    "type": "declarator",
+                    "children": [
                         {
-                            "type": "declarator",
+                            "type": "direct_declarator",
                             "children": [
                                 {
                                     "type": "direct_declarator",
@@ -30,24 +30,106 @@
                                         {
                                             "type": "identifier",
                                             "value": "main"
-                                        },
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "(",
+                                    "value": "("
+                                },
+                                {
+                                    "type": "parameter_list",
+                                    "children": [
                                         {
-                                            "type": "parameter_type_list",
+                                            "type": "parameter_declaration",
                                             "children": [
                                                 {
-                                                    "type": "parameter_list",
+                                                    "type": "declaration_specifiers",
                                                     "children": [
+                                                        {
+                                                            "type": "type_specifier",
+                                                            "children": [
+                                                                {
+                                                                    "type": "int",
+                                                                    "value": "int"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "declarator",
+                                                    "children": [
+                                                        {
+                                                            "type": "direct_declarator",
+                                                            "children": [
+                                                                {
+                                                                    "type": "identifier",
+                                                                    "value": "argc"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "parameter_declaration",
+                                            "children": [
+                                                {
+                                                    "type": "declaration_specifiers",
+                                                    "children": [
+                                                        {
+                                                            "type": "type_specifier",
+                                                            "children": [
+                                                                {
+                                                                    "type": "char",
+                                                                    "value": "char"
+                                                                }
+                                                            ]
+                                                        },
                                                         {
                                                             "type": "declaration_specifiers",
                                                             "children": [
                                                                 {
-                                                                    "type": "type_specifier",
+                                                                    "type": "type_qualifier",
+                                                                    "value": "const"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "declarator",
+                                                    "children": [
+                                                        {
+                                                            "type": "pointer",
+                                                            "children": [
+                                                                {
+                                                                    "type": "*",
+                                                                    "value": "*"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "direct_declarator",
+                                                            "children": [
+                                                                {
+                                                                    "type": "direct_declarator",
                                                                     "children": [
                                                                         {
-                                                                            "type": "int",
-                                                                            "value": "int"
+                                                                            "type": "identifier",
+                                                                            "value": "argv"
                                                                         }
                                                                     ]
+                                                                },
+                                                                {
+                                                                    "type": "[",
+                                                                    "value": "["
+                                                                },
+                                                                {
+                                                                    "type": "]",
+                                                                    "value": "]"
                                                                 }
                                                             ]
                                                         }
@@ -56,48 +138,33 @@
                                             ]
                                         }
                                     ]
+                                },
+                                {
+                                    "type": ")",
+                                    "value": ")"
                                 }
                             ]
-                        },
+                        }
+                    ]
+                },
+                {
+                    "type": "compound_statement",
+                    "children": [
                         {
-                            "type": "compound_statement",
+                            "type": "statement_list",
                             "children": [
                                 {
-                                    "type": "statement_list",
+                                    "type": "return_expr",
                                     "children": [
                                         {
-                                            "type": "statement",
+                                            "type": "expression",
                                             "children": [
                                                 {
-                                                    "type": "jump_statement",
+                                                    "type": "primary_expression",
                                                     "children": [
                                                         {
-                                                            "type": "return",
-                                                            "value": "return"
-                                                        },
-                                                        {
-                                                            "type": "expression",
-                                                            "children": [
-                                                                {
-                                                                    "type": "unary_expression",
-                                                                    "children": [
-                                                                        {
-                                                                            "type": "postfix_expression",
-                                                                            "children": [
-                                                                                {
-                                                                                    "type": "primary_expression",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "type": "int",
-                                                                                            "value": "0"
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            ]
+                                                            "type": "int",
+                                                            "value": "0"
                                                         }
                                                     ]
                                                 }

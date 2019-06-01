@@ -4,7 +4,7 @@
 #include <string>
 #include <cmath>
 #include <memory>
-#include "ast/ast.h"
+#include "../ast/ast.h"
 
 #define YYSTYPE std::shared_ptr<ast::Node>
 #include "parser.hpp"

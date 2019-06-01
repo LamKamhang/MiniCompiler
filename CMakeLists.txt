@@ -8,12 +8,13 @@ set(target_name ncc)
 
 set(source_files
 	src/main.cxx
-	src/parser.cpp
-	src/scanner.cpp
+	src/parser/scanner.cpp
+	src/parser/parser.cpp
 	src/ast/ast.cc
 	src/lib/json/jsoncpp.cc
 )
 
+include_directories(${PROJECT_SOURCE_DIR}/src)
 # +----------------------------------------------+
 # | Complilation flags                           |
 # +--------------------------------------------- +
@@ -37,8 +38,7 @@ endif (PROFILE_FLAG)
 # +----------------------------------------------+
 # | Third Party Libray                           |
 # +--------------------------------------------- +
-include_directories(${PROJECT_SOURCE_DIR}/src)
-message("${PROJECT_SOURCE_DIR}")
+
 # +----------------------------------------------+
 # | Build executable                             |
 # +--------------------------------------------- +
