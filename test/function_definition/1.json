@@ -38,9 +38,23 @@
        [
         
         {
+         "children" : 
+         [
+          
+          {
+           "pos" : [ 1, 4, 1, 8 ],
+           "type" : "identifier",
+           "value" : "main"
+          }
+         ],
          "pos" : [ 1, 4, 1, 8 ],
-         "type" : "identifier",
-         "value" : "main"
+         "type" : "direct_declarator"
+        },
+        
+        {
+         "pos" : [ 1, 8, 1, 9 ],
+         "type" : "(",
+         "value" : "("
         },
         
         {
@@ -79,6 +93,12 @@
          ],
          "pos" : [ 1, 9, 1, 13 ],
          "type" : "parameter_list"
+        },
+        
+        {
+         "pos" : [ 1, 13, 1, 14 ],
+         "type" : ")",
+         "value" : ")"
         }
        ],
        "pos" : [ 1, 4, 1, 14 ],

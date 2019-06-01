@@ -38,9 +38,23 @@
        [
         
         {
+         "children" : 
+         [
+          
+          {
+           "pos" : [ 1, 4, 1, 8 ],
+           "type" : "identifier",
+           "value" : "main"
+          }
+         ],
          "pos" : [ 1, 4, 1, 8 ],
-         "type" : "identifier",
-         "value" : "main"
+         "type" : "direct_declarator"
+        },
+        
+        {
+         "pos" : [ 1, 8, 1, 9 ],
+         "type" : "(",
+         "value" : "("
         },
         
         {
@@ -56,17 +70,47 @@
              [
               
               {
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 1, 9, 1, 12 ],
+                 "type" : "int",
+                 "value" : "int"
+                }
+               ],
                "pos" : [ 1, 9, 1, 12 ],
-               "type" : "int",
-               "value" : "int"
+               "type" : "type_specifier"
               }
              ],
              "pos" : [ 1, 9, 1, 12 ],
-             "type" : "type_specifier"
+             "type" : "declaration_specifiers"
+            },
+            
+            {
+             "children" : 
+             [
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 1, 13, 1, 17 ],
+                 "type" : "identifier",
+                 "value" : "argc"
+                }
+               ],
+               "pos" : [ 1, 13, 1, 17 ],
+               "type" : "direct_declarator"
+              }
+             ],
+             "pos" : [ 1, 13, 1, 17 ],
+             "type" : "declarator"
             }
            ],
            "pos" : [ 1, 9, 1, 12 ],
-           "type" : "declaration_specifiers"
+           "type" : "parameter_declaration"
           },
           
           {
@@ -74,17 +118,109 @@
            [
             
             {
-             "pos" : [ 1, 19, 1, 23 ],
-             "type" : "char",
-             "value" : "char"
+             "children" : 
+             [
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 1, 19, 1, 23 ],
+                 "type" : "char",
+                 "value" : "char"
+                }
+               ],
+               "pos" : [ 1, 19, 1, 23 ],
+               "type" : "type_specifier"
+              },
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 1, 24, 1, 29 ],
+                 "type" : "type_qualifier",
+                 "value" : "const"
+                }
+               ],
+               "pos" : [ 1, 24, 1, 29 ],
+               "type" : "declaration_specifiers"
+              }
+             ],
+             "pos" : [ 1, 19, 1, 29 ],
+             "type" : "declaration_specifiers"
+            },
+            
+            {
+             "children" : 
+             [
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 1, 30, 1, 31 ],
+                 "type" : "*",
+                 "value" : "*"
+                }
+               ],
+               "pos" : [ 1, 30, 1, 31 ],
+               "type" : "pointer"
+              },
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "children" : 
+                 [
+                  
+                  {
+                   "pos" : [ 1, 31, 1, 35 ],
+                   "type" : "identifier",
+                   "value" : "argv"
+                  }
+                 ],
+                 "pos" : [ 1, 31, 1, 35 ],
+                 "type" : "direct_declarator"
+                },
+                
+                {
+                 "pos" : [ 1, 35, 1, 36 ],
+                 "type" : "[",
+                 "value" : "["
+                },
+                
+                {
+                 "pos" : [ 1, 36, 1, 37 ],
+                 "type" : "]",
+                 "value" : "]"
+                }
+               ],
+               "pos" : [ 1, 31, 1, 37 ],
+               "type" : "direct_declarator"
+              }
+             ],
+             "pos" : [ 1, 30, 1, 37 ],
+             "type" : "declarator"
             }
            ],
-           "pos" : [ 1, 19, 1, 23 ],
-           "type" : "type_specifier"
+           "pos" : [ 1, 19, 1, 29 ],
+           "type" : "parameter_declaration"
           }
          ],
          "pos" : [ 1, 9, 1, 12 ],
          "type" : "parameter_list"
+        },
+        
+        {
+         "pos" : [ 1, 37, 1, 38 ],
+         "type" : ")",
+         "value" : ")"
         }
        ],
        "pos" : [ 1, 4, 1, 38 ],
