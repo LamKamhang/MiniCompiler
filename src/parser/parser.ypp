@@ -747,9 +747,7 @@ direct_declarator
 | direct_declarator '(' parameter_list ')'	{
   $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $4->get_right());
   $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
   $$->children.emplace_back($3);
-  $$->children.emplace_back($4);
  }
 | direct_declarator '(' identifier_list ')'	{
   $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $4->get_right());
@@ -774,18 +772,30 @@ pointer
 | '*' type_qualifier_list	{
 	$$ = std::make_shared<ast::Node>("pointer", $1->get_left(), $2->get_right());
 	$$->children.emplace_back($1);
-	$$->children.emplace_back($2);
+  for (auto &child : $2->children)
+  {
+    $$->children.emplace_back(child);
+  }
 }
 | '*' pointer	{
 	$$ = std::make_shared<ast::Node>("pointer", $1->get_left(), $2->get_right());
 	$$->children.emplace_back($1);
-	$$->children.emplace_back($2);
+	for (auto &child : $2->children)
+  {
+    $$->children.emplace_back(child);
+  }
 }
 | '*' type_qualifier_list pointer	{
 	$$ = std::make_shared<ast::Node>("pointer", $1->get_left(), $3->get_right());
 	$$->children.emplace_back($1);
-	$$->children.emplace_back($2);
-	$$->children.emplace_back($3);
+  for (auto &child : $2->children)
+  {
+    $$->children.emplace_back(child);
+  }
+  for (auto &child : $3->children)
+  {
+    $$->children.emplace_back(child);
+  }
 }
 ;
 
