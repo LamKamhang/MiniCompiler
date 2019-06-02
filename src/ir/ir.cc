@@ -19,15 +19,21 @@ void ir::Generator::init()
     static auto &table = ir::Generator::table;
     table.insert({"function_definition",
                   [&](std::shared_ptr<ast::Node> node, const ir::Block &block) -> llvm::Value * {
-                      const auto &children = node->children;
-                      const auto type_spec = children[0]->children[0];
+                      auto type_spec = node->getNameChild("type_specifier");
                       auto ret_type = ir::Type::getInt32Ty(*ir::Context);
                       if (!ret_type)
                       {
                           return ir::Generator::LogError("error at function return type");
                       }
+                      auto dire_decl = node->getNameChild("direct_declarator");
+                      const std::string &id = dire_decl->children[0]->getNameChild("identifier")->value;
+                      auto para_list = dire_decl->getNameChild("parameter_list");
+                      for (auto para : para_list->children)
+                      {
+                          const std::string &para_id = para->getNameChild("identifier")->value;
+                          auto decl_spec = para->getNameChild("declaration_specifiers");
 
-                      const std::string &id = children[1]->children[0]->children[0]->value;
+                      }
                   }});
 }
 

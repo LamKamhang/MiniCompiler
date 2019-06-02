@@ -13,6 +13,6 @@ public:
     int pos;
     CustomValue() = default;
     void setType(ir::Type *type);
-    llvm::CustomValue deRef();
+    llvm::Value deRef();
 };
 } // namespace ir
