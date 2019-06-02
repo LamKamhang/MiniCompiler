@@ -1,121 +1,5 @@
 
 {
-<<<<<<< HEAD
-    "type": "translation_unit",
-    "children": [
-        {
-            "type": "external_declaration",
-            "children": [
-                {
-                    "type": "function_definition",
-                    "children": [
-                        {
-                            "type": "declaration_specifiers",
-                            "children": [
-                                {
-                                    "type": "type_specifier",
-                                    "children": [
-                                        {
-                                            "type": "int",
-                                            "value": "int"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "type": "declarator",
-                            "children": [
-                                {
-                                    "type": "direct_declarator",
-                                    "children": [
-                                        {
-                                            "type": "identifier",
-                                            "value": "main"
-                                        },
-                                        {
-                                            "type": "parameter_type_list",
-                                            "children": [
-                                                {
-                                                    "type": "parameter_list",
-                                                    "children": [
-                                                        {
-                                                            "type": "parameter_declaration",
-                                                            "children": [
-                                                                {
-                                                                    "type": "declaration_specifiers",
-                                                                    "children": [
-                                                                        {
-                                                                            "type": "void",
-                                                                            "value": "void"
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "type": "compound_statement",
-                            "children": [
-                                {
-                                    "type": "statement_list",
-                                    "children": [
-                                        {
-                                            "type": "statement",
-                                            "children": [
-                                                {
-                                                    "type": "jump_statement",
-                                                    "children": [
-                                                        {
-                                                            "type": "return",
-                                                            "value": "return"
-                                                        },
-                                                        {
-                                                            "type": "expression",
-                                                            "children": [
-                                                                {
-                                                                    "type": "unary_expression",
-                                                                    "children": [
-                                                                        {
-                                                                            "type": "postfix_expression",
-                                                                            "children": [
-                                                                                {
-                                                                                    "type": "primary_expression",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "type": "int",
-                                                                                            "value": "1"
-                                                                                        }
-                                                                                    ]
-                                                                                }
-                                                                            ]
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            ]
-                                                        }
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-}
-=======
  "children" : 
  [
   
@@ -168,12 +52,6 @@
         },
         
         {
-         "pos" : [ 1, 8, 1, 9 ],
-         "type" : "(",
-         "value" : "("
-        },
-        
-        {
          "children" : 
          [
           
@@ -209,12 +87,6 @@
          ],
          "pos" : [ 1, 9, 1, 13 ],
          "type" : "parameter_list"
-        },
-        
-        {
-         "pos" : [ 1, 13, 1, 14 ],
-         "type" : ")",
-         "value" : ")"
         }
        ],
        "pos" : [ 1, 4, 1, 14 ],
@@ -278,4 +150,3 @@
  "pos" : [ 1, 0, 4, 1 ],
  "type" : "translation_unit"
 }
->>>>>>> a1f73f56dbb0a2cfc15078a2202cc070e9db8991
