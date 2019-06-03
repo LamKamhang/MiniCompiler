@@ -9,7 +9,7 @@
 #define YYSTYPE std::shared_ptr<ast::Node>
 #include "parser.hpp"
 
-// #define DEBUG_LEX
+  // #define DEBUG_LEX
 static int ypos = 0;
 
 inline std::string hex2num();
@@ -25,6 +25,7 @@ identifier		{letter}+({letter}|{digit})*
 string			\"([^\\"\n]|\\.)*\"
 comment			\/\*([^*]*\*+[^/*])*([^*]*\*+)\/
 
+char			\'(\\.|[^\\'])+\'
 num				{digit}+
 hex_num			0[xX][a-fA-F0-9]+
 float_num		({digit}*\.{digit}+)|({digit}+\.{digit}*)
@@ -75,11 +76,12 @@ e_float			({num}|{float_num})[eE][+-]?{num}
 {whitespace}	{ypos += yyleng; }
 {newline}		{ypos = 0;	yylineno++;}
 {string}		{yylval = std::make_shared<ast::Node>("string"	,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return STRING_LITERAL; }
+{char}         	{yylval = std::make_shared<ast::Node>("char"	,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return CONSTANT;}
 
-{num}			{yylval = std::make_shared<ast::Node>("int"		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return CONSTANT_INT;}
-{hex_num}		{yylval = std::make_shared<ast::Node>("int"		,hex2num(), yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return CONSTANT_INT;}
-{float_num}		{yylval = std::make_shared<ast::Node>("float"	,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return CONSTANT_FLOAT;}
-{e_float}		{yylval = std::make_shared<ast::Node>("float"	,e2float(), yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return CONSTANT_FLOAT;}
+{num}			{yylval = std::make_shared<ast::Node>("int"		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return CONSTANT;}
+{hex_num}		{yylval = std::make_shared<ast::Node>("int"		,hex2num(), yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return CONSTANT;}
+{float_num}		{yylval = std::make_shared<ast::Node>("float"	,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return CONSTANT;}
+{e_float}		{yylval = std::make_shared<ast::Node>("float"	,e2float(), yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return CONSTANT;}
 
 "..."			{yylval = std::make_shared<ast::Node>("..."		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return ELLIPSIS; }
 ">>="			{yylval = std::make_shared<ast::Node>(">>="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return RIGHT_ASSIGN; }
