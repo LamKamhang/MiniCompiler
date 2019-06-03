@@ -37,16 +37,13 @@ program
 
 primary_expression
 : IDENTIFIER	{
-  $$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
  }
 | CONSTANT	{
-  $$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
  }
 | STRING_LITERAL	{
-  $$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
  }
 | '(' expression ')'	{
   $$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $3->get_right());
@@ -109,6 +106,7 @@ argument_expression_list
  }
 | argument_expression_list ',' assignment_expression	{
   $$ = $1;
+  $$->set_right($3->get_right());
   $$->children.emplace_back($3);
   }
 ;
@@ -354,48 +352,37 @@ assignment_expression
 
 assignment_operator
 : '='	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
  }
 | MUL_ASSIGN	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+   $$ = $1;
   }
 | DIV_ASSIGN	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+   $$ = $1;
   }
 | MOD_ASSIGN	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+   $$ = $1;
   }
 | ADD_ASSIGN	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+   $$ = $1;
   }
 | SUB_ASSIGN	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+   $$ = $1;
   }
 | LEFT_ASSIGN	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+   $$ = $1;
   }
 | RIGHT_ASSIGN	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+   $$ = $1;
   }
 | AND_ASSIGN	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+   $$ = $1;
   }
 | XOR_ASSIGN	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+   $$ = $1;
   }
 | OR_ASSIGN	{
-  $$ = std::make_shared<ast::Node>("assignment_operator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+   $$ = $1;
   }
 ;
 
@@ -404,9 +391,18 @@ expression
   $$ = $1;
  }
 | expression ',' assignment_expression	{
-  $$ = $1;
-  $$->type = "comma_expression";
-  $$->children.emplace_back($3);
+  if ($1->type == "comma_expression")
+  {
+    $$ = $1;
+    $$->set_right($3->get_right());
+    $$->children.emplace_back($3);
+  }
+  else
+  {
+    $$ = std::make_shared<ast::Node>("comma_expression", $1->get_left(), $3->get_right());
+    $$->children.emplace_back($1);
+    $$->children.emplace_back($3);
+  }
  }
 ;
 
@@ -430,31 +426,40 @@ declaration
 
 declaration_specifiers
 : storage_class_specifier	{
-  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "declaration_specifiers";
  }
 | storage_class_specifier declaration_specifiers	{
-  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $2->get_right());
-  $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
+  $$ = $1;
+  $$->type = "declaration_specifiers";
+  for (auto & child : $2->children)
+  {
+    $$->children.emplace_back(child);
+  }
  }
 | type_specifier	{
-  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "declaration_specifiers";
  }
 | type_specifier declaration_specifiers	{
-  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $2->get_right());
-  $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
+  $$ = $1;
+  $$->type = "declaration_specifiers";
+  for (auto & child : $2->children)
+  {
+    $$->children.emplace_back(child);
+  }
  }
 | type_qualifier	{
-  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "declaration_specifiers";
  }
 | type_qualifier declaration_specifiers	{
-  $$ = std::make_shared<ast::Node>("declaration_specifiers", $1->get_left(), $2->get_right());
-  $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
+  $$ = $1;
+  $$->type = "declaration_specifiers";
+  for (auto & child : $2->children)
+  {
+    $$->children.emplace_back(child);
+  }
  }
 ;
 
@@ -506,40 +511,40 @@ storage_class_specifier
 
 type_specifier
 : VOID	{
-  $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_specifier";
  }
 | CHAR	{
-  $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_specifier";
   }
 | SHORT	{
-  $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_specifier";
   }
 | INT	{
-  $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_specifier";
   }
 | LONG	{
-  $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_specifier";
   }
 | FLOAT	{
-  $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_specifier";
   }
 | DOUBLE	{
-  $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_specifier";
   }
 | SIGNED	{
-  $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_specifier";
   }
 | UNSIGNED	{
-  $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_specifier";
   }
 | struct_or_union_specifier	{
   $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
@@ -550,8 +555,8 @@ type_specifier
   $$->children.emplace_back($1);
   }
 | TYPE_NAME	{
-  $$ = std::make_shared<ast::Node>("type_specifier", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_specifier";
   }
 ;
 
@@ -606,19 +611,25 @@ struct_declaration
 specifier_qualifier_list
 : specifier_qualifier_list type_specifier	{
 	$$ = $1;
-	$$->children.emplace_back($2);
+  for (auto & child : $2->children.emplace_back($1))
+  {
+    $$->children.emplace_back(child);
+  }
 }
 | type_specifier	{
-	$$ = std::make_shared<ast::Node>("specifier_qualifier_list", $1->get_left(), $1->get_right());
-	$$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "specifier_qualifier_list";
 }
 | specifier_qualifier_list type_qualifier	{
 	$$ = $1;
-	$$->children.emplace_back($2);
+  for (auto & child : $2->children.emplace_back($1))
+  {
+    $$->children.emplace_back(child);
+  }
 }
 | type_qualifier	{
-	$$ = std::make_shared<ast::Node>("specifier_qualifier_list", $1->get_left(), $1->get_right());
-	$$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "specifier_qualifier_list";
 }
 ;
 
@@ -804,12 +815,15 @@ pointer
 
 type_qualifier_list
 : type_qualifier {
-  $$ = std::make_shared<ast::Node>("type_qualifier_list", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  $$->type = "type_qualifier_list";
  }
 | type_qualifier_list type_qualifier {
   $$ = $1;
-  $$->children.emplace_back($2);
+  for (auto & child : $2->children)
+  {
+    $$->children.emplace_back(child);
+  }
 }
 ;
 
