@@ -401,8 +401,7 @@ assignment_operator
 
 expression
 : assignment_expression	{
-  $$ = std::make_shared<ast::Node>("expression", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
  }
 | expression ',' assignment_expression	{
   $$ = $1;
@@ -413,8 +412,7 @@ expression
 
 constant_expression
 : conditional_expression	{
-	$$ = std::make_shared<ast::Node>("constant_expression", $1->get_left(), $1->get_right());
-	$$->children.emplace_back($1);
+	$$ = $1;
 }
 ;
 
@@ -707,12 +705,21 @@ type_qualifier
 declarator
 : pointer direct_declarator	{
   $$ = std::make_shared<ast::Node>("declarator", $1->get_left(), $2->get_right());
-  $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
+  for (auto & child : $1->children)
+  {
+      $$->children.emplace_back(child);
+  }
+  for (auto & child : $2->children)
+  {
+      $$->children.emplace_back(child);
+  }
  }
 | direct_declarator	{
   $$ = std::make_shared<ast::Node>("declarator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  for (auto & child : $1->children)
+  {
+      $$->children.emplace_back(child);
+  }
  }
 ;
 
@@ -820,17 +827,32 @@ parameter_list
 parameter_declaration
 : declaration_specifiers declarator	{
   $$ = std::make_shared<ast::Node>("parameter_declaration", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
+  for (auto & child : $1->children)
+  {
+      $$->children.emplace_back(child);
+  }
+  for (auto & child : $2->children)
+  {
+      $$->children.emplace_back(child);
+  }
  }
 | declaration_specifiers abstract_declarator	{
   $$ = std::make_shared<ast::Node>("parameter_declaration", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
+  for (auto & child : $1->children)
+  {
+      $$->children.emplace_back(child);
+  }
+  for (auto & child : $2->children)
+  {
+      $$->children.emplace_back(child);
+  }
  }
 | declaration_specifiers	{
   $$ = std::make_shared<ast::Node>("parameter_declaration", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  for (auto & child : $1->children)
+  {
+      $$->children.emplace_back(child);
+  }
  }
 ;
 

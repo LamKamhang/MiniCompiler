@@ -31,8 +31,8 @@ void ir::Generator::init()
                       for (auto para : para_list->children)
                       {
                           const std::string &para_id = para->getNameChild("identifier")->value;
-                          auto decl_spec = para->getNameChild("declaration_specifiers");
-
+                          auto type_spec = para->getNameChild("type_specifier")->children[0]->value;
+                          auto type = ir::Block::getCustomType(block, type_spec);
                       }
                   }});
 }

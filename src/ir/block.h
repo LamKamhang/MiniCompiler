@@ -24,5 +24,16 @@ public:
         auto &typeMap = ir::TypeMap;
         return res;
     }
+    static llvm::Type *getCustomType(const ir::Block &block, const std::string &type)
+    {
+        if (type == "int")
+        {
+            return llvm::Type::getInt32Ty(*ir::Context);
+        }
+        if (type == "char")
+        {
+            return llvm::Type::getInt8Ty(*ir::Context);
+        }
+    }
 };
 } // namespace ir
