@@ -8,25 +8,9 @@
    [
     
     {
-     "children" : 
-     [
-      
-      {
-       "children" : 
-       [
-        
-        {
-         "pos" : [ 1, 0, 1, 3 ],
-         "type" : "int",
-         "value" : "int"
-        }
-       ],
-       "pos" : [ 1, 0, 1, 3 ],
-       "type" : "type_specifier"
-      }
-     ],
      "pos" : [ 1, 0, 1, 3 ],
-     "type" : "declaration_specifiers"
+     "type" : "declaration_specifiers",
+     "value" : "int"
     },
     
     {
@@ -38,59 +22,27 @@
        [
         
         {
-         "children" : 
-         [
-          
-          {
-           "pos" : [ 1, 4, 1, 8 ],
-           "type" : "identifier",
-           "value" : "main"
-          }
-         ],
          "pos" : [ 1, 4, 1, 8 ],
-         "type" : "direct_declarator"
-        },
-        
-        {
-         "children" : 
-         [
-          
-          {
-           "children" : 
-           [
-            
-            {
-             "children" : 
-             [
-              
-              {
-               "children" : 
-               [
-                
-                {
-                 "pos" : [ 1, 9, 1, 13 ],
-                 "type" : "void",
-                 "value" : "void"
-                }
-               ],
-               "pos" : [ 1, 9, 1, 13 ],
-               "type" : "type_specifier"
-              }
-             ],
-             "pos" : [ 1, 9, 1, 13 ],
-             "type" : "declaration_specifiers"
-            }
-           ],
-           "pos" : [ 1, 9, 1, 13 ],
-           "type" : "parameter_declaration"
-          }
-         ],
-         "pos" : [ 1, 9, 1, 13 ],
-         "type" : "parameter_list"
+         "type" : "identifier",
+         "value" : "main"
         }
        ],
-       "pos" : [ 1, 4, 1, 14 ],
+       "pos" : [ 1, 4, 1, 8 ],
        "type" : "direct_declarator"
+      },
+      
+      {
+       "children" : 
+       [
+        
+        {
+         "pos" : [ 1, 9, 1, 13 ],
+         "type" : "parameter_declaration",
+         "value" : ""
+        }
+       ],
+       "pos" : [ 1, 9, 1, 13 ],
+       "type" : "parameter_list"
       }
      ],
      "pos" : [ 1, 4, 1, 14 ],
@@ -110,25 +62,9 @@
          [
           
           {
-           "children" : 
-           [
-            
-            {
-             "children" : 
-             [
-              
-              {
-               "pos" : [ 3, 8, 3, 9 ],
-               "type" : "int",
-               "value" : "1"
-              }
-             ],
-             "pos" : [ 3, 8, 3, 9 ],
-             "type" : "primary_expression"
-            }
-           ],
            "pos" : [ 3, 8, 3, 9 ],
-           "type" : "expression"
+           "type" : "int",
+           "value" : "1"
           }
          ],
          "pos" : [ 3, 1, 3, 9 ],
