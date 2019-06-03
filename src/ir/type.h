@@ -12,4 +12,5 @@ public:
     std::stack<llvm::Type *> typeStack;
     Type() = default;
 };
+
 } // namespace ir

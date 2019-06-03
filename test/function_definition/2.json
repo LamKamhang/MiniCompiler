@@ -60,35 +60,19 @@
            [
             
             {
-             "children" : 
-             [
-              
-              {
-               "pos" : [ 1, 9, 1, 12 ],
-               "type" : "int",
-               "value" : "int"
-              }
-             ],
              "pos" : [ 1, 9, 1, 12 ],
-             "type" : "type_specifier"
+             "type" : "int",
+             "value" : "int"
             }
            ],
            "pos" : [ 1, 9, 1, 12 ],
-           "type" : "declaration_specifiers"
+           "type" : "type_specifier"
           },
           
           {
-           "children" : 
-           [
-            
-            {
-             "pos" : [ 1, 13, 1, 17 ],
-             "type" : "identifier",
-             "value" : "argc"
-            }
-           ],
            "pos" : [ 1, 13, 1, 17 ],
-           "type" : "declarator"
+           "type" : "identifier",
+           "value" : "argc"
           }
          ],
          "pos" : [ 1, 9, 1, 12 ],
@@ -104,47 +88,31 @@
            [
             
             {
-             "children" : 
-             [
-              
-              {
-               "pos" : [ 1, 19, 1, 23 ],
-               "type" : "char",
-               "value" : "char"
-              }
-             ],
              "pos" : [ 1, 19, 1, 23 ],
-             "type" : "type_specifier"
+             "type" : "char",
+             "value" : "char"
             }
            ],
            "pos" : [ 1, 19, 1, 23 ],
-           "type" : "declaration_specifiers"
+           "type" : "type_specifier"
           },
           
           {
-           "children" : 
-           [
-            
-            {
-             "pos" : [ 1, 24, 1, 25 ],
-             "type" : "*",
-             "value" : "*"
-            },
-            
-            {
-             "pos" : [ 1, 25, 1, 26 ],
-             "type" : "*",
-             "value" : "*"
-            },
-            
-            {
-             "pos" : [ 1, 26, 1, 30 ],
-             "type" : "identifier",
-             "value" : "argv"
-            }
-           ],
-           "pos" : [ 1, 24, 1, 30 ],
-           "type" : "declarator"
+           "pos" : [ 1, 24, 1, 25 ],
+           "type" : "*",
+           "value" : "*"
+          },
+          
+          {
+           "pos" : [ 1, 25, 1, 26 ],
+           "type" : "*",
+           "value" : "*"
+          },
+          
+          {
+           "pos" : [ 1, 26, 1, 30 ],
+           "type" : "identifier",
+           "value" : "argv"
           }
          ],
          "pos" : [ 1, 19, 1, 23 ],
@@ -176,21 +144,13 @@
            [
             
             {
-             "children" : 
-             [
-              
-              {
-               "pos" : [ 3, 11, 3, 12 ],
-               "type" : "int",
-               "value" : "0"
-              }
-             ],
              "pos" : [ 3, 11, 3, 12 ],
-             "type" : "primary_expression"
+             "type" : "int",
+             "value" : "0"
             }
            ],
            "pos" : [ 3, 11, 3, 12 ],
-           "type" : "expression"
+           "type" : "primary_expression"
           }
          ],
          "pos" : [ 3, 4, 3, 12 ],

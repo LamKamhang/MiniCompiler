@@ -19,21 +19,43 @@ void ir::Generator::init()
     static auto &table = ir::Generator::table;
     table.insert({"function_definition",
                   [&](std::shared_ptr<ast::Node> node, const ir::Block &block) -> llvm::Value * {
-                      auto type_spec = node->getNameChild("type_specifier");
-                      auto ret_type = ir::Type::getInt32Ty(*ir::Context);
-                      if (!ret_type)
+                      // function return type
+                      auto func_decl = node;
+                      auto type_spec = func_decl->children[0]->getNameChild("type_specifier");
+                      auto ret_type = ir::Block::getCustomType(block, type_spec);
+
+                      //  function name
+                      auto decl = func_decl->children[1];
+                      const std::string &fun_id = decl->children[0]->getNameChild("identifier")->value;
+
+                      //   compound statements
+                      auto comp_stat = func_decl->children[2];
+                      const ir::Block comp_block;
+
+                      // parameter list
+                      auto para_list = decl->children[1];
+                      std::vector<llvm::Type *> para_type;
+                      for (auto para_decl : para_list->children)
                       {
-                          return ir::Generator::LogError("error at function return type");
-                      }
-                      auto dire_decl = node->getNameChild("direct_declarator");
-                      const std::string &id = dire_decl->children[0]->getNameChild("identifier")->value;
-                      auto para_list = dire_decl->getNameChild("parameter_list");
-                      for (auto para : para_list->children)
-                      {
-                          const std::string &para_id = para->getNameChild("identifier")->value;
-                          auto type_spec = para->getNameChild("type_specifier")->children[0]->value;
+                          //   parameter id
+                          const std::string &para_id = para_decl->getNameChild("identifier")->value;
+
+                          // parameter type
+                          auto type_spec = para_decl->getNameChild("type_specifier")->children[0]->value;
                           auto type = ir::Block::getCustomType(block, type_spec);
+                          para_type.push_back(type);
+                          comp_block.SymbolTable[para_id] = ;
                       }
+
+                      // parse statements
+                      auto statments = table[comp_stat->type](comp_stat, comp_block);
+                      if (!statments)
+                      {
+                      }
+                  }});
+    table.insert({"compound_statement",
+                  [&](std::shared_ptr<ast::Node> node, const ir::Block &block) -> llvm::Value * {
+
                   }});
 }
 
