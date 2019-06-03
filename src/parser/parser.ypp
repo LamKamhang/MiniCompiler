@@ -611,7 +611,7 @@ struct_declaration
 specifier_qualifier_list
 : specifier_qualifier_list type_specifier	{
 	$$ = $1;
-  for (auto & child : $2->children.emplace_back($1))
+  for (auto & child : $2->children)
   {
     $$->children.emplace_back(child);
   }
@@ -622,7 +622,7 @@ specifier_qualifier_list
 }
 | specifier_qualifier_list type_qualifier	{
 	$$ = $1;
-  for (auto & child : $2->children.emplace_back($1))
+  for (auto & child : $2->children)
   {
     $$->children.emplace_back(child);
   }
