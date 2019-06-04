@@ -8,9 +8,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 2, 0, 2, 3 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      }
+     ],
      "pos" : [ 2, 0, 2, 3 ],
-     "type" : "declaration_specifiers",
-     "value" : "int"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -44,6 +52,12 @@
            [
             
             {
+             "pos" : [ 2, 6, 2, 9 ],
+             "type" : "type_specifier",
+             "value" : "int"
+            },
+            
+            {
              "pos" : [ 2, 10, 2, 11 ],
              "type" : "identifier",
              "value" : "i"
@@ -58,6 +72,12 @@
            [
             
             {
+             "pos" : [ 2, 13, 2, 19 ],
+             "type" : "type_specifier",
+             "value" : "double"
+            },
+            
+            {
              "pos" : [ 2, 20, 2, 21 ],
              "type" : "identifier",
              "value" : "b"
@@ -70,6 +90,12 @@
           {
            "children" : 
            [
+            
+            {
+             "pos" : [ 2, 23, 2, 27 ],
+             "type" : "type_specifier",
+             "value" : "char"
+            },
             
             {
              "pos" : [ 2, 28, 2, 29 ],
@@ -102,9 +128,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 3, 0, 3, 3 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      }
+     ],
      "pos" : [ 3, 0, 3, 3 ],
-     "type" : "declaration_specifiers",
-     "value" : "int"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -138,9 +172,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 4, 0, 4, 6 ],
+       "type" : "type_specifier",
+       "value" : "double"
+      }
+     ],
      "pos" : [ 4, 0, 4, 6 ],
-     "type" : "declaration_specifiers",
-     "value" : "double"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -174,9 +216,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 6, 0, 6, 4 ],
+       "type" : "type_specifier",
+       "value" : "char"
+      }
+     ],
      "pos" : [ 6, 0, 6, 4 ],
-     "type" : "declaration_specifiers",
-     "value" : "char"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -236,9 +286,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 7, 0, 7, 5 ],
+       "type" : "type_specifier",
+       "value" : "float"
+      }
+     ],
      "pos" : [ 7, 0, 7, 5 ],
-     "type" : "declaration_specifiers",
-     "value" : "float"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -278,9 +336,23 @@
    [
     
     {
-     "pos" : [ 8, 0, 8, 5 ],
-     "type" : "declaration_specifiers",
-     "value" : "const"
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 8, 0, 8, 5 ],
+       "type" : "type_qualifier",
+       "value" : "const"
+      },
+      
+      {
+       "pos" : [ 8, 6, 8, 9 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      }
+     ],
+     "pos" : [ 8, 0, 8, 9 ],
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -314,9 +386,23 @@
    [
     
     {
-     "pos" : [ 9, 0, 9, 5 ],
-     "type" : "declaration_specifiers",
-     "value" : "const"
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 9, 0, 9, 5 ],
+       "type" : "type_qualifier",
+       "value" : "const"
+      },
+      
+      {
+       "pos" : [ 9, 6, 9, 9 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      }
+     ],
+     "pos" : [ 9, 0, 9, 9 ],
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -356,9 +442,23 @@
    [
     
     {
-     "pos" : [ 10, 0, 10, 3 ],
-     "type" : "declaration_specifiers",
-     "value" : "int"
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 10, 0, 10, 3 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      },
+      
+      {
+       "pos" : [ 10, 4, 10, 9 ],
+       "type" : "type_qualifier",
+       "value" : "const"
+      }
+     ],
+     "pos" : [ 10, 0, 10, 9 ],
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -373,6 +473,12 @@
          "pos" : [ 10, 10, 10, 11 ],
          "type" : "*",
          "value" : "*"
+        },
+        
+        {
+         "pos" : [ 10, 12, 10, 17 ],
+         "type" : "type_qualifier",
+         "value" : "const"
         },
         
         {
@@ -398,9 +504,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 14, 0, 14, 3 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      }
+     ],
      "pos" : [ 14, 0, 14, 3 ],
-     "type" : "declaration_specifiers",
-     "value" : "int"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -448,9 +562,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 15, 0, 15, 6 ],
+       "type" : "type_specifier",
+       "value" : "double"
+      }
+     ],
      "pos" : [ 15, 0, 15, 6 ],
-     "type" : "declaration_specifiers",
-     "value" : "double"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -498,9 +620,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 16, 0, 16, 6 ],
+       "type" : "type_specifier",
+       "value" : "double"
+      }
+     ],
      "pos" : [ 16, 0, 16, 6 ],
-     "type" : "declaration_specifiers",
-     "value" : "double"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -548,9 +678,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 17, 0, 17, 4 ],
+       "type" : "type_specifier",
+       "value" : "char"
+      }
+     ],
      "pos" : [ 17, 0, 17, 4 ],
-     "type" : "declaration_specifiers",
-     "value" : "char"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -604,9 +742,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 18, 0, 18, 4 ],
+       "type" : "type_specifier",
+       "value" : "char"
+      }
+     ],
      "pos" : [ 18, 0, 18, 4 ],
-     "type" : "declaration_specifiers",
-     "value" : "char"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -654,9 +800,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 19, 0, 19, 3 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      }
+     ],
      "pos" : [ 19, 0, 19, 3 ],
-     "type" : "declaration_specifiers",
-     "value" : "int"
+     "type" : "declaration_specifiers"
     }
    ],
    "pos" : [ 19, 0, 19, 4 ],
@@ -668,9 +822,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 21, 0, 21, 3 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      }
+     ],
      "pos" : [ 21, 0, 21, 3 ],
-     "type" : "declaration_specifiers",
-     "value" : "int"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -700,6 +862,12 @@
          [
           
           {
+           "pos" : [ 21, 9, 21, 12 ],
+           "type" : "type_specifier",
+           "value" : "int"
+          },
+          
+          {
            "pos" : [ 21, 13, 21, 17 ],
            "type" : "identifier",
            "value" : "argc"
@@ -712,6 +880,12 @@
         {
          "children" : 
          [
+          
+          {
+           "pos" : [ 21, 19, 21, 23 ],
+           "type" : "type_specifier",
+           "value" : "char"
+          },
           
           {
            "pos" : [ 21, 24, 21, 25 ],
@@ -1148,9 +1322,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 52, 0, 52, 3 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      }
+     ],
      "pos" : [ 52, 0, 52, 3 ],
-     "type" : "declaration_specifiers",
-     "value" : "int"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -1180,6 +1362,12 @@
          [
           
           {
+           "pos" : [ 52, 6, 52, 9 ],
+           "type" : "type_specifier",
+           "value" : "int"
+          },
+          
+          {
            "pos" : [ 52, 10, 52, 11 ],
            "type" : "identifier",
            "value" : "i"
@@ -1194,6 +1382,12 @@
          [
           
           {
+           "pos" : [ 52, 13, 52, 19 ],
+           "type" : "type_specifier",
+           "value" : "double"
+          },
+          
+          {
            "pos" : [ 52, 20, 52, 21 ],
            "type" : "identifier",
            "value" : "b"
@@ -1206,6 +1400,12 @@
         {
          "children" : 
          [
+          
+          {
+           "pos" : [ 52, 23, 52, 27 ],
+           "type" : "type_specifier",
+           "value" : "char"
+          },
           
           {
            "pos" : [ 52, 28, 52, 29 ],
@@ -1234,9 +1434,233 @@
        [
         
         {
-         "pos" : [ 54, 2, 54, 8 ],
-         "type" : "switch",
-         "value" : "switch"
+         "children" : 
+         [
+          
+          {
+           "pos" : [ 54, 10, 54, 11 ],
+           "type" : "identifier",
+           "value" : "c"
+          },
+          
+          {
+           "children" : 
+           [
+            
+            {
+             "children" : 
+             [
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 56, 15, 56, 18 ],
+                 "type" : "char",
+                 "value" : "'a'"
+                },
+                
+                {
+                 "pos" : [ 56, 19, 56, 24 ],
+                 "type" : "break",
+                 "value" : "break"
+                }
+               ],
+               "pos" : [ 56, 10, 56, 24 ],
+               "type" : "case_statement"
+              },
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 57, 15, 57, 18 ],
+                 "type" : "char",
+                 "value" : "'b'"
+                },
+                
+                {
+                 "children" : 
+                 [
+                  
+                  {
+                   "pos" : [ 57, 19, 57, 20 ],
+                   "type" : "identifier",
+                   "value" : "i"
+                  },
+                  
+                  {
+                   "pos" : [ 57, 20, 57, 22 ],
+                   "type" : "++",
+                   "value" : "++"
+                  }
+                 ],
+                 "pos" : [ 57, 19, 57, 22 ],
+                 "type" : "postfix_expression"
+                }
+               ],
+               "pos" : [ 57, 10, 57, 22 ],
+               "type" : "case_statement"
+              },
+              
+              {
+               "pos" : [ 57, 23, 57, 28 ],
+               "type" : "break",
+               "value" : "break"
+              },
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 58, 15, 58, 18 ],
+                 "type" : "char",
+                 "value" : "'c'"
+                },
+                
+                {
+                 "children" : 
+                 [
+                  
+                  {
+                   "pos" : [ 58, 19, 58, 20 ],
+                   "type" : "identifier",
+                   "value" : "b"
+                  },
+                  
+                  {
+                   "pos" : [ 58, 21, 58, 23 ],
+                   "type" : "/=",
+                   "value" : "/="
+                  },
+                  
+                  {
+                   "pos" : [ 58, 24, 58, 25 ],
+                   "type" : "int",
+                   "value" : "2"
+                  }
+                 ],
+                 "pos" : [ 58, 19, 58, 25 ],
+                 "type" : "assignment_expression"
+                }
+               ],
+               "pos" : [ 58, 10, 58, 25 ],
+               "type" : "case_statement"
+              },
+              
+              {
+               "pos" : [ 58, 26, 58, 31 ],
+               "type" : "break",
+               "value" : "break"
+              },
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "children" : 
+                 [
+                  
+                  {
+                   "children" : 
+                   [
+                    
+                    {
+                     "children" : 
+                     [
+                      
+                      {
+                       "pos" : [ 60, 6, 60, 7 ],
+                       "type" : "identifier",
+                       "value" : "b"
+                      },
+                      
+                      {
+                       "pos" : [ 60, 8, 60, 9 ],
+                       "type" : "=",
+                       "value" : "="
+                      },
+                      
+                      {
+                       "children" : 
+                       [
+                        
+                        {
+                         "children" : 
+                         [
+                          
+                          {
+                           "pos" : [ 60, 10, 60, 11 ],
+                           "type" : "identifier",
+                           "value" : "b"
+                          },
+                          
+                          {
+                           "pos" : [ 60, 12, 60, 13 ],
+                           "type" : "int",
+                           "value" : "2"
+                          }
+                         ],
+                         "pos" : [ 60, 10, 60, 13 ],
+                         "type" : "mul_expression"
+                        },
+                        
+                        {
+                         "children" : 
+                         [
+                          
+                          {
+                           "children" : 
+                           [
+                            
+                            {
+                             "pos" : [ 60, 19, 60, 20 ],
+                             "type" : "identifier",
+                             "value" : "i"
+                            }
+                           ],
+                           "pos" : [ 60, 17, 60, 20 ],
+                           "type" : "pre_inc_operator"
+                          }
+                         ],
+                         "pos" : [ 60, 16, 60, 21 ],
+                         "type" : "primary_expression"
+                        }
+                       ],
+                       "pos" : [ 60, 10, 60, 21 ],
+                       "type" : "add_expression"
+                      }
+                     ],
+                     "pos" : [ 60, 6, 60, 21 ],
+                     "type" : "assignment_expression"
+                    }
+                   ],
+                   "pos" : [ 60, 6, 60, 21 ],
+                   "type" : "statement_list"
+                  }
+                 ],
+                 "pos" : [ 59, 12, 61, 5 ],
+                 "type" : "compound_statement"
+                }
+               ],
+               "pos" : [ 59, 4, 61, 5 ],
+               "type" : "default_statement"
+              }
+             ],
+             "pos" : [ 56, 10, 56, 24 ],
+             "type" : "statement_list"
+            }
+           ],
+           "pos" : [ 55, 4, 62, 5 ],
+           "type" : "compound_statement"
+          }
+         ],
+         "pos" : [ 54, 2, 62, 5 ],
+         "type" : "switch_statement"
         },
         
         {
@@ -1280,7 +1704,7 @@
             }
            ],
            "pos" : [ 63, 16, 63, 19 ],
-           "type" : "dec_operator"
+           "type" : "pre_dec_operator"
           },
           
           {
@@ -1353,7 +1777,7 @@
               
               {
                "pos" : [ 70, 10, 70, 13 ],
-               "type" : "specifier_qualifier_list",
+               "type" : "type_specifier",
                "value" : "int"
               }
              ],
@@ -1411,7 +1835,7 @@
          "type" : "return_expr"
         }
        ],
-       "pos" : [ 54, 2, 54, 8 ],
+       "pos" : [ 54, 2, 62, 5 ],
        "type" : "statement_list"
       }
      ],

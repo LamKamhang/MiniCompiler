@@ -8,9 +8,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 1, 0, 1, 3 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      }
+     ],
      "pos" : [ 1, 0, 1, 3 ],
-     "type" : "declaration_specifiers",
-     "value" : "int"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -40,6 +48,12 @@
          [
           
           {
+           "pos" : [ 1, 9, 1, 12 ],
+           "type" : "type_specifier",
+           "value" : "int"
+          },
+          
+          {
            "pos" : [ 1, 13, 1, 17 ],
            "type" : "identifier",
            "value" : "argc"
@@ -52,6 +66,12 @@
         {
          "children" : 
          [
+          
+          {
+           "pos" : [ 1, 19, 1, 23 ],
+           "type" : "type_specifier",
+           "value" : "char"
+          },
           
           {
            "pos" : [ 1, 24, 1, 25 ],

@@ -8,9 +8,17 @@
    [
     
     {
+     "children" : 
+     [
+      
+      {
+       "pos" : [ 1, 0, 1, 3 ],
+       "type" : "type_specifier",
+       "value" : "int"
+      }
+     ],
      "pos" : [ 1, 0, 1, 3 ],
-     "type" : "declaration_specifiers",
-     "value" : "int"
+     "type" : "declaration_specifiers"
     },
     
     {
@@ -36,9 +44,17 @@
        [
         
         {
+         "children" : 
+         [
+          
+          {
+           "pos" : [ 1, 9, 1, 13 ],
+           "type" : "type_specifier",
+           "value" : "void"
+          }
+         ],
          "pos" : [ 1, 9, 1, 13 ],
-         "type" : "parameter_declaration",
-         "value" : ""
+         "type" : "parameter_declaration"
         }
        ],
        "pos" : [ 1, 9, 1, 13 ],
