@@ -10,19 +10,34 @@ class Block
 public:
     std::unordered_map<std::string, llvm::Type> TypeTable;
     std::unordered_map<std::string, llvm::Value *> SymbolTable;
-    Block *parent;
-    llvm::BasicBlock *bb;
+    Block *parent = nullptr;
+    llvm::BasicBlock *basic_block;
     Block() = default;
-    template <typename... T>
-    static const ir::Type &getCustomType(const ir::Block &block, T... args)
+    Block(Block *parent) : parent(parent){};
+    // template <typename... T>
+    // static const ir::Type &getCustomType(const ir::Block &block, T... args)
+    // {
+    //     const ir::Type type;
+    //     const ir::Type &res = type;
+    //     type.typeStack.push(ir::Type::getInt32Ty(ir::Context));
+    //     block.TypeTable.insert({"int", std::move(type)});
+    //     auto &context = ir::Context;
+    //     auto &typeMap = ir::TypeMap;
+    //     return res;
+    // }
+    llvm::Value *getSymbol(const std::string &name)
     {
-        const ir::Type type;
-        const ir::Type &res = type;
-        type.typeStack.push(ir::Type::getInt32Ty(ir::Context));
-        block.TypeTable.insert({"int", std::move(type)});
-        auto &context = ir::Context;
-        auto &typeMap = ir::TypeMap;
-        return res;
+        Block *node = this;
+        while (node)
+        {
+            auto val = node->SymbolTable.at(name);
+            if (val)
+            {
+                return val;
+            }
+            node = node->parent;
+        }
+        return nullptr;
     }
     static llvm::Type *getCustomType(const ir::Block &block, const std::string &type)
     {

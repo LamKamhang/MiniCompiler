@@ -8,7 +8,7 @@ namespace ir
 class Generator
 {
 public:
-    static std::unordered_map<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, const ir::Block &)>> table;
+    static std::unordered_map<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>> table;
     static void init();
     static llvm::Value *generate(std::vector<std::shared_ptr<ast::Node>> &root);
     static llvm::Value *LogError(const char *str);

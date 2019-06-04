@@ -1,5 +1,4 @@
-int main(void)
+void a()
 {
-    return 1;
+    int a;
 }
-int a(int, char);

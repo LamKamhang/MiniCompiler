@@ -8,25 +8,9 @@
    [
     
     {
-     "children" : 
-     [
-      
-      {
-       "children" : 
-       [
-        
-        {
-         "pos" : [ 1, 0, 1, 3 ],
-         "type" : "int",
-         "value" : "int"
-        }
-       ],
-       "pos" : [ 1, 0, 1, 3 ],
-       "type" : "type_specifier"
-      }
-     ],
-     "pos" : [ 1, 0, 1, 3 ],
-     "type" : "declaration_specifiers"
+     "pos" : [ 1, 0, 1, 4 ],
+     "type" : "declaration_specifiers",
+     "value" : "void"
     },
     
     {
@@ -38,62 +22,28 @@
        [
         
         {
-         "children" : 
-         [
-          
-          {
-           "pos" : [ 1, 4, 1, 8 ],
-           "type" : "identifier",
-           "value" : "main"
-          }
-         ],
-         "pos" : [ 1, 4, 1, 8 ],
-         "type" : "direct_declarator"
-        },
-        
-        {
-         "children" : 
-         [
-          
-          {
-           "children" : 
-           [
-            
-            {
-             "children" : 
-             [
-              
-              {
-               "children" : 
-               [
-                
-                {
-                 "pos" : [ 1, 9, 1, 13 ],
-                 "type" : "void",
-                 "value" : "void"
-                }
-               ],
-               "pos" : [ 1, 9, 1, 13 ],
-               "type" : "type_specifier"
-              }
-             ],
-             "pos" : [ 1, 9, 1, 13 ],
-             "type" : "declaration_specifiers"
-            }
-           ],
-           "pos" : [ 1, 9, 1, 13 ],
-           "type" : "parameter_declaration"
-          }
-         ],
-         "pos" : [ 1, 9, 1, 13 ],
-         "type" : "parameter_list"
+         "pos" : [ 1, 5, 1, 6 ],
+         "type" : "identifier",
+         "value" : "a"
         }
        ],
-       "pos" : [ 1, 4, 1, 14 ],
+       "pos" : [ 1, 5, 1, 6 ],
        "type" : "direct_declarator"
+      },
+      
+      {
+       "pos" : [ 1, 6, 1, 7 ],
+       "type" : "(",
+       "value" : "("
+      },
+      
+      {
+       "pos" : [ 1, 7, 1, 8 ],
+       "type" : ")",
+       "value" : ")"
       }
      ],
-     "pos" : [ 1, 4, 1, 14 ],
+     "pos" : [ 1, 5, 1, 8 ],
      "type" : "declarator"
     },
     
@@ -110,6 +60,12 @@
          [
           
           {
+           "pos" : [ 3, 4, 3, 7 ],
+           "type" : "declaration_specifiers",
+           "value" : "int"
+          },
+          
+          {
            "children" : 
            [
             
@@ -119,24 +75,24 @@
               
               {
                "pos" : [ 3, 8, 3, 9 ],
-               "type" : "int",
-               "value" : "1"
+               "type" : "identifier",
+               "value" : "a"
               }
              ],
              "pos" : [ 3, 8, 3, 9 ],
-             "type" : "primary_expression"
+             "type" : "declarator"
             }
            ],
            "pos" : [ 3, 8, 3, 9 ],
-           "type" : "expression"
+           "type" : "init_declarator_list"
           }
          ],
-         "pos" : [ 3, 1, 3, 9 ],
-         "type" : "return_expr"
+         "pos" : [ 3, 4, 3, 10 ],
+         "type" : "declaration"
         }
        ],
-       "pos" : [ 3, 1, 3, 9 ],
-       "type" : "statement_list"
+       "pos" : [ 3, 4, 3, 10 ],
+       "type" : "declaration_list"
       }
      ],
      "pos" : [ 2, 0, 4, 1 ],
