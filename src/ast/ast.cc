@@ -26,7 +26,7 @@ void ast::Node::set_right(const std::pair<int, int> &xy)
     pos[2] = xy.first;
     pos[3] = xy.second;
 }
-inline ast::Node *ast::Node::getNameChild(const std::string &name)
+ast::Node *ast::Node::getNameChild(const std::string &name)
 {
     if (this->type == name)
         return this;
@@ -38,7 +38,7 @@ inline ast::Node *ast::Node::getNameChild(const std::string &name)
     }
     return nullptr;
 }
-inline std::vector<ast::Node *> ast::Node::getNameChildren(const std::string &name)
+std::vector<ast::Node *> ast::Node::getNameChildren(const std::string &name)
 {
     std::vector<ast::Node *> res;
     if (this->type == name)
@@ -55,7 +55,7 @@ std::shared_ptr<ast::Node> ast::imports(Json::Value &json)
     std::shared_ptr<ast::Node> res = std::make_shared<ast::Node>(json["type"].asString());
     for (auto i = 0; i < 4; ++i)
     {
-        res->pos[i] = json["pos"].asInt();
+        res->pos[i] = json["pos"][i].asInt();
     }
     Json::Value &children = json["children"];
     for (auto i = children.begin(); i != children.end(); ++i)

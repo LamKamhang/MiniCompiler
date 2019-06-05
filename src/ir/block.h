@@ -8,7 +8,7 @@ namespace ir
 class Block
 {
 public:
-    std::unordered_map<std::string, llvm::Type> TypeTable;
+    // std::unordered_map<std::string, llvm::Type> TypeTable;
     std::unordered_map<std::string, llvm::Value *> SymbolTable;
     Block *parent = nullptr;
     llvm::BasicBlock *basic_block;
@@ -43,12 +43,13 @@ public:
     {
         if (type == "int")
         {
-            return llvm::Type::getInt32Ty(*ir::Context);
+            return std::move(llvm::Type::getInt32Ty(*Context));
         }
         if (type == "char")
         {
-            return llvm::Type::getInt8Ty(*ir::Context);
+            return std::move(llvm::Type::getInt8Ty(*Context));
         }
+        return nullptr;
     }
 };
 } // namespace ir

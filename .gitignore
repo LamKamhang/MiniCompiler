@@ -55,3 +55,7 @@ _*
 parser.cpp
 parser.hpp
 scanner.cpp
+
+# test file
+test/function_definition
+test/ir/build

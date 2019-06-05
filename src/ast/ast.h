@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <iostream>
 #include <memory>
@@ -25,8 +26,8 @@ public:
     int pos[4] = {0};
     std::vector<std::shared_ptr<Node>> children;
     std::string value; // only used for a few non-terminals
-    inline ast::Node *getNameChild(const std::string &name);
-    inline std::vector<ast::Node *> getNameChildren(const std::string &name);
+    ast::Node *getNameChild(const std::string &name);
+    std::vector<ast::Node *> getNameChildren(const std::string &name);
 };
 
 std::shared_ptr<ast::Node> imports(Json::Value &json);

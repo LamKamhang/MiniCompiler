@@ -1,19 +1,18 @@
 #pragma once
+#include <../ast/ast.h>
 #include <ir.h>
 #include <block.h>
-#include <unordered_map>
-#include <../ast/ast.h>
+#include <functional>
+#include <map>
 namespace ir
 {
 class Generator
 {
 public:
-    static std::unordered_map<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>> table;
-    static void init();
-    static llvm::Value *generate(std::vector<std::shared_ptr<ast::Node>> &root);
-    static llvm::Value *LogError(const char *str);
-
-private:
-    Generator() = default;
+    std::map<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>> table;
+    void init();
+    llvm::Value *generate(std::vector<std::shared_ptr<ast::Node>> &objects);
+    llvm::Value *LogError(const char *str);
+    Generator(){this->init();};
 };
 } // namespace ir

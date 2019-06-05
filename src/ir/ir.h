@@ -7,10 +7,10 @@
 #include <llvm/IR/Function.h>
 #include "../lib/json/json.h"
 
+extern std::unique_ptr<llvm::LLVMContext> Context;
+extern std::unique_ptr<llvm::IRBuilder<>> Builder;
+extern std::unique_ptr<llvm::Module> Module;
 namespace ir
 {
-static std::unique_ptr<llvm::LLVMContext> Context;
-static std::unique_ptr<llvm::IRBuilder<>> Builder;
-static std::unique_ptr<llvm::Module> Module;
 void createIrUnit();
 } // namespace ir

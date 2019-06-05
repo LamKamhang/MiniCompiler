@@ -46,3 +46,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_executable(${target_name}
    ${source_files}
 )
+
+add_subdirectory(
+    test/ir
+)

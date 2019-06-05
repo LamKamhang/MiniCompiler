@@ -6,7 +6,7 @@
 #include <map>
 namespace ir
 {
-class Type : public llvm::Type
+class Type
 {
 public:
     std::stack<llvm::Type *> typeStack;
