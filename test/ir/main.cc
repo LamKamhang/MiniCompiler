@@ -35,6 +35,9 @@ int main()
     tar_generate();
     
 }
+//tutorial demo run instruction
+//clang++ -g -O3 toy.cpp `llvm-config --cxxflags --ldflags --system-libs --libs all` -o toy
+//clang++ main.cpp output.o -o main
 int tar_generate()
     {
         llvm::raw_ostream &errs();
