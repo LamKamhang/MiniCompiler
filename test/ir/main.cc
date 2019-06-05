@@ -6,12 +6,13 @@
 #include <memory>
 #include <iostream>
 #include <string>
-#include "boost/filesystem.hpp"
+#include <fstream>
 
-extern boost::filesystem::path cwd;
+extern std::string cwd;
+
 int main()
 {
-    const std::string &path = "/test/function_definition/";
+    const std::string &path = "test/function_definition/";
     const std::string &file_name = "2";
     // Read json
     auto root = Json::parseJson(path + file_name + ".json");
@@ -25,7 +26,7 @@ int main()
     std::string ir_code;
     llvm::raw_string_ostream ros(ir_code);
     ros << *Module;
-    boost::filesystem::ofstream file(cwd.string() + path + file_name + ".ll");
+    std::ofstream file(cwd + path + file_name + ".ll");
     file << ir_code;
     file.close();
 }

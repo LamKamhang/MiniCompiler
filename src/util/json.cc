@@ -3,15 +3,16 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
-#include <dirent.h>
 #include <stdio.h>
-#include "boost/filesystem.hpp"
+#include <unistd.h>
+
 Json::Reader reader;
-auto cwd = boost::filesystem::current_path();
+std::string cwd(getcwd(NULL, 0));
+
 Json::Value Json::parseJson(const std::string &path)
 {
-    auto abs_path = cwd.string() + "/" + path;
-    std::cout << "\n[json] cwd: " + cwd.string() << std::endl;
+    auto abs_path = cwd + "/" + path;
+    std::cout << "\n[json] cwd: " + cwd << std::endl;
     std::ifstream is;
     is.open(abs_path, std::ios::binary);
     if (!is)
