@@ -30,7 +30,8 @@ function test(){
 
 test_dir="test"
 
-test $test_dir
+# skip the test routing
+# test $test_dir
 
 if [ $exit_code -ne 0 ]; then
 	exit $exit_code
