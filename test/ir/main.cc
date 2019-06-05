@@ -1,4 +1,5 @@
 #include "../../src/ir/index.h"
+#include "../../src/targetcode/tc.h"
 #include <lib/json/json.h>
 #include <ast/ast.h>
 #include <llvm/IR/Verifier.h>
@@ -9,7 +10,7 @@
 #include <fstream>
 
 extern std::string cwd;
-
+std::unique_ptr<llvm::Module> TheModule;
 int main()
 {
     const std::string &path = "test/function_definition/";
@@ -29,4 +30,67 @@ int main()
     std::ofstream file(cwd + path + file_name + ".ll");
     file << ir_code;
     file.close();
+
+    auto TheModule=std::move(Module);
+    tar_generate();
+    
 }
+int tar_generate()
+    {
+        llvm::raw_ostream &errs();
+        llvm::raw_ostream &outs();
+
+        llvm::InitializeAllTargetInfos();
+        llvm::InitializeAllTargets();
+        llvm::InitializeAllTargetMCs();
+        llvm::InitializeAllAsmParsers();
+        llvm::InitializeAllAsmPrinters();
+
+        auto TargetTriple = llvm::sys::getDefaultTargetTriple();
+        TheModule->setTargetTriple(TargetTriple);
+
+        std::string Error;
+        auto Target = llvm::TargetRegistry::lookupTarget(TargetTriple, Error);
+
+        // Print an error and exit if we couldn't find the requested target.
+        // This generally occurs if we've forgotten to initialise the
+        // TargetRegistry or we have a bogus target triple.
+        if (!Target) {
+            errs() << Error;
+            return 1;
+        }
+
+        auto CPU = "generic";
+        auto Features = "";
+
+        llvm::TargetOptions opt;
+        auto RM = llvm::Optional<llvm::Reloc::Model>();
+        auto TheTargetMachine =
+            Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
+
+        TheModule->setDataLayout(TheTargetMachine->createDataLayout());
+
+        auto Filename = "output.o";
+        std::error_code EC;
+        llvm::raw_fd_ostream dest(Filename, EC, llvm::sys::fs::F_None);
+
+        if (EC) {
+            errs() << "Could not open file: " << EC.message();
+            return 1;
+        }
+
+        llvm::legacy::PassManager pass;
+        auto FileType = llvm::TargetMachine::CGFT_ObjectFile;
+
+        if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
+            errs() << "TheTargetMachine can't emit a file of this type";
+            return 1;
+        }
+
+        pass.run(*TheModule);
+        dest.flush();
+
+        outs() << "Wrote " << Filename << "\n";
+
+        return 0;
+    }
