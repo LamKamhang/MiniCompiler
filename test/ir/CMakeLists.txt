@@ -40,19 +40,3 @@ target_link_libraries(
     ${target}
     ${llvm_libs}
 )
-
-# boost lib
-find_package(
-    Boost
-    COMPONENTS
-    filesystem
-    REQUIRED
-)
-target_link_libraries(
-    ${target}
-    ${Boost_FILESYSTEM_LIBRARY}
-)
-
-
-
-
