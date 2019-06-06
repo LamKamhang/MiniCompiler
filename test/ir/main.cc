@@ -57,8 +57,7 @@ int tar_generate()
 
     llvm::legacy::PassManager pass;
     auto FileType = llvm::TargetMachine::CGFT_ObjectFile;
-
-    if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType))
+    if (TheTargetMachine->addPassesToEmitFile(pass, dest, FileType))
     {
         llvm::errs() << "TheTargetMachine can't emit a file of this type";
         return 1;
