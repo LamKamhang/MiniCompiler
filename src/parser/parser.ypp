@@ -388,7 +388,8 @@ assignment_operator
 
 expression
 : assignment_expression	{
-  $$ = $1;
+  $$ = std::make_shared<ast::Node>("expression", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
  }
 | expression ',' assignment_expression	{
   if ($1->type == "comma_expression")
@@ -959,7 +960,8 @@ direct_abstract_declarator
 
 initializer
 : assignment_expression	{
-  $$ = $1;
+  $$ = std::make_shared<ast::Node>("initializer_list", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
  }
 | '{' initializer_list '}'	{
   $$ = $2;
@@ -1120,9 +1122,7 @@ jump_statement
   $$->type = "return_only";
   }
 | RETURN expression ';'	{
-  $$ = $1;
-  $$->type = "return_expr";
-  $$->set_right($2->get_right());
+  $$ = std::make_shared<ast::Node>("return_expr", $1->get_left(), $3->get_right());
   $$->children.emplace_back($2);
  }
 ;
