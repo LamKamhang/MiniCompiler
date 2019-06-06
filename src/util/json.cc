@@ -15,12 +15,15 @@ Json::Value Json::parseJson(const std::string &path)
     std::cout << "\n[json] cwd: " + cwd << std::endl;
     std::ifstream is;
     is.open(abs_path, std::ios::binary);
+    Json::Value res;
     if (!is)
     {
         std::cout << "\n[json] can't open file" << std::endl;
     }
-    Json::Value res;
-    reader.parse(is, res, false);
-    std::cout << "\n[json] successfully parse: " + abs_path << std::endl;
+    else
+    {
+        reader.parse(is, res, false);
+        std::cout << "\n[json] successfully parse: " + abs_path << std::endl;
+    }
     return res;
 };

@@ -1,5 +1,5 @@
-#include <tc.h>
-#include <../ir/ir.h>
+#include <tc/tc.h>
+#include <ir/ir.h>
 
 bool tc::targetGenerate(std::ostream &os)
 {
@@ -35,28 +35,23 @@ bool tc::targetGenerate(std::ostream &os)
 
     module->setDataLayout(target_machine->createDataLayout());
 
-    std::error_code ec;
-    llvm::raw_fd_ostream dest(Filename, ec, llvm::sys::fs::F_None);
-
-    if (ec)
-    {
-        llvm::errs() << "Could not open file: " << ec.message();
-        return false;
-    }
-
     llvm::legacy::PassManager pass;
     auto file_type = llvm::TargetMachine::CGFT_ObjectFile;
 
-    if (target_machine->addPassesToEmitFile(pass, , nullptr, file_type))
+    std::string out;
+    llvm::raw_string_ostream ros(out);
+    llvm::buffer_ostream bos(ros);
+    if (target_machine->addPassesToEmitFile(pass, bos, nullptr, file_type))
     {
         llvm::errs() << "target_machine can't emit a file of this type";
         return false;
     }
 
     pass.run(*module);
-    dest.flush();
+    ros.flush();
+    os << out;
 
-    llvm::outs() << "Wrote " << Filename << "\n";
+    llvm::outs() << "\n[tc] generate a target code file.\n";
 
     return true;
 }

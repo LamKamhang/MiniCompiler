@@ -10,12 +10,13 @@
 #include <type.h>
 #include <value.h>
 
-// globals
+// [Globals]
 std::unique_ptr<llvm::LLVMContext> context;
 std::unique_ptr<llvm::IRBuilder<>> builder;
 std::unique_ptr<llvm::Module> module;
 ir::Generator generator;
 
+// [Generator]
 llvm::Value *ir::Generator::LogError(const char *str)
 {
     std::cout << str << std::endl;
@@ -76,8 +77,7 @@ void ir::Generator::init()
 
             //  function name
             auto decl = func_decl->children[1];
-            const std::string &fun_name =
-                decl->children[0]->getNameChild("identifier")->value;
+            const std::string &fun_name = decl->children[0]->getNameChild("identifier")->value;
 
             // parameter list
             auto para_list = decl->children[1];
@@ -270,7 +270,8 @@ void ir::Generator::init()
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "expression",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
-            return table.at(node->type)(node->children[0], block);
+            auto child = node->children[0];
+            return table.at(child->type)(child, block);
         }));
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "int",
@@ -307,7 +308,7 @@ llvm::Value *ir::Generator::generate(std::vector<std::shared_ptr<ast::Node>> &ob
             auto &type = root->type;
             if (type != "translation_unit")
             {
-                throw "error, type is not translation_unit";
+                throw "\n[ir] error: type is not translation_unit\n";
             }
 
             // Generate ir from a tree
@@ -315,7 +316,7 @@ llvm::Value *ir::Generator::generate(std::vector<std::shared_ptr<ast::Node>> &ob
             if (!res)
             {
                 res->print(llvm::errs()); // print error msg if has
-                throw "error at parsing a unit.";
+                throw "\n[ir] error at parsing a unit.\n";
             }
 
             // Print ir
@@ -345,20 +346,63 @@ llvm::Value *ir::Generator::generate(std::vector<std::shared_ptr<ast::Node>> &ob
     catch (char const *error)
     {
         // if an ast errors when generating IR
+        std::cout << error;
         module->print(llvm::errs(), nullptr); // print error msg
-        std::cout << error << std::endl;
     }
     return nullptr;
 }
 
+// [IR]
 void ir::createIrUnit()
 {
     context = llvm::make_unique<llvm::LLVMContext>();
     builder = llvm::make_unique<llvm::IRBuilder<>>(*context);
     module = llvm::make_unique<llvm::Module>("my JIT", *context);
 }
+
+// [Value]
 void ir::CustomValue::setType(ir::Type *type)
 {
     this->type = type;
     this->pos = this->type->typeStack.size();
+}
+
+// [Block]
+llvm::Value *ir::Block::getSymbol(const std::string &name)
+{
+    Block *node = this;
+    while (node)
+    {
+        auto val = node->SymbolTable.at(name);
+        if (val)
+        {
+            return val;
+        }
+        node = node->parent;
+    }
+    return nullptr;
+}
+bool ir::Block::setSymbol(const std::string &name, llvm::Value *val)
+{
+    if (this->SymbolTable.at(name))
+    {
+        return false;
+    }
+    else
+    {
+        this->SymbolTable[name] = val;
+        return true;
+    }
+}
+llvm::Type *ir::Block::getCustomType(const std::string &type)
+{
+    if (type == "int")
+    {
+        return std::move(llvm::Type::getInt32Ty(*context));
+    }
+    if (type == "char")
+    {
+        return std::move(llvm::Type::getInt8Ty(*context));
+    }
+    return nullptr;
 }

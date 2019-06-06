@@ -11,17 +11,35 @@
 
 extern std::string cwd;
 
-int main()
+int main(int argc, char **argv)
 {
-    const std::string &path = "test/function_definition/";
-    const std::string &file_name = "2";
+    // if (argc == 1)
+    // {
+    //     std::cout << "too few arguments" << std::endl;
+    //     return 0;
+    // }
+
+    const std::string &path = "/test/function_definition/";
+    // const std::string &full_name(argv[1]);
+    const std::string &full_name = "2.c";
+    const std::string &file_name = full_name.substr(0, full_name.size() - 2);
     // Read json
     auto root = Json::parseJson(path + file_name + ".json");
+    if (root.empty())
+    {
+        std::cout << "\n[main] can't parse ast from json.\n";
+        return 0;
+    }
     // Recover AST from Json::Value
     std::vector<std::shared_ptr<ast::Node>> forest;
     forest.push_back(ast::imports(root));
     // Generate IR form AST
     auto res = generator.generate(forest);
+    if (!res)
+    {
+        std::cout << "\n[main] error when generate ir.\n";
+        return 0;
+    }
     // Save IR to file
     std::string ir_code;
     llvm::raw_string_ostream ros(ir_code);
@@ -31,6 +49,11 @@ int main()
     ir_file.close();
     // Save target code to file
     std::ofstream tc_file(cwd + path + file_name + ".o");
-    tc::targetGenerate(tc_file);
+    if (!tc::targetGenerate(tc_file))
+    {
+        std::cout << "\n[main] error when generate target code.\n";
+        return 0;
+    }
     tc_file.close();
+    return 1;
 }
