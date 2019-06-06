@@ -4,3 +4,4 @@
 #include <ir.h>
 #include <type.h>
 #include <value.h>
+#include <global.h>

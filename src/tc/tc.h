@@ -18,3 +18,8 @@
 #include <system_error>
 #include <utility>
 #include <vector>
+#include <iostream>
+namespace tc
+{
+bool targetGenerate(std::ostream &os);
+}

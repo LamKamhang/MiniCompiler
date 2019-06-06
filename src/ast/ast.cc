@@ -1,5 +1,8 @@
 #include "ast.h"
 #include <memory>
+
+ast::Node::Node(const std::string &type, const std::string &value) : type(type), value(value) {}
+
 ast::Node::Node(const std::string &type, const std::string &value, int x1, int y1, int x2, int y2)
     : type(type), value(value)
 {

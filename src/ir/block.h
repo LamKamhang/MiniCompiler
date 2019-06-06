@@ -39,15 +39,27 @@ public:
         }
         return nullptr;
     }
-    static llvm::Type *getCustomType(const ir::Block &block, const std::string &type)
+    bool setSymbol(const std::string &name, llvm::Value *val)
+    {
+        if (this->SymbolTable.at(name))
+        {
+            return false;
+        }
+        else
+        {
+            this->SymbolTable[name] = val;
+            return true;
+        }
+    }
+    llvm::Type *getCustomType(const std::string &type)
     {
         if (type == "int")
         {
-            return std::move(llvm::Type::getInt32Ty(*Context));
+            return std::move(llvm::Type::getInt32Ty(*context));
         }
         if (type == "char")
         {
-            return std::move(llvm::Type::getInt8Ty(*Context));
+            return std::move(llvm::Type::getInt8Ty(*context));
         }
         return nullptr;
     }
