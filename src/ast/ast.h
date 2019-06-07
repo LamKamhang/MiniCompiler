@@ -12,6 +12,7 @@ class Node
 public:
     Node() = default;
     Node(const std::string &type) : type(type){};
+    Node(const std::string &type, const std::string &value);
     Node(const std::string &type, const std::string &value, int x1, int y1, int x2, int y2);
     Node(const std::string &type, std::pair<int, int> left, std::pair<int, int> right);
 

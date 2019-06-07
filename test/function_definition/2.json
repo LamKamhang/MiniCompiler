@@ -1,91 +1,96 @@
 {
- "type": "translation_unit",
- "children": [
-  {
-   "type": "function_definition",
-   "children": [
-    {
-     "type": "declaration_specifiers",
-     "children": [
-      {
-       "type": "type_specifier",
-       "value": "int"
-      }
-     ]
-    },
-    {
-     "type": "declarator",
-     "children": [
-      {
-       "type": "direct_declarator",
-       "children": [
+    "type": "translation_unit",
+    "children": [
         {
-         "type": "identifier",
-         "value": "main"
+            "type": "function_definition",
+            "children": [
+                {
+                    "type": "declaration_specifiers",
+                    "children": [
+                        {
+                            "type": "type_specifier",
+                            "value": "int"
+                        }
+                    ]
+                },
+                {
+                    "type": "declarator",
+                    "children": [
+                        {
+                            "type": "direct_declarator",
+                            "children": [
+                                {
+                                    "type": "identifier",
+                                    "value": "main"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "parameter_list",
+                            "children": [
+                                {
+                                    "type": "parameter_declaration",
+                                    "children": [
+                                        {
+                                            "type": "type_specifier",
+                                            "value": "int"
+                                        },
+                                        {
+                                            "type": "identifier",
+                                            "value": "argc"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "type": "parameter_declaration",
+                                    "children": [
+                                        {
+                                            "type": "type_specifier",
+                                            "value": "char"
+                                        },
+                                        {
+                                            "type": "*",
+                                            "value": "*"
+                                        },
+                                        {
+                                            "type": "*",
+                                            "value": "*"
+                                        },
+                                        {
+                                            "type": "identifier",
+                                            "value": "argv"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "compound_statement",
+                    "children": [
+                        {
+                            "type": "statement_list",
+                            "children": [
+                                {
+                                    "type": "return_expr",
+                                    "children": [
+                                        {
+                                            "type": "expression",
+                                            "children": [
+                                                {
+                                                    "type": "int",
+                                                    "value": "0"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
         }
-       ]
-      },
-      {
-       "type": "parameter_list",
-       "children": [
-        {
-         "type": "parameter_declaration",
-         "children": [
-          {
-           "type": "type_specifier",
-           "value": "int"
-          },
-          {
-           "type": "identifier",
-           "value": "argc"
-          }
-         ]
-        },
-        {
-         "type": "parameter_declaration",
-         "children": [
-          {
-           "type": "type_specifier",
-           "value": "char"
-          },
-          {
-           "type": "*",
-           "value": "*"
-          },
-          {
-           "type": "*",
-           "value": "*"
-          },
-          {
-           "type": "identifier",
-           "value": "argv"
-          }
-         ]
-        }
-       ]
-      }
-     ]
-    },
-    {
-     "type": "compound_statement",
-     "children": [
-      {
-       "type": "statement_list",
-       "children": [
-        {
-         "type": "return_expr",
-         "children": [
-          {
-           "type": "int",
-           "value": "0"
-          }
-         ]
-        }
-       ]
-      }
-     ]
-    }
-   ]
-  }
- ]
+    ]
 }

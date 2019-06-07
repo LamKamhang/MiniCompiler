@@ -58,4 +58,8 @@ scanner.cpp
 
 # test file
 test/function_definition
+test/**/*.c
+test/**/*.json
+test/**/*.ll
+test/**/*.bc
 test/ir/build

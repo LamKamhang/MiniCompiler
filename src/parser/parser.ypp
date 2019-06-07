@@ -960,7 +960,7 @@ direct_abstract_declarator
 
 initializer
 : assignment_expression	{
-  $$ = std::make_shared<ast::Node>("initializer_list", $1->get_left(), $1->get_right());
+  $$ = std::make_shared<ast::Node>("expression", $1->get_left(), $1->get_right());
   $$->children.emplace_back($1);
  }
 | '{' initializer_list '}'	{

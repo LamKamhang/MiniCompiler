@@ -25,31 +25,8 @@ public:
     //     auto &typeMap = ir::TypeMap;
     //     return res;
     // }
-    llvm::Value *getSymbol(const std::string &name)
-    {
-        Block *node = this;
-        while (node)
-        {
-            auto val = node->SymbolTable.at(name);
-            if (val)
-            {
-                return val;
-            }
-            node = node->parent;
-        }
-        return nullptr;
-    }
-    static llvm::Type *getCustomType(const ir::Block &block, const std::string &type)
-    {
-        if (type == "int")
-        {
-            return std::move(llvm::Type::getInt32Ty(*Context));
-        }
-        if (type == "char")
-        {
-            return std::move(llvm::Type::getInt8Ty(*Context));
-        }
-        return nullptr;
-    }
+    llvm::Value *getSymbol(const std::string &name);
+    bool setSymbol(const std::string &name, llvm::Value *val);
+    llvm::Type *getCustomType(const std::string &type);
 };
 } // namespace ir
