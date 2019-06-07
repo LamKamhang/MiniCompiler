@@ -24,17 +24,17 @@ int main(int argc, char **argv)
     const std::string &full_name = "2.c";
     const std::string &file_name = full_name.substr(0, full_name.size() - 2);
     // Read json
-    auto root = Json::parseJson(path + file_name + ".json");
-    if (root.empty())
+    auto root_json = Json::parseJson(path + file_name + ".json");
+    if (root_json.empty())
     {
         std::cout << "\n[main] can't parse ast from json.\n";
         return 0;
     }
     // Recover AST from Json::Value
-    std::vector<std::shared_ptr<ast::Node>> forest;
-    forest.push_back(ast::imports(root));
+    std::shared_ptr<ast::Node> root;
+    root = ast::imports(root_json);
     // Generate IR form AST
-    auto res = generator.generate(forest);
+    auto res = generator.generate(root);
     if (!res)
     {
         std::cout << "\n[main] error when generate ir.\n";

@@ -15,6 +15,7 @@ std::unique_ptr<llvm::LLVMContext> context;
 std::unique_ptr<llvm::IRBuilder<>> builder;
 std::unique_ptr<llvm::Module> module;
 ir::Generator generator;
+llvm::Function *fp = nullptr;
 
 // [Generator]
 llvm::Value *ir::Generator::LogError(const char *str)
@@ -132,11 +133,14 @@ void ir::Generator::init()
                 comp_block.SymbolTable[arg.getName()] = &arg;
             }
             // parse statements
+            auto tmp = fp;
+            fp = function;
             auto statments = table.at(comp_stat->type)(comp_stat, comp_block);
             if (!statments)
             {
                 return generator.LogError("fail to generate statements block.");
             }
+            fp = tmp;
 
             bool function_err = llvm::verifyFunction(*function);
             std::cout << "\n[generator] function verification result: "
@@ -203,43 +207,32 @@ void ir::Generator::init()
             }
             return (llvm::Value *)1;
         }));
-    table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
-        "initializer_list",
-        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
-            auto &children = node->children;
-            // if it's a single value
-            if (children.size() == 1)
-            {
-                auto expr = children[0];
-                return table.at(expr->type)(expr, block);
-            }
-            // if it's a init list
-            else
-            {
-                return table.at("literal_list_type")(node, block);
-            }
-        }));
-    // [virtual] parse list type from literal list
-    table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
-        "literal_list_type",
-        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
-            auto &children = node->children;
-            auto first_child = children[0];
-            llvm::Type *base_type;
-            // if it's another list literal
-            if (first_child->type == "initializer_list")
-            {
-            }
-            // if it's a basic literal
-            else
-            {
-                base_type = (llvm::Type *)table.at("declaration_specifiers")(first_child, block);
-            }
-            if (!base_type)
-            {
-                return nullptr;
-            }
-        }));
+    // table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
+    //     "initializer_list",
+    //     [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
+    //         auto &children = node->children;
+    //         auto list_type = (llvm::ArrayType *)table.at("literal_list_type")(node, block);
+    //         if (!list_type)
+    //         {
+    //             return nullptr;
+    //         }
+    //         llvm::AllocaInst *array_alloc = new llvm::AllocaInst(list_type,);
+    //     }));
+    // // [virtual] parse list type from literal list
+    // table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
+    //     "literal_list_type",
+    //     [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
+    //         auto &children = node->children;
+    //         // [not implement] multi type list
+    //         auto first_child = children[0];
+    //         llvm::Type *base_type = (llvm::Type *)table.at("declaration_specifiers")(first_child, block);
+    //         if (!base_type)
+    //         {
+    //             return nullptr;
+    //         }
+    //         auto num = children.size();
+    //         return (llvm::Value *)llvm::ArrayType::get(base_type, num);
+    //     }));
 
     // jump node
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
@@ -293,53 +286,51 @@ void ir::Generator::init()
         }));
 }
 
-llvm::Value *ir::Generator::generate(std::vector<std::shared_ptr<ast::Node>> &objects)
+llvm::Value *ir::Generator::generate(std::shared_ptr<ast::Node> &object)
 {
     auto &table = this->table;
     try
     {
         // Main loop
-        for (auto i = objects.begin(); i != objects.end(); ++i)
+
+        // Create infrastructure
+        ir::createIrUnit();
+        ir::Block global;
+        auto &root = object;
+        auto &type = root->type;
+        if (type != "translation_unit")
         {
-            // Create infrastructure
-            ir::createIrUnit();
-            ir::Block global;
-            auto &root = (*i);
-            auto &type = root->type;
-            if (type != "translation_unit")
-            {
-                throw "\n[ir] error: type is not translation_unit\n";
-            }
+            throw "\n[ir] error: type is not translation_unit\n";
+        }
 
-            // Generate ir from a tree
-            auto res = table.at(type)(root, global);
-            if (!res)
-            {
-                res->print(llvm::errs()); // print error msg if has
-                throw "\n[ir] error at parsing a unit.\n";
-            }
+        // Generate ir from a tree
+        auto res = table.at(type)(root, global);
+        if (!res)
+        {
+            res->print(llvm::errs()); // print error msg if has
+            throw "\n[ir] error at parsing a unit.\n";
+        }
 
-            // Print ir
-            bool broken_debug_info = true;
-            std::string err_str;
-            llvm::raw_string_ostream es(err_str);
-            bool module_broken = llvm::verifyModule(*module, &es);
-            es.flush();
-            std::cout << "\n[main] module verification result: "
-                      << (module_broken ? "wrong" : "correct") << std::endl;
-            if (module_broken)
-            {
-                std::cout << "Error message:\n"
-                          << err_str << std::endl;
-            }
-            else
-            {
-                std::string out_str;
-                llvm::raw_string_ostream os(out_str);
-                os << *module;
-                os.flush();
-                std::cout << "\n[main] Generated IR:\n" + out_str << std::endl;
-            }
+        // Print ir
+        bool broken_debug_info = true;
+        std::string err_str;
+        llvm::raw_string_ostream es(err_str);
+        bool module_broken = llvm::verifyModule(*module, &es);
+        es.flush();
+        std::cout << "\n[main] module verification result: "
+                  << (module_broken ? "wrong" : "correct") << std::endl;
+        if (module_broken)
+        {
+            std::cout << "Error message:\n"
+                      << err_str << std::endl;
+        }
+        else
+        {
+            std::string out_str;
+            llvm::raw_string_ostream os(out_str);
+            os << *module;
+            os.flush();
+            std::cout << "\n[main] Generated IR:\n" + out_str << std::endl;
         }
         return (llvm::Value *)1;
     }
