@@ -337,16 +337,47 @@ void ir::Generator::init()
             return (llvm::Value *)ret_type;
         }));
     // [function call]
+    // not implement '.'
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "postfix_expression",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
-            // not implement '.'
-            auto &id_name = node->getNameChild("identifier")->value;
+            auto &id_name = node->children[0]->value;
             auto fun = module->getFunction(id_name);
-            fun->block
+            if (!fun)
             {
                 return generator.LogError("[functino call] calling a not defined function.");
             }
+
+            auto arg_expr_list = node->children[1];
+            std::vector<llvm::Value *> arg_list;
+            // load arguments
+            for (auto arg : arg_expr_list->children)
+            {
+                auto arg_val = table.at(arg->type)(arg, block);
+                if (!arg_val)
+                {
+                    return nullptr;
+                }
+                arg_list.push_back(arg_val);
+            }
+            auto fun_type = fun->getFunctionType();
+            // check if argument's num == parameter's num
+            if (fun_type->getNumParams() != arg_list.size())
+            {
+                return generator.LogError("[fun-call] number of arguments not match.");
+            }
+            // check if argument's type == parameter's type
+            for (int i = 0; i < fun_type->getNumParams(); ++i)
+            {
+                llvm::Type *para_type = fun_type->getFunctionParamType(i);
+                auto arg = arg_list[i];
+                if (para_type != arg->getType())
+                {
+                    return generator.LogError("[fun-call] parameter type not match.");
+                }
+            }
+
+            return builder->CreateCall(fun, arg_list, "calltmp");
         }));
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "expression",

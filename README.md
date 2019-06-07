@@ -16,7 +16,7 @@ A simple C-style Language Compiler.
   - [ ] logical operations: &&, ||
   - [ ] bit operation: <<, >>, |, &
   - [ ] compare: >, ==, < , !=, >=, <=
-  - [ ] function call
+  - [x] function call
   - [ ] unspecified parameter
   - [ ] auto format transformation
   - [ ] const, static, extern

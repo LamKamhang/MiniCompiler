@@ -1,10 +1,5 @@
+#include <stdio.h>
 int main()
 {
-    char c = 'a';
-    if (a)
-    {
-    }
-    else
-    {
-    }
+    printf();
 }
