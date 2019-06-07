@@ -11,6 +11,7 @@
 #include "ir/index.h"
 #include "tc/tc.h"
 #include "lib/json/json.h"
+#include "ir/ir.h"
 
 
 extern FILE* yyin;
@@ -19,6 +20,7 @@ extern std::string cwd;
 
 int main (int argc, char **argv)
 {
+
 	if (argc >= 2)
 	{
 		if ((yyin = fopen(argv[1], "r")) == NULL)
@@ -29,11 +31,12 @@ int main (int argc, char **argv)
 	}
 
 	yyparse();
+	std::string 
 
-	 const std::string &path = "/test/function_definition/";
-    // const std::string &full_name(argv[1]);
-    const std::string &full_name = "2.c";
-    const std::string &file_name = full_name.substr(0, full_name.size() - 2);
+	// const std::string &path = "/test/function_definition/";
+    // // const std::string &full_name(argv[1]);
+    // const std::string &full_name = "2.c";
+    // const std::string &file_name = full_name.substr(0, full_name.size() - 2);
     // Recover AST from Json::Value
     std::vector<std::shared_ptr<ast::Node>> forest;
 	forest.push_back(root);
@@ -41,7 +44,7 @@ int main (int argc, char **argv)
     auto res = generator.generate(forest);
     if (!res)
     {
-        std::cout << "\n[main] error when generate ir.\n";
+        std::cerr << "\n[main] error when generate ir.\n";
         return 0;
     }
     // Save IR to file
