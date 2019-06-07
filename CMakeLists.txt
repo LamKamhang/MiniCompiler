@@ -47,14 +47,14 @@ endif (PROFILE_FLAG)
 # +----------------------------------------------+
 # | Third Party Libray                           |
 # +--------------------------------------------- +
-find_package(
-    LLVM
-    REQUIRED
-    CONFIG
-)
+find_package(LLVM REQUIRED CONFIG)
+
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+
 include_directories(${LLVM_INCLUDE_DIRS})
 add_definitions(${LLVM_DEFINITIONS})
-message("LLVM version: ${LLVM_PACKAGE_VERSION}")
+
 if (${LLVM_PACKAGE_VERSION} VERSION_LESS "7.0.0")
 	llvm_map_components_to_libnames(llvm_libs
 		LTO Passes ObjCARCOpts WindowsManifest FuzzMutate XCoreDisassembler XCoreCodeGen XCoreDesc XCoreInfo XCoreAsmPrinter SystemZDisassembler SystemZCodeGen SystemZAsmParser SystemZDesc SystemZInfo SystemZAsmPrinter SparcDisassembler SparcCodeGen SparcAsmParser SparcDesc SparcInfo SparcAsmPrinter PowerPCDisassembler PowerPCCodeGen PowerPCAsmParser PowerPCDesc PowerPCInfo PowerPCAsmPrinter NVPTXCodeGen NVPTXDesc NVPTXInfo NVPTXAsmPrinter MSP430CodeGen MSP430Desc MSP430Info MSP430AsmPrinter MipsDisassembler MipsCodeGen MipsAsmParser MipsDesc MipsInfo MipsAsmPrinter LanaiDisassembler LanaiCodeGen LanaiAsmParser LanaiDesc LanaiAsmPrinter LanaiInfo HexagonDisassembler HexagonCodeGen HexagonAsmParser HexagonDesc HexagonInfo BPFDisassembler BPFCodeGen BPFAsmParser BPFDesc BPFInfo BPFAsmPrinter ARMDisassembler ARMCodeGen ARMAsmParser ARMDesc ARMInfo ARMAsmPrinter ARMUtils AMDGPUDisassembler AMDGPUCodeGen AMDGPUAsmParser AMDGPUDesc AMDGPUInfo AMDGPUAsmPrinter AMDGPUUtils AArch64Disassembler AArch64CodeGen AArch64AsmParser AArch64Desc AArch64Info AArch64AsmPrinter AArch64Utils ObjectYAML
@@ -62,9 +62,9 @@ if (${LLVM_PACKAGE_VERSION} VERSION_LESS "7.0.0")
 	)
 elseif (${LLVM_PACKAGE_VERSION} VERSION_LESS "7.0.1")
 	llvm_map_components_to_libnames(llvm_libs
-		LTO Passes ObjCARCOpts WindowsManifest FuzzMutate XCoreDisassembler XCoreCodeGen XCoreDesc XCoreInfo XCoreAsmPrinter SystemZCodeGen SystemZAsmParser SystemZDesc SystemZInfo SystemZAsmPrinter SparcDisassembler SparcCodeGen SparcAsmParser SparcDesc SparcInfo SparcAsmPrinter PowerPCDisassembler PowerPCCodeGen PowerPCAsmParser PowerPCDesc PowerPCInfo PowerPCAsmPrinter NVPTXCodeGen NVPTXDesc NVPTXInfo NVPTXAsmPrinter MSP430CodeGen MSP430Desc MSP430Info MSP430AsmPrinter MipsDisassembler MipsCodeGen MipsAsmParser MipsDesc MipsInfo MipsAsmPrinter LanaiDisassembler LanaiCodeGen LanaiAsmParser LanaiDesc LanaiAsmPrinter LanaiInfo HexagonDisassembler HexagonCodeGen HexagonAsmParser HexagonDesc HexagonInfo BPFDisassembler BPFCodeGen BPFAsmParser BPFDesc BPFInfo BPFAsmPrinter ARMDisassembler ARMCodeGen ARMAsmParser ARMDesc ARMInfo ARMAsmPrinter ARMUtils AMDGPUDisassembler AMDGPUCodeGen AMDGPUAsmParser AMDGPUDesc AMDGPUInfo AMDGPUAsmPrinter AMDGPUUtils AArch64Disassembler AArch64CodeGen AArch64AsmParser AArch64Desc AArch64Info AArch64AsmPrinter AArch64Utils ObjectYAML
-		Interpreter TableGen DlltoolDriver XRay OrcJIT MIRParser LineEditor Symbolize DebugInfoPDB DebugInfoDWARF LibDriver Option Coroutines ipo Instrumentation Vectorize Linker IRReader AsmParser Coverage X86Disassembler X86AsmParser MCJIT ExecutionEngine RuntimeDyld X86CodeGen GlobalISel X86Desc X86Info MCDisassembler X86AsmPrinter X86Utils SelectionDAG AsmPrinter CodeGen Target ScalarOpts InstCombine AggressiveInstCombine TransformUtils BitWriter Analysis ProfileData Object MCParser MC DebugInfoCodeView DebugInfoMSF BitReader Core BinaryFormat Support Demangle
-	)
+		LTO Passes ObjCARCOpts WindowsManifest FuzzMutate XCoreDisassembler XCoreCodeGen XCoreDesc XCoreInfo XCoreAsmPrinter SystemZDisassembler SystemZCodeGen SystemZAsmParser SystemZDesc SystemZInfo SystemZAsmPrinter SparcDisassembler SparcCodeGen SparcAsmParser SparcDesc SparcInfo SparcAsmPrinter PowerPCDisassembler PowerPCCodeGen PowerPCAsmParser PowerPCDesc PowerPCInfo PowerPCAsmPrinter NVPTXCodeGen NVPTXDesc NVPTXInfo NVPTXAsmPrinter MSP430CodeGen MSP430Desc MSP430Info MSP430AsmPrinter MipsDisassembler MipsCodeGen MipsAsmParser MipsDesc MipsInfo MipsAsmPrinter LanaiDisassembler LanaiCodeGen LanaiAsmParser LanaiDesc LanaiAsmPrinter LanaiInfo HexagonDisassembler HexagonCodeGen HexagonAsmParser HexagonDesc HexagonInfo BPFDisassembler BPFCodeGen BPFAsmParser BPFDesc BPFInfo BPFAsmPrinter ARMDisassembler ARMCodeGen ARMAsmParser ARMDesc ARMInfo ARMAsmPrinter ARMUtils AMDGPUDisassembler AMDGPUCodeGen AMDGPUAsmParser AMDGPUDesc AMDGPUInfo AMDGPUAsmPrinter AMDGPUUtils AArch64Disassembler AArch64CodeGen AArch64AsmParser AArch64Desc AArch64Info AArch64AsmPrinter AArch64Utils ObjectYAML
+		Interpreter TableGen DlltoolDriver XRay OrcJIT MIRParser Symbolize DebugInfoPDB DebugInfoDWARF LibDriver Option Coroutines ipo Instrumentation Vectorize Linker IRReader AsmParser Coverage X86Disassembler X86AsmParser MCJIT ExecutionEngine RuntimeDyld X86CodeGen GlobalISel X86Desc X86Info MCDisassembler X86AsmPrinter X86Utils SelectionDAG AsmPrinter CodeGen Target ScalarOpts InstCombine TransformUtils BitWriter Analysis ProfileData Object MCParser MC DebugInfoCodeView DebugInfoMSF BitReader Core BinaryFormat Support Demangle
+		)
 else ()
 	llvm_map_components_to_libnames(llvm_libs
 		LTO Passes ObjCARCOpts WindowsManifest FuzzMutate TextAPI XCoreDisassembler XCoreCodeGen XCoreDesc XCoreInfo XCoreAsmPrinter WebAssemblyDisassembler WebAssemblyCodeGen WebAssemblyDesc WebAssemblyAsmPrinter WebAssemblyAsmParser WebAssemblyInfo SystemZDisassembler SystemZCodeGen SystemZAsmParser SystemZDesc SystemZInfo SystemZAsmPrinter SparcDisassembler SparcCodeGen SparcAsmParser SparcDesc SparcInfo SparcAsmPrinter PowerPCDisassembler PowerPCCodeGen PowerPCAsmParser PowerPCDesc PowerPCInfo PowerPCAsmPrinter NVPTXCodeGen NVPTXDesc NVPTXInfo NVPTXAsmPrinter MSP430Disassembler MSP430CodeGen MSP430AsmParser MSP430Desc MSP430Info MSP430AsmPrinter MipsDisassembler MipsCodeGen MipsAsmParser MipsDesc MipsInfo MipsAsmPrinter LanaiDisassembler LanaiCodeGen LanaiAsmParser LanaiDesc LanaiAsmPrinter LanaiInfo HexagonDisassembler HexagonCodeGen HexagonAsmParser HexagonDesc HexagonInfo BPFDisassembler BPFCodeGen BPFAsmParser BPFDesc BPFInfo BPFAsmPrinter ARMDisassembler ARMCodeGen ARMAsmParser ARMDesc ARMInfo ARMAsmPrinter ARMUtils AMDGPUDisassembler AMDGPUCodeGen AMDGPUAsmParser AMDGPUDesc AMDGPUInfo AMDGPUAsmPrinter AMDGPUUtils AArch64Disassembler AArch64CodeGen AArch64AsmParser AArch64Desc AArch64Info AArch64AsmPrinter AArch64Utils ObjectYAML

@@ -1,7 +1,7 @@
 #pragma once
-#include <../ast/ast.h>
-#include <ir.h>
-#include <block.h>
+#include "../ast/ast.h"
+#include "ir.h"
+#include "block.h"
 #include <functional>
 #include <map>
 namespace ir

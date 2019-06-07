@@ -1,6 +1,6 @@
 #pragma once
-#include <ir.h>
-#include <type.h>
+#include "ir.h"
+#include "type.h"
 #include <llvm/IR/Value.h>
 #include <llvm/IR/Type.h>
 

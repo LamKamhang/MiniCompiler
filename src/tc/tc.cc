@@ -1,5 +1,5 @@
-#include <tc/tc.h>
-#include <ir/ir.h>
+#include "tc.h"
+#include "../ir/ir.h"
 
 bool tc::targetGenerate(std::ostream &os)
 {
