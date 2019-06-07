@@ -1,277 +1,128 @@
 {
-	"type": "translation_unit",
-	"children": [
-		{
-			"type": "function_definition",
-			"children": [
-				{
-					"type": "declaration_specifiers",
-					"children": [
-						{
-							"type": "type_specifier",
-							"value": "int"
-						}
-					]
-				},
-				{
-					"type": "declarator",
-					"children": [
-						{
-							"type": "direct_declarator",
-							"children": [
-								{
-									"type": "identifier",
-									"value": "a"
-								}
-							]
-						},
-						{
-							"type": "parameter_list",
-							"children": [
-								{
-									"type": "parameter_declaration",
-									"children": [
-										{
-											"type": "type_specifier",
-											"value": "int"
-										},
-										{
-											"type": "identifier",
-											"value": "b"
-										}
-									]
-								},
-								{
-									"type": "parameter_declaration",
-									"children": [
-										{
-											"type": "type_specifier",
-											"value": "int"
-										},
-										{
-											"type": "identifier",
-											"value": "c"
-										}
-									]
-								}
-							]
-						}
-					]
-				},
-				{
-					"type": "compound_statement",
-					"children": [
-						{
-							"type": "statement_list",
-							"children": [
-								{
-									"type": "return_expr",
-									"children": [
-										{
-											"type": "expression",
-											"children": [
-												{
-													"type": "add_expression",
-													"children": [
-														{
-															"type": "identifier",
-															"value": "b"
-														},
-														{
-															"type": "identifier",
-															"value": "c"
-														}
-													]
-												}
-											]
-										}
-									]
-								}
-							]
-						}
-					]
-				}
-			]
-		},
-		{
-			"type": "function_definition",
-			"children": [
-				{
-					"type": "declaration_specifiers",
-					"children": [
-						{
-							"type": "type_specifier",
-							"value": "void"
-						}
-					]
-				},
-				{
-					"type": "declarator",
-					"children": [
-						{
-							"type": "direct_declarator",
-							"children": [
-								{
-									"type": "identifier",
-									"value": "d"
-								}
-							]
-						},
-						{
-							"type": "parameter_list",
-							"children": [
-								{
-									"type": "parameter_declaration",
-									"children": [
-										{
-											"type": "type_specifier",
-											"value": "int"
-										},
-										{
-											"type": "identifier",
-											"value": "e"
-										}
-									]
-								},
-								{
-									"type": "parameter_declaration",
-									"children": [
-										{
-											"type": "type_specifier",
-											"value": "float"
-										},
-										{
-											"type": "identifier",
-											"value": "f"
-										}
-									]
-								}
-							]
-						}
-					]
-				},
-				{
-					"type": "compound_statement",
-					"value": ""
-				}
-			]
-		},
-		{
-			"type": "function_definition",
-			"children": [
-				{
-					"type": "declaration_specifiers",
-					"children": [
-						{
-							"type": "type_specifier",
-							"value": "int"
-						}
-					]
-				},
-				{
-					"type": "declarator",
-					"children": [
-						{
-							"type": "direct_declarator",
-							"children": [
-								{
-									"type": "identifier",
-									"value": "main"
-								}
-							]
-						},
-						{
-							"type": "parameter_list",
-							"children": [
-								{
-									"type": "parameter_declaration",
-									"children": [
-										{
-											"type": "type_specifier",
-											"value": "int"
-										},
-										{
-											"type": "identifier",
-											"value": "argc"
-										}
-									]
-								},
-								{
-									"type": "parameter_declaration",
-									"children": [
-										{
-											"type": "type_specifier",
-											"value": "char"
-										},
-										{
-											"type": "*",
-											"value": "*"
-										},
-										{
-											"type": "*",
-											"value": "*"
-										},
-										{
-											"type": "identifier",
-											"value": "argv"
-										}
-									]
-								}
-							]
-						}
-					]
-				},
-				{
-					"type": "compound_statement",
-					"children": [
-						{
-							"type": "statement_list",
-							"children": [
-								{
-									"type": "return_expr",
-									"children": [
-										{
-											"type": "expression",
-											"children": [
-												{
-													"type": "postfix_expression",
-													"children": [
-														{
-															"type": "identifier",
-															"value": "a"
-														},
-														{
-															"type": "(",
-															"value": "("
-														},
-														{
-															"type": "argument_expression_list",
-															"children": [
-																{
-																	"type": "int",
-																	"value": "1"
-																},
-																{
-																	"type": "int",
-																	"value": "2"
-																}
-															]
-														},
-														{
-															"type": ")",
-															"value": ")"
-														}
-													]
-												}
-											]
-										}
-									]
-								}
-							]
-						}
-					]
-				}
-			]
-		}
-	]
+    "type": "translation_unit",
+    "children": [
+        {
+            "type": "function_definition",
+            "children": [
+                {
+                    "type": "declaration_specifiers",
+                    "children": [
+                        {
+                            "type": "type_specifier",
+                            "value": "int"
+                        }
+                    ]
+                },
+                {
+                    "type": "declarator",
+                    "children": [
+                        {
+                            "type": "direct_declarator",
+                            "children": [
+                                {
+                                    "type": "identifier",
+                                    "value": "main"
+                                }
+                            ]
+                        },
+                        {
+                            "type": "(",
+                            "value": "("
+                        },
+                        {
+                            "type": ")",
+                            "value": ")"
+                        }
+                    ]
+                },
+                {
+                    "type": "compound_statement",
+                    "children": [
+                        {
+                            "type": "declaration_list",
+                            "children": [
+                                {
+                                    "type": "declaration",
+                                    "children": [
+                                        {
+                                            "type": "declaration_specifiers",
+                                            "children": [
+                                                {
+                                                    "type": "type_specifier",
+                                                    "value": "int"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "type": "init_declarator_list",
+                                            "children": [
+                                                {
+                                                    "type": "declarator",
+                                                    "children": [
+                                                        {
+                                                            "type": "identifier",
+                                                            "value": "a"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "declarator",
+                                                    "children": [
+                                                        {
+                                                            "type": "identifier",
+                                                            "value": "b"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "type": "statement_list",
+                            "children": [
+                                {
+                                    "type": "expression",
+                                    "children": [
+                                        {
+                                            "type": "assignment_expression",
+                                            "children": [
+                                                {
+                                                    "type": "identifier",
+                                                    "value": "a"
+                                                },
+                                                {
+                                                    "type": "=",
+                                                    "value": "="
+                                                },
+                                                {
+                                                    "type": "assignment_expression",
+                                                    "children": [
+                                                        {
+                                                            "type": "identifier",
+                                                            "value": "b"
+                                                        },
+                                                        {
+                                                            "type": "=",
+                                                            "value": "="
+                                                        },
+                                                        {
+                                                            "type": "int",
+                                                            "value": "3"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
 }
