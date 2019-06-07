@@ -7,9 +7,9 @@ project(ncc)
 set(target_name ncc)
 
 set(source_files
-	src/main.cxx
-	src/parser/scanner.cpp
-	src/parser/parser.cpp
+	src/main.cc
+	src/parser/scanner.cc
+	src/parser/parser.cc
 	src/ast/ast.cc
 	src/lib/json/jsoncpp.cc
 	src/ir/ir.cc
