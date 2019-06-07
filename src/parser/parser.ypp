@@ -8,6 +8,8 @@
 extern int yylex(void);
 void yyerror(const char *);
 
+YYSTYPE root;
+
 %}
 
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
@@ -30,8 +32,9 @@ void yyerror(const char *);
 
 program
 : translation_unit	{
-  Json::StyledStreamWriter writer(" ");
-  writer.write(std::cout, ast::exports($1));
+  // Json::StyledStreamWriter writer(" ");
+  // writer.write(std::cout, ast::exports($1));
+  root = $1;
  }
 ;
 
