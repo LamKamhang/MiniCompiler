@@ -15,7 +15,6 @@ std::unique_ptr<llvm::LLVMContext> context;
 std::unique_ptr<llvm::IRBuilder<>> builder;
 std::unique_ptr<llvm::Module> module;
 ir::Generator generator;
-llvm::Function *fp = nullptr;
 
 // [Generator]
 llvm::Value *ir::Generator::LogError(const char *str)
@@ -56,8 +55,6 @@ void ir::Generator::init()
         std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
             "compound_statement",
             [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
-                auto lastBlock = builder->GetInsertBlock();
-                builder->SetInsertPoint(block.basic_block);
                 for (auto stat : node->children)
                 {
                     if (!table.at(stat->type)(stat, block))
@@ -65,7 +62,6 @@ void ir::Generator::init()
                         return nullptr;
                     }
                 }
-                builder->SetInsertPoint(lastBlock);
                 return (llvm::Value *)1;
             }));
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
@@ -103,6 +99,15 @@ void ir::Generator::init()
             // create function prototype
             llvm::FunctionType *function_type =
                 llvm::FunctionType::get(ret_type, para_type, false);
+            // check if exists a same name but different type function, which should be error
+            auto maybe_fun = module->getFunction(fun_name);
+            if (maybe_fun)
+            {
+                if (maybe_fun->getFunctionType() != function_type)
+                {
+                    return generator.LogError("[fun-def] define a same name function but with different type.");
+                }
+            }
             llvm::Function *function = llvm::Function::Create(
                 function_type, llvm::GlobalValue::ExternalLinkage, fun_name,
                 module.get());
@@ -114,34 +119,35 @@ void ir::Generator::init()
             }
             if (!function)
             {
-                return generator.LogError("fail to generate function.");
+                return generator.LogError("[fun-def] fail to generate function.");
             }
             if (!function->empty())
             {
-                return generator.LogError("function can not be redefined.");
+                return generator.LogError("[fun-def] function can not be redefined.");
             }
 
             // compound statements
             auto comp_stat = func_decl->children[2];
             ir::Block comp_block(&block);
-            // use a new basic block
-            comp_block.basic_block =
-                llvm::BasicBlock::Create(*context, fun_name + "_block", function);
             // record function parameters
             for (auto &arg : function->args())
             {
                 comp_block.SymbolTable[arg.getName()] = &arg;
             }
             // parse statements
-            auto tmp = fp;
-            fp = function;
+            // use a new basic block
+            auto comp_bb = llvm::BasicBlock::Create(*context, fun_name + "_block", function);
+            // record old block
+            auto old_bb = builder->GetInsertBlock();
+            builder->SetInsertPoint(comp_bb);
             auto statments = table.at(comp_stat->type)(comp_stat, comp_block);
             if (!statments)
             {
-                return generator.LogError("fail to generate statements block.");
+                return generator.LogError("[fun-def] fail to generate statements block.");
             }
-            fp = tmp;
+            builder->SetInsertPoint(old_bb);
 
+            // verify function
             bool function_err = llvm::verifyFunction(*function);
             std::cout << "\n[generator] function verification result: "
                       << (function_err ? "wrong" : "correct") << std::endl;
@@ -234,6 +240,76 @@ void ir::Generator::init()
     //         return (llvm::Value *)llvm::ArrayType::get(base_type, num);
     //     }));
 
+    // [flow control]
+    table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
+        "if_else_statement",
+        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
+            auto &children = node->children;
+            auto expr = children[0];
+            llvm::Value *cond_value = table.at("expression")(expr, block);
+            if (!cond_value)
+            {
+                return nullptr;
+            }
+
+            // Convert condition to a bool by comparing non-equal to 0.0.
+            cond_value = builder->CreateFCmpONE(
+                cond_value, llvm::ConstantFP::get(*context, llvm::APFloat(0.0)), "cond-value");
+
+            llvm::Function *block_fun = builder->GetInsertBlock()->getParent();
+            //then block
+            llvm::BasicBlock *true_block = llvm::BasicBlock::Create(
+                *context,
+                llvm::Twine("ture_block"),
+                block_fun);
+            //else block
+            llvm::BasicBlock *false_block = llvm::BasicBlock::Create(
+                *context,
+                llvm::Twine("false_block"));
+            //merge block
+            llvm::BasicBlock *merge_block = llvm::BasicBlock::Create(
+                *context,
+                llvm::Twine("merge_block"));
+
+            builder->CreateCondBr(cond_value, true_block, false_block);
+
+            // Emit then llvm::Value.
+            auto true_stat = children[1];
+            ir::Block true_b(&block);
+            auto old_bb = builder->GetInsertBlock();
+            builder->SetInsertPoint(true_block);
+            auto true_comp = table.at("compound_statement")(true_stat, true_b);
+            if (!true_comp)
+            {
+                return nullptr;
+            }
+            builder->CreateBr(merge_block);
+            // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
+            true_block = builder->GetInsertBlock();
+            builder->SetInsertPoint(old_bb);
+
+            block_fun->getBasicBlockList().push_back(false_block);
+
+            // Emit else block.
+            auto false_stat = children[2];
+            ir::Block false_b(&block);
+            auto old_bb = builder->GetInsertBlock();
+            builder->SetInsertPoint(false_block);
+            auto false_comp = table.at("compound_statement")(false_stat, false_b);
+            if (!false_comp)
+            {
+                return nullptr;
+            }
+            builder->CreateBr(merge_block);
+            // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
+            false_block = builder->GetInsertBlock();
+            builder->SetInsertPoint(old_bb);
+
+            // Emit merge block.
+            block_fun->getBasicBlockList().push_back(merge_block);
+            builder->SetInsertPoint(merge_block);
+            return (llvm::Value *)1;
+        }));
     // jump node
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "return_expr",
@@ -260,6 +336,18 @@ void ir::Generator::init()
             }
             return (llvm::Value *)ret_type;
         }));
+    // [function call]
+    table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
+        "postfix_expression",
+        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
+            // not implement '.'
+            auto &id_name = node->getNameChild("identifier")->value;
+            auto fun = module->getFunction(id_name);
+            fun->block
+            {
+                return generator.LogError("[functino call] calling a not defined function.");
+            }
+        }));
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "expression",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
@@ -283,6 +371,16 @@ void ir::Generator::init()
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
             auto val = atoi(node->value.c_str());
             return llvm::ConstantInt::get(*context, llvm::APInt(8, val, false));
+        }));
+    table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
+        "identifier",
+        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
+            auto id_val = block.getSymbol(node->value);
+            if (!id_val)
+            {
+                return generator.LogError("[identifier] cannot find such identifier.");
+            }
+            return id_val;
         }));
 }
 

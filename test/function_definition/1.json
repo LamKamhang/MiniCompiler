@@ -21,17 +21,40 @@
 							"children": [
 								{
 									"type": "identifier",
-									"value": "main"
+									"value": "a"
 								}
 							]
 						},
 						{
-							"type": "(",
-							"value": "("
-						},
-						{
-							"type": ")",
-							"value": ")"
+							"type": "parameter_list",
+							"children": [
+								{
+									"type": "parameter_declaration",
+									"children": [
+										{
+											"type": "type_specifier",
+											"value": "int"
+										},
+										{
+											"type": "identifier",
+											"value": "b"
+										}
+									]
+								},
+								{
+									"type": "parameter_declaration",
+									"children": [
+										{
+											"type": "type_specifier",
+											"value": "int"
+										},
+										{
+											"type": "identifier",
+											"value": "c"
+										}
+									]
+								}
+							]
 						}
 					]
 				},
@@ -39,148 +62,204 @@
 					"type": "compound_statement",
 					"children": [
 						{
-							"type": "declaration_list",
+							"type": "statement_list",
 							"children": [
 								{
-									"type": "declaration",
+									"type": "return_expr",
 									"children": [
 										{
-											"type": "declaration_specifiers",
+											"type": "expression",
 											"children": [
 												{
-													"type": "type_specifier",
-													"value": "int"
+													"type": "add_expression",
+													"children": [
+														{
+															"type": "identifier",
+															"value": "b"
+														},
+														{
+															"type": "identifier",
+															"value": "c"
+														}
+													]
 												}
 											]
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"type": "function_definition",
+			"children": [
+				{
+					"type": "declaration_specifiers",
+					"children": [
+						{
+							"type": "type_specifier",
+							"value": "void"
+						}
+					]
+				},
+				{
+					"type": "declarator",
+					"children": [
+						{
+							"type": "direct_declarator",
+							"children": [
+								{
+									"type": "identifier",
+									"value": "d"
+								}
+							]
+						},
+						{
+							"type": "parameter_list",
+							"children": [
+								{
+									"type": "parameter_declaration",
+									"children": [
+										{
+											"type": "type_specifier",
+											"value": "int"
 										},
 										{
-											"type": "init_declarator_list",
+											"type": "identifier",
+											"value": "e"
+										}
+									]
+								},
+								{
+									"type": "parameter_declaration",
+									"children": [
+										{
+											"type": "type_specifier",
+											"value": "float"
+										},
+										{
+											"type": "identifier",
+											"value": "f"
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"type": "compound_statement",
+					"value": ""
+				}
+			]
+		},
+		{
+			"type": "function_definition",
+			"children": [
+				{
+					"type": "declaration_specifiers",
+					"children": [
+						{
+							"type": "type_specifier",
+							"value": "int"
+						}
+					]
+				},
+				{
+					"type": "declarator",
+					"children": [
+						{
+							"type": "direct_declarator",
+							"children": [
+								{
+									"type": "identifier",
+									"value": "main"
+								}
+							]
+						},
+						{
+							"type": "parameter_list",
+							"children": [
+								{
+									"type": "parameter_declaration",
+									"children": [
+										{
+											"type": "type_specifier",
+											"value": "int"
+										},
+										{
+											"type": "identifier",
+											"value": "argc"
+										}
+									]
+								},
+								{
+									"type": "parameter_declaration",
+									"children": [
+										{
+											"type": "type_specifier",
+											"value": "char"
+										},
+										{
+											"type": "*",
+											"value": "*"
+										},
+										{
+											"type": "*",
+											"value": "*"
+										},
+										{
+											"type": "identifier",
+											"value": "argv"
+										}
+									]
+								}
+							]
+						}
+					]
+				},
+				{
+					"type": "compound_statement",
+					"children": [
+						{
+							"type": "statement_list",
+							"children": [
+								{
+									"type": "return_expr",
+									"children": [
+										{
+											"type": "expression",
 											"children": [
 												{
-													"type": "declarator",
+													"type": "postfix_expression",
 													"children": [
 														{
 															"type": "identifier",
 															"value": "a"
-														}
-													]
-												}
-											]
-										}
-									]
-								},
-								{
-									"type": "declaration",
-									"children": [
-										{
-											"type": "declaration_specifiers",
-											"children": [
-												{
-													"type": "type_qualifier",
-													"value": "const"
-												},
-												{
-													"type": "type_specifier",
-													"value": "int"
-												}
-											]
-										},
-										{
-											"type": "init_declarator_list",
-											"children": [
-												{
-													"type": "init_declarator",
-													"children": [
+														},
 														{
-															"type": "declarator",
+															"type": "(",
+															"value": "("
+														},
+														{
+															"type": "argument_expression_list",
 															"children": [
 																{
-																	"type": "identifier",
-																	"value": "b"
+																	"type": "int",
+																	"value": "1"
+																},
+																{
+																	"type": "int",
+																	"value": "2"
 																}
 															]
 														},
 														{
-															"type": "initializer_list",
-															"children": [
-																{
-																	"type": "int",
-																	"value": "3"
-																}
-															]
-														}
-													]
-												}
-											]
-										}
-									]
-								},
-								{
-									"type": "declaration",
-									"children": [
-										{
-											"type": "declaration_specifiers",
-											"children": [
-												{
-													"type": "type_specifier",
-													"value": "int"
-												}
-											]
-										},
-										{
-											"type": "init_declarator_list",
-											"children": [
-												{
-													"type": "init_declarator",
-													"children": [
-														{
-															"type": "declarator",
-															"children": [
-																{
-																	"type": "direct_declarator",
-																	"children": [
-																		{
-																			"type": "identifier",
-																			"value": "c"
-																		}
-																	]
-																},
-																{
-																	"type": "[",
-																	"value": "["
-																},
-																{
-																	"type": "]",
-																	"value": "]"
-																}
-															]
-														},
-														{
-															"type": "initializer_list",
-															"children": [
-																{
-																	"type": "int",
-																	"value": "4"
-																},
-																{
-																	"type": "initializer_list",
-																	"children": [
-																		{
-																			"type": "int",
-																			"value": "5"
-																		}
-																	]
-																},
-																{
-																	"type": "initializer_list",
-																	"children": [
-																		{
-																			"type": "int",
-																			"value": "6"
-																		}
-																	]
-																}
-															]
+															"type": ")",
+															"value": ")"
 														}
 													]
 												}

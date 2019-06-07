@@ -1,12 +1,14 @@
-/*fdasfasfasf
-sdfafsa
-fsadf
-fasdfasfd*/
-int a = 5;
-const int ***function(int argc, char const *argv[1 + 2 * a - 0]);
-int main(int argc, char const *argv[1 + 2 * a - 0])
+int main()
 {
-    char const *bbb[2], c[2];
-    /* code */
-    return 0;
+    int a;
+    if (a)
+    {
+        int b = 3 + 2;
+        b += 1;
+    }
+    else
+    {
+        int c = a * 1;
+        a += c;
+    }
 }

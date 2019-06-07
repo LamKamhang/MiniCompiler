@@ -11,7 +11,7 @@ public:
     // std::unordered_map<std::string, llvm::Type> TypeTable;
     std::unordered_map<std::string, llvm::Value *> SymbolTable;
     Block *parent = nullptr;
-    llvm::BasicBlock *basic_block;
+    // llvm::BasicBlock *basic_block;
     Block() = default;
     Block(Block *parent) : parent(parent){};
     // template <typename... T>
