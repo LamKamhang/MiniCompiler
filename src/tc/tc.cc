@@ -41,7 +41,11 @@ bool tc::targetGenerate(std::ostream &os)
     std::string out;
     llvm::raw_string_ostream ros(out);
     llvm::buffer_ostream bos(ros);
+#if CLANG_VERSION_MAJOR < 7
+    if (target_machine->addPassesToEmitFile(pass, bos, file_type))
+#else
     if (target_machine->addPassesToEmitFile(pass, bos, nullptr, file_type))
+#endif
     {
         llvm::errs() << "target_machine can't emit a file of this type";
         return false;
