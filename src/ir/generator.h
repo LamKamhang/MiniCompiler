@@ -11,7 +11,7 @@ class Generator
 public:
     std::map<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>> table;
     void init();
-    llvm::Value *ir::Generator::generate(std::shared_ptr<ast::Node> &object);
+    llvm::Value *generate(std::shared_ptr<ast::Node> &object);
     llvm::Value *LogError(const char *str);
     Generator() { this->init(); };
 };
