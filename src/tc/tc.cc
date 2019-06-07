@@ -1,5 +1,5 @@
-#include <tc/tc.h>
-#include <ir/ir.h>
+#include "tc.h"
+#include "../ir/ir.h"
 
 bool tc::targetGenerate(std::ostream &os)
 {
@@ -41,7 +41,7 @@ bool tc::targetGenerate(std::ostream &os)
     std::string out;
     llvm::raw_string_ostream ros(out);
     llvm::buffer_ostream bos(ros);
-#if CLANG_VERSION_MAJOR < 7
+#if LLVM_VERSION_MAJOR == 6
     if (target_machine->addPassesToEmitFile(pass, bos, file_type))
 #else
     if (target_machine->addPassesToEmitFile(pass, bos, nullptr, file_type))

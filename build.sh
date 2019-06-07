@@ -22,12 +22,12 @@ fi
 pre_build(){
 	echo "ready to build yacc and lex file"
 	cd $parser_path
-	bison -d parser.ypp -o parser.cpp
+	bison -d parser.yy -o parser.cc
 	if [ $? -ne 0 ]; then
 		echo "yacc generate failed."
 		exit 1
 	else
-		flex -o scanner.cpp scanner.lex
+		flex -o scanner.cc scanner.ll
 		if [ $? -ne 0 ]; then
 			echo "flex generate failed."
 			exit 1

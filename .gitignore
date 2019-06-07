@@ -53,8 +53,11 @@ _*
 
 # remove auto generated files
 parser.cpp
+parser.cc
 parser.hpp
+parser.hh
 scanner.cpp
+scanner.cc
 
 # test file
 test/function_definition

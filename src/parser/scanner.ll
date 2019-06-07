@@ -7,7 +7,7 @@
 #include "../ast/ast.h"
 
 #define YYSTYPE std::shared_ptr<ast::Node>
-#include "parser.hpp"
+#include "parser.hh"
 
   // #define DEBUG_LEX
 static int ypos = 0;
