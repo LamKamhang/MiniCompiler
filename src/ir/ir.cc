@@ -293,7 +293,7 @@ void ir::Generator::init()
             // Emit else block.
             auto false_stat = children[2];
             ir::Block false_b(&block);
-            auto old_bb = builder->GetInsertBlock();
+            old_bb = builder->GetInsertBlock();
             builder->SetInsertPoint(false_block);
             auto false_comp = table.at("compound_statement")(false_stat, false_b);
             if (!false_comp)
