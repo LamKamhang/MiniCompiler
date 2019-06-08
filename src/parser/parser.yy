@@ -346,7 +346,7 @@ assignment_expression
   $$ = $1;
  }
 | unary_expression assignment_operator assignment_expression	{
-  $$ = std::make_shared<ast::Node>(assignment_operator->type, $1->get_left(), $3->get_right());
+  $$ = std::make_shared<ast::Node>($2->type, $1->get_left(), $3->get_right());
   $$->children.emplace_back($1);
   $$->children.emplace_back($3);
  }

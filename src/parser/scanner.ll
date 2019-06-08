@@ -85,7 +85,7 @@ e_float			({num}|{float_num})[eE][+-]?{num}
 
 "..."			{yylval = std::make_shared<ast::Node>("..."		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return ELLIPSIS; }
 ">>="			{yylval = std::make_shared<ast::Node>(">>="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return RIGHT_SHIFT_ASSIGN; }
-"<<="			{yylval = std::make_shared<ast::Node>("<<="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return LEST_SHIFT_ASSIGN; }
+"<<="			{yylval = std::make_shared<ast::Node>("<<="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return LEFT_SHIFT_ASSIGN; }
 "+="			{yylval = std::make_shared<ast::Node>("+="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return ADD_ASSIGN; }
 "-="			{yylval = std::make_shared<ast::Node>("-="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return SUB_ASSIGN; }
 "*="			{yylval = std::make_shared<ast::Node>("*="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return MUL_ASSIGN; }
