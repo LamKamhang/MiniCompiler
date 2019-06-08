@@ -84,8 +84,8 @@ e_float			({num}|{float_num})[eE][+-]?{num}
 {e_float}		{yylval = std::make_shared<ast::Node>("float"	,e2float(), yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return CONSTANT;}
 
 "..."			{yylval = std::make_shared<ast::Node>("..."		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return ELLIPSIS; }
-">>="			{yylval = std::make_shared<ast::Node>(">>="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return RIGHT_ASSIGN; }
-"<<="			{yylval = std::make_shared<ast::Node>("<<="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return LEFT_ASSIGN; }
+">>="			{yylval = std::make_shared<ast::Node>(">>="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return RIGHT_SHIFT_ASSIGN; }
+"<<="			{yylval = std::make_shared<ast::Node>("<<="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return LEST_SHIFT_ASSIGN; }
 "+="			{yylval = std::make_shared<ast::Node>("+="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return ADD_ASSIGN; }
 "-="			{yylval = std::make_shared<ast::Node>("-="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return SUB_ASSIGN; }
 "*="			{yylval = std::make_shared<ast::Node>("*="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return MUL_ASSIGN; }
@@ -94,8 +94,8 @@ e_float			({num}|{float_num})[eE][+-]?{num}
 "&="			{yylval = std::make_shared<ast::Node>("&="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return AND_ASSIGN; }
 "^="			{yylval = std::make_shared<ast::Node>("^="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return XOR_ASSIGN; }
 "|="			{yylval = std::make_shared<ast::Node>("|="		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return OR_ASSIGN; }
-">>"			{yylval = std::make_shared<ast::Node>(">>"		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return RIGHT_OP; }
-"<<"			{yylval = std::make_shared<ast::Node>("<<"		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return LEFT_OP; }
+">>"			{yylval = std::make_shared<ast::Node>(">>"		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return RIGHT_SHIFT_OP; }
+"<<"			{yylval = std::make_shared<ast::Node>("<<"		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return LEFT_SHIFT_OP; }
 "++"			{yylval = std::make_shared<ast::Node>("++"		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return INC_OP; }
 "--"			{yylval = std::make_shared<ast::Node>("--"		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return DEC_OP; }
 "->"			{yylval = std::make_shared<ast::Node>("->"		,	yytext, yylineno, ypos, yylineno, ypos+yyleng); ypos+=yyleng; return PTR_OP; }
