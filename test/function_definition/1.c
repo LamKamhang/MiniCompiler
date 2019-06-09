@@ -1,7 +1,6 @@
+int a(int b, int c) { return 0; }
 int main()
 {
-    int a;
-    int b = 3;
-    /* int c[] = {1, 2, 3}; */
+    a(1, 2);
     return 0;
 }
