@@ -13,9 +13,9 @@ YYSTYPE root;
 %}
 
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
-%token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
+%token PTR_OP INC_OP DEC_OP LEFT_SHIFT_OP RIGHT_SHIFT_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
-%token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
+%token SUB_ASSIGN LEFT_SHIFT_ASSIGN RIGHT_SHIFT_ASSIGN AND_ASSIGN
 %token XOR_ASSIGN OR_ASSIGN
 
 %token TYPEDEF EXTERN STATIC AUTO REGISTER
@@ -220,12 +220,12 @@ shift_expression
 : additive_expression	{
   $$ = $1;
  }
-| shift_expression LEFT_OP additive_expression		{
+| shift_expression LEFT_SHIFT_OP additive_expression		{
   $$ = std::make_shared<ast::Node>("left_shift_expression", $1->get_left(), $3->get_right());
   $$->children.emplace_back($1);
   $$->children.emplace_back($3);
  }
-| shift_expression RIGHT_OP additive_expression	{
+| shift_expression RIGHT_SHIFT_OP additive_expression	{
   $$ = std::make_shared<ast::Node>("right_shift_expression", $1->get_left(), $3->get_right());
   $$->children.emplace_back($1);
   $$->children.emplace_back($3);
@@ -346,9 +346,8 @@ assignment_expression
   $$ = $1;
  }
 | unary_expression assignment_operator assignment_expression	{
-  $$ = std::make_shared<ast::Node>("assignment_expression", $1->get_left(), $3->get_right());
+  $$ = std::make_shared<ast::Node>($2->type, $1->get_left(), $3->get_right());
   $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
   $$->children.emplace_back($3);
  }
 ;
@@ -356,36 +355,47 @@ assignment_expression
 assignment_operator
 : '='	{
   $$ = $1;
+  $$->type = "assign_expr";
  }
 | MUL_ASSIGN	{
    $$ = $1;
+   $$->type = "mul_assign_expr";
   }
 | DIV_ASSIGN	{
    $$ = $1;
+   $$->type = "div_assign_expr";
   }
 | MOD_ASSIGN	{
    $$ = $1;
+   $$->type = "mod_assign_expr";
   }
 | ADD_ASSIGN	{
    $$ = $1;
+   $$->type = "add_assign_expr";
   }
 | SUB_ASSIGN	{
    $$ = $1;
+   $$->type = "sub_assign_expr";
   }
-| LEFT_ASSIGN	{
+| LEFT_SHIFT_ASSIGN	{
    $$ = $1;
+   $$->type = "left_shift_assign_expr";
   }
-| RIGHT_ASSIGN	{
+| RIGHT_SHIFT_ASSIGN	{
    $$ = $1;
+   $$->type = "right_shift_assign_expr";
   }
 | AND_ASSIGN	{
    $$ = $1;
+   $$->type = "and_assign_expr";
   }
 | XOR_ASSIGN	{
    $$ = $1;
+   $$->type = "xor_assign_expr";
   }
 | OR_ASSIGN	{
    $$ = $1;
+   $$->type = "or_assign_expr";
   }
 ;
 
