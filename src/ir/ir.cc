@@ -369,7 +369,7 @@ void ir::Generator::init()
     // [function call]
     // [not implement] '.'
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
-        "postfix_expression",
+        "function_call",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
             auto &id_name = node->children[0]->value;
             auto fun = module->getFunction(id_name);
@@ -408,7 +408,7 @@ void ir::Generator::init()
                 }
             }
 
-            return builder->CreateCall(fun, arg_list, "calltmp");
+            return builder->CreateCall(fun, arg_list, "call_"+id_name);
         }));
 
     // [expression]
