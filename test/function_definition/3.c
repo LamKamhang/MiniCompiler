@@ -1,14 +1,4 @@
-int main()
+int main(int argc, char const *argv[])
 {
-    int a;
-    if (a)
-    {
-        int b = 3 + 2;
-        b += 1;
-    }
-    else
-    {
-        int c = a * 1;
-        a += c;
-    }
+    return 0;
 }

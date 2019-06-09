@@ -67,7 +67,7 @@ void ir::Generator::init()
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "function_definition",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
-            // function return type
+            // function return type            
             auto func_decl = node;
             auto type_spec = func_decl->children[0]->getNameChild("type_specifier")->value;
             auto ret_type = block.getCustomType(type_spec);
@@ -448,7 +448,7 @@ void ir::Generator::init()
 }
 
 llvm::Value *ir::Generator::generate(std::shared_ptr<ast::Node> &object)
-{
+{   
     auto &table = this->table;
     try
     {
@@ -525,7 +525,7 @@ ir::Block *ir::Block::getSymbolTable(const std::string &name)
     Block *node = this;
     while (node)
     {
-        if (node->SymbolTable.at(name))
+        if (node->SymbolTable.count(name))
         {
             break;
         }
@@ -537,10 +537,10 @@ llvm::Value *ir::Block::getSymbol(const std::string &name)
     Block *node = this;
     while (node)
     {
-        auto val = node->SymbolTable.at(name);
+        auto val = node->SymbolTable.count(name);
         if (val)
         {
-            return val;
+            return node->SymbolTable.at(name);
         }
         node = node->parent;
     }
@@ -548,7 +548,7 @@ llvm::Value *ir::Block::getSymbol(const std::string &name)
 }
 bool ir::Block::defineSymbol(const std::string &name, llvm::Value *val)
 {
-    if (this->SymbolTable.at(name))
+    if (this->SymbolTable.count(name))
     {
         return false;
     }
@@ -560,7 +560,7 @@ bool ir::Block::defineSymbol(const std::string &name, llvm::Value *val)
 }
 bool ir::Block::setSymbol(const std::string &name, llvm::Value *val)
 {
-    if (!this->SymbolTable.at(name))
+    if (!this->SymbolTable.count(name))
     {
         return false;
     }
