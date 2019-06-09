@@ -9,8 +9,9 @@ namespace ir
 class Type
 {
 public:
-    std::stack<llvm::Type *> typeStack;
-    Type() = default;
+    llvm::Type* lty;
+    bool constant;
+    Type(llvm::Type* type, bool constant = false): lty(type),constant(constant){};
 };
 
 } // namespace ir
