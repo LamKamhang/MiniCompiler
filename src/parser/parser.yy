@@ -59,44 +59,42 @@ postfix_expression
   $$ = $1;
  }
 | postfix_expression '[' expression ']'	{
-	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $4->get_right());
+	$$ = std::make_shared<ast::Node>("index_reference", $1->get_left(), $4->get_right());
 	$$->children.emplace_back($1);
 	$$->children.emplace_back($2);
 	$$->children.emplace_back($3);
 	$$->children.emplace_back($4);
 }
 | postfix_expression '(' ')'	{
-	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $3->get_right());
+	$$ = std::make_shared<ast::Node>("function_call", $1->get_left(), $3->get_right());
+  auto a_list = std::make_shared<ast::Node>("argument_list", $2->get_left(), $3->get_right());
 	$$->children.emplace_back($1);
-	$$->children.emplace_back($2);
-	$$->children.emplace_back($3);
+  $$->children.emplace_back(a_list);
 }
 | postfix_expression '(' argument_expression_list ')'	{
-	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $4->get_right());
+	$$ = std::make_shared<ast::Node>("function_call", $1->get_left(), $4->get_right());
 	$$->children.emplace_back($1);
-	$$->children.emplace_back($2);
 	$$->children.emplace_back($3);
-	$$->children.emplace_back($4);
 }
 | postfix_expression '.' IDENTIFIER	{
-	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $3->get_right());
+	$$ = std::make_shared<ast::Node>("member_reference", $1->get_left(), $3->get_right());
 	$$->children.emplace_back($1);
 	$$->children.emplace_back($2);
 	$$->children.emplace_back($3);
 }
 | postfix_expression PTR_OP IDENTIFIER	{
-	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $3->get_right());
+	$$ = std::make_shared<ast::Node>("pointer_reference", $1->get_left(), $3->get_right());
 	$$->children.emplace_back($1);
 	$$->children.emplace_back($2);
 	$$->children.emplace_back($3);
 }
 | postfix_expression INC_OP	{
-	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $2->get_right());
+	$$ = std::make_shared<ast::Node>("post_inc_expression", $1->get_left(), $2->get_right());
 	$$->children.emplace_back($1);
 	$$->children.emplace_back($2);
 }
 | postfix_expression DEC_OP	{
-	$$ = std::make_shared<ast::Node>("postfix_expression", $1->get_left(), $2->get_right());
+	$$ = std::make_shared<ast::Node>("post_dev_expression", $1->get_left(), $2->get_right());
 	$$->children.emplace_back($1);
 	$$->children.emplace_back($2);
 }
