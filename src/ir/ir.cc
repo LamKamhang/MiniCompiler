@@ -105,7 +105,7 @@ void ir::Generator::init()
             {
                 if (maybe_fun->getFunctionType() != function_type)
                 {
-                    return generator.LogError("[fun-def] define a same name function but with different type.");
+                    return generator.LogError("[ir\\fun-def] define a same name function but with different type.");
                 }
             }
             llvm::Function *function = llvm::Function::Create(
@@ -119,11 +119,11 @@ void ir::Generator::init()
             }
             if (!function)
             {
-                return generator.LogError("[fun-def] fail to generate function.");
+                return generator.LogError("[ir\\fun-def] fail to generate function.");
             }
             if (!function->empty())
             {
-                return generator.LogError("[fun-def] function can not be redefined.");
+                return generator.LogError("[ir\\fun-def] function can not be redefined.");
             }
 
             // compound statements
@@ -143,7 +143,7 @@ void ir::Generator::init()
             auto statments = table.at(comp_stat->type)(comp_stat, comp_block);
             if (!statments)
             {
-                return generator.LogError("[fun-def] fail to generate statements block.");
+                return generator.LogError("[ir\\fun-def] fail to generate statements block.");
             }
             builder->SetInsertPoint(old_bb);
 
@@ -187,17 +187,23 @@ void ir::Generator::init()
             for (auto child : init_decl_list->children)
             {
                 // [not implement] 'pointer' yet
+                // [not implement] 'array' yet
                 auto id_name = child->getNameChild("identifier")->value;
                 llvm::Value *init_val;
+                auto declarator = child;
                 if (child->type == "init_declarator")
                 {
-                    auto init_list = child->children[1];
-                    init_val = table.at("initializer_list")(init_list, block);
+                    declarator = child->children[0];
+                    auto expr = child->children[1];
+                    // can be initializer_list or expression
+                    // [not implement] 'initializer_list'
+                    init_val = table.at(expr->type)(expr, block);
                 }
                 else if (child->type == "declarator")
                 {
+                    // compute default value
                     auto tmp = std::make_shared<ast::Node>(root_type_str, "0");
-                    init_val = table.at("declarator")(tmp, block);
+                    init_val = table.at(root_type_str)(tmp, block);
                 }
 
                 // if init_val not correct
@@ -205,40 +211,21 @@ void ir::Generator::init()
                 {
                     return nullptr;
                 }
-                // if variable already exists, error
-                if (!block.setSymbol(id_name, init_val))
+
+                // if type not compatitive
+                if (init_val->getType() != decl_type)
                 {
-                    return generator.LogError("[ir-declaration] variable exits.");
+                    return generator.LogError("[ir\\decl] id's type not match expression's type.");
+                }
+
+                // if variable already exists, error
+                if (!block.defineSymbol(id_name, init_val))
+                {
+                    return generator.LogError("[ir\\decl] variable exits.");
                 }
             }
             return (llvm::Value *)1;
         }));
-    // table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
-    //     "initializer_list",
-    //     [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
-    //         auto &children = node->children;
-    //         auto list_type = (llvm::ArrayType *)table.at("literal_list_type")(node, block);
-    //         if (!list_type)
-    //         {
-    //             return nullptr;
-    //         }
-    //         llvm::AllocaInst *array_alloc = new llvm::AllocaInst(list_type,);
-    //     }));
-    // // [virtual] parse list type from literal list
-    // table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
-    //     "literal_list_type",
-    //     [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
-    //         auto &children = node->children;
-    //         // [not implement] multi type list
-    //         auto first_child = children[0];
-    //         llvm::Type *base_type = (llvm::Type *)table.at("declaration_specifiers")(first_child, block);
-    //         if (!base_type)
-    //         {
-    //             return nullptr;
-    //         }
-    //         auto num = children.size();
-    //         return (llvm::Value *)llvm::ArrayType::get(base_type, num);
-    //     }));
 
     // [flow control]
     table.insert(std::pair<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>>(
@@ -330,7 +317,7 @@ void ir::Generator::init()
             {
                 if (assignee->type != "identifier")
                 {
-                    return generator.LogError("[assign] assignee should be a LValue.");
+                    return generator.LogError("[ir\\assign] assignee should be a LValue.");
                 }
             }
             // assume there is one LValue——identifier
@@ -351,13 +338,13 @@ void ir::Generator::init()
             // type check
             if (id_val->getType() != assign_val->getType())
             {
-                return generator.LogError("[assign] LValue's type not match RValue's type.");
+                return generator.LogError("[ir\\assign] LValue's type not match RValue's type.");
             }
 
             auto where_block = block.getSymbolTable(id_name);
             if (!where_block->setSymbol(id_name, assign_val))
             {
-                return generator.LogError("[assign] assign value to immutable id.");
+                return generator.LogError("[ir\\assign] assign value to immutable id.");
             }
             return assign_val;
         }));
@@ -374,7 +361,7 @@ void ir::Generator::init()
             auto ret_type = block.getCustomType(root_type);
             if (!ret_type)
             {
-                return generator.LogError("[block] getting error type.");
+                return generator.LogError("[ir\\block] getting error type.");
             }
             return (llvm::Value *)ret_type;
         }));
@@ -388,7 +375,7 @@ void ir::Generator::init()
             auto fun = module->getFunction(id_name);
             if (!fun)
             {
-                return generator.LogError("[functino call] calling a not defined function.");
+                return generator.LogError("[ir\\fun-call] calling a not defined function.");
             }
 
             auto arg_expr_list = node->children[1];
@@ -407,7 +394,7 @@ void ir::Generator::init()
             // check if argument's num == parameter's num
             if (fun_type->getNumParams() != arg_list.size())
             {
-                return generator.LogError("[fun-call] number of arguments not match.");
+                return generator.LogError("[ir\\fun-call] number of arguments not match.");
             }
             // check if argument's type == parameter's type
             for (int i = 0; i < fun_type->getNumParams(); ++i)
@@ -416,7 +403,7 @@ void ir::Generator::init()
                 auto arg = arg_list[i];
                 if (para_type != arg->getType())
                 {
-                    return generator.LogError("[fun-call] parameter type not match.");
+                    return generator.LogError("[ir\\fun-call] parameter type not match.");
                 }
             }
 
@@ -454,7 +441,7 @@ void ir::Generator::init()
             auto id_val = block.getSymbol(node->value);
             if (!id_val)
             {
-                return generator.LogError("[identifier] cannot find such identifier.");
+                return generator.LogError("[ir\\identifier] cannot find such identifier.");
             }
             return id_val;
         }));
@@ -559,13 +546,25 @@ llvm::Value *ir::Block::getSymbol(const std::string &name)
     }
     return nullptr;
 }
-bool ir::Block::setSymbol(const std::string &name, llvm::Value *val)
+bool ir::Block::defineSymbol(const std::string &name, llvm::Value *val)
 {
-    // [not implement] check mutable
     if (this->SymbolTable.at(name))
     {
         return false;
     }
+    else
+    {
+        this->SymbolTable[name] = val;
+        return true;
+    }
+}
+bool ir::Block::setSymbol(const std::string &name, llvm::Value *val)
+{
+    if (!this->SymbolTable.at(name))
+    {
+        return false;
+    }
+    // [not implement] check mutable
     else
     {
         this->SymbolTable[name] = val;

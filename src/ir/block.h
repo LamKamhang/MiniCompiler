@@ -14,6 +14,7 @@ public:
     Block(Block *parent) : parent(parent){};
     llvm::Value *getSymbol(const std::string &name);
     Block *getSymbolTable(const std::string &name);
+    bool defineSymbol(const std::string &name, llvm::Value *val);
     bool setSymbol(const std::string &name, llvm::Value *val);
     llvm::Type *getCustomType(const std::string &type);
 };
