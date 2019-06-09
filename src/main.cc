@@ -34,8 +34,8 @@ int main(int argc, char **argv)
         string term(argv[i]);
         if (term.length() < 2)
         {
-            exit(1);
             cerr << "unknown options" << endl;
+            exit(1);
         }
         if (term.at(0) == '-')
         {
