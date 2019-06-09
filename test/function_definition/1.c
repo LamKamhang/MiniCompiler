@@ -1,5 +1,6 @@
 int main()
 {
-    int a, b;
-    a = b = 3;
+    int a;
+    int b = 3;
+    int c[] = {1, 2, 3};
 }
