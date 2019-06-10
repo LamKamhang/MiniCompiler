@@ -202,51 +202,271 @@
            [
             
             {
-             "pos" : [ 4, 1, 4, 2 ],
-             "type" : "identifier",
-             "value" : "a"
-            },
+             "pos" : [ 4, 1, 4, 4 ],
+             "type" : "type_specifier",
+             "value" : "int"
+            }
+           ],
+           "pos" : [ 4, 1, 4, 4 ],
+           "type" : "declaration_specifiers"
+          },
+          
+          {
+           "children" : 
+           [
             
             {
              "children" : 
              [
               
               {
-               "pos" : [ 4, 3, 4, 4 ],
-               "type" : "int",
-               "value" : "1"
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 4, 5, 4, 9 ],
+                 "type" : "identifier",
+                 "value" : "flag"
+                }
+               ],
+               "pos" : [ 4, 5, 4, 9 ],
+               "type" : "declarator"
               },
               
               {
-               "pos" : [ 4, 6, 4, 7 ],
-               "type" : "int",
-               "value" : "2"
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 4, 12, 4, 13 ],
+                 "type" : "int",
+                 "value" : "0"
+                }
+               ],
+               "pos" : [ 4, 12, 4, 13 ],
+               "type" : "expression"
               }
              ],
-             "pos" : [ 4, 3, 4, 7 ],
-             "type" : "argument_expression_list"
+             "pos" : [ 4, 5, 4, 13 ],
+             "type" : "init_declarator"
             }
            ],
-           "pos" : [ 4, 1, 4, 8 ],
-           "type" : "function_call"
+           "pos" : [ 4, 5, 4, 13 ],
+           "type" : "init_declarator_list"
           }
          ],
-         "pos" : [ 4, 1, 4, 8 ],
-         "type" : "expression"
+         "pos" : [ 4, 1, 4, 14 ],
+         "type" : "declaration"
         }
        ],
-       "pos" : [ 4, 1, 4, 8 ],
+       "pos" : [ 4, 1, 4, 14 ],
+       "type" : "declaration_list"
+      },
+      
+      {
+       "children" : 
+       [
+        
+        {
+         "children" : 
+         [
+          
+          {
+           "children" : 
+           [
+            
+            {
+             "pos" : [ 5, 4, 5, 8 ],
+             "type" : "identifier",
+             "value" : "flag"
+            }
+           ],
+           "pos" : [ 5, 4, 5, 8 ],
+           "type" : "expression"
+          },
+          
+          {
+           "children" : 
+           [
+            
+            {
+             "children" : 
+             [
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "children" : 
+                 [
+                  
+                  {
+                   "pos" : [ 7, 2, 7, 3 ],
+                   "type" : "identifier",
+                   "value" : "a"
+                  },
+                  
+                  {
+                   "children" : 
+                   [
+                    
+                    {
+                     "pos" : [ 7, 4, 7, 5 ],
+                     "type" : "int",
+                     "value" : "2"
+                    },
+                    
+                    {
+                     "pos" : [ 7, 7, 7, 8 ],
+                     "type" : "int",
+                     "value" : "3"
+                    }
+                   ],
+                   "pos" : [ 7, 4, 7, 8 ],
+                   "type" : "argument_expression_list"
+                  }
+                 ],
+                 "pos" : [ 7, 2, 7, 9 ],
+                 "type" : "function_call"
+                }
+               ],
+               "pos" : [ 7, 2, 7, 9 ],
+               "type" : "expression"
+              }
+             ],
+             "pos" : [ 7, 2, 7, 9 ],
+             "type" : "statement_list"
+            }
+           ],
+           "pos" : [ 6, 1, 8, 2 ],
+           "type" : "compound_statement"
+          },
+          
+          {
+           "children" : 
+           [
+            
+            {
+             "children" : 
+             [
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "children" : 
+                 [
+                  
+                  {
+                   "pos" : [ 11, 2, 11, 3 ],
+                   "type" : "identifier",
+                   "value" : "a"
+                  },
+                  
+                  {
+                   "children" : 
+                   [
+                    
+                    {
+                     "pos" : [ 11, 4, 11, 5 ],
+                     "type" : "int",
+                     "value" : "1"
+                    },
+                    
+                    {
+                     "pos" : [ 11, 7, 11, 8 ],
+                     "type" : "int",
+                     "value" : "2"
+                    }
+                   ],
+                   "pos" : [ 11, 4, 11, 8 ],
+                   "type" : "argument_expression_list"
+                  }
+                 ],
+                 "pos" : [ 11, 2, 11, 9 ],
+                 "type" : "function_call"
+                }
+               ],
+               "pos" : [ 11, 2, 11, 9 ],
+               "type" : "expression"
+              }
+             ],
+             "pos" : [ 11, 2, 11, 9 ],
+             "type" : "statement_list"
+            }
+           ],
+           "pos" : [ 10, 1, 12, 2 ],
+           "type" : "compound_statement"
+          }
+         ],
+         "pos" : [ 5, 1, 12, 2 ],
+         "type" : "if_else_statement"
+        },
+        
+        {
+         "children" : 
+         [
+          
+          {
+           "children" : 
+           [
+            
+            {
+             "children" : 
+             [
+              
+              {
+               "pos" : [ 14, 8, 14, 9 ],
+               "type" : "identifier",
+               "value" : "a"
+              },
+              
+              {
+               "children" : 
+               [
+                
+                {
+                 "pos" : [ 14, 10, 14, 11 ],
+                 "type" : "int",
+                 "value" : "1"
+                },
+                
+                {
+                 "pos" : [ 14, 13, 14, 14 ],
+                 "type" : "int",
+                 "value" : "2"
+                }
+               ],
+               "pos" : [ 14, 10, 14, 14 ],
+               "type" : "argument_expression_list"
+              }
+             ],
+             "pos" : [ 14, 8, 14, 15 ],
+             "type" : "function_call"
+            }
+           ],
+           "pos" : [ 14, 8, 14, 15 ],
+           "type" : "expression"
+          }
+         ],
+         "pos" : [ 14, 1, 14, 16 ],
+         "type" : "return_expr"
+        }
+       ],
+       "pos" : [ 5, 1, 12, 2 ],
        "type" : "statement_list"
       }
      ],
-     "pos" : [ 3, 0, 5, 1 ],
+     "pos" : [ 3, 0, 15, 1 ],
      "type" : "compound_statement"
     }
    ],
-   "pos" : [ 2, 0, 5, 1 ],
+   "pos" : [ 2, 0, 15, 1 ],
    "type" : "function_definition"
   }
  ],
- "pos" : [ 1, 0, 5, 1 ],
+ "pos" : [ 1, 0, 15, 1 ],
  "type" : "translation_unit"
 }

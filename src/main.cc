@@ -1,16 +1,16 @@
-#include <memory>
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
-#include <llvm/IR/Verifier.h>
 #include "lib/json/json.h"
+#include <llvm/IR/Verifier.h>
 
-#include "parser/parser.hh"
 #include "ast/ast.h"
-#include "ir/ir.h"
 #include "ir/index.h"
+#include "ir/ir.h"
+#include "parser/parser.hh"
 #include "tc/tc.h"
 
 #define IN_C (1 << 0)
@@ -26,12 +26,17 @@ extern shared_ptr<ast::Node> root;
 
 int main(int argc, char **argv)
 {
+    // int _argc = argc;
+    // char **_argv = argv;
+    int _argc = 3;
+    char *_argv[] = {"ncc", "test/function_definition/2.c", "-t=ir"};
+
     vector<string> source_files;
     unsigned options = IN_C | OUT_JSON;
 
-    for (int i = 1; i < argc; ++i)
+    for (int i = 1; i < _argc; ++i)
     {
-        string term(argv[i]);
+        string term(_argv[i]);
         if (term.length() < 2)
         {
             cerr << "unknown options" << endl;
@@ -41,7 +46,7 @@ int main(int argc, char **argv)
         {
             if (term.at(1) == 't' && term.at(2) == '=')
             {
-                std::string des_type = term.substr(2, term.size());
+                std::string des_type = term.substr(3, term.size());
                 if (des_type == "json")
                 {
                     options = IN_C | OUT_JSON;
@@ -71,6 +76,7 @@ int main(int argc, char **argv)
         {
             string wo_ext = file.substr(0, file.find_last_of('.'));
 
+            // Parse AST from C code
             yyin = fopen(file.c_str(), "r");
             if (yyin == NULL)
             {
@@ -99,12 +105,14 @@ int main(int argc, char **argv)
                 string ir_code;
                 llvm::raw_string_ostream ros(ir_code);
                 ros << *module;
+                ros.flush();
+                std::cout << "\n[main] Generated IR:\n" + ir_code << std::endl;
                 ofstream ir_file(wo_ext + ".ll");
                 ir_file << ir_code;
                 ir_file.close();
             }
 
-            // Save target code to file
+            // Generate target code from IR
             if (options & OUT_OBJ)
             {
                 ofstream tc_file(wo_ext + ".o");
@@ -113,6 +121,7 @@ int main(int argc, char **argv)
                     cout << "\n[main] error when generate target code.\n";
                     return 0;
                 }
+                tc_file.flush();
                 tc_file.close();
             }
         }

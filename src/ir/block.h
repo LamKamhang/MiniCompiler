@@ -1,8 +1,8 @@
 #pragma once
 #include "ir.h"
 #include "type.h"
-#include <unordered_map>
 #include <llvm/IR/BasicBlock.h>
+#include <unordered_map>
 namespace ir
 {
 class Block
@@ -16,6 +16,5 @@ public:
     Block *getSymbolTable(const std::string &name);
     bool defineSymbol(const std::string &name, llvm::Value *val);
     bool setSymbol(const std::string &name, llvm::Value *val);
-    llvm::Type *getCustomType(const std::string &type);
 };
 } // namespace ir

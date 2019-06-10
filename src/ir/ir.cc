@@ -4,10 +4,12 @@
 #include "type.h"
 #include "value.h"
 #include <exception>
+#include <iostream>
 #include <llvm/IR/IRBuilder.h>
 #include <llvm/IR/Type.h>
 #include <llvm/IR/Verifier.h>
 #include <memory>
+#include <sstream>
 #include <stdlib.h>
 
 // [Globals]
@@ -15,6 +17,39 @@ std::unique_ptr<llvm::LLVMContext> context;
 std::unique_ptr<llvm::IRBuilder<>> builder;
 std::unique_ptr<llvm::Module> module;
 ir::Generator generator;
+
+std::string scanType(llvm::Value *value)
+{
+    std::stringstream ss;
+    auto type = value->getType();
+    if (type->isIntegerTy())
+        ss << "integer ";
+    if (type->isPointerTy())
+        ss << "pointer ";
+    if (type->isFloatTy())
+        ss << "float ";
+    if (type->isFloatingPointTy())
+        ss << "floatingP";
+    if (type->isFunctionTy())
+        ss << "function ";
+    if (type->isVoidTy())
+        ss << "void ";
+    if (type->isStructTy())
+        ss << "struct ";
+    if (type->isArrayTy())
+        ss << "array ";
+    if (type->isEmptyTy())
+        ss << "empty ";
+    if (type->isLabelTy())
+        ss << "label ";
+    if (type->isMetadataTy())
+        ss << "meta ";
+    return ss.str();
+}
+void logType(llvm::Value *value)
+{
+    llvm::errs() << scanType(value) << "\n";
+}
 
 // [Generator]
 llvm::Value *ir::Generator::LogError(const char *str)
@@ -177,7 +212,7 @@ void ir::Generator::init()
             auto decl_spec = node->children[0];
             // [not implement] 'const'/'static' yet
             auto root_type_str = decl_spec->getNameChild("type_specifier")->value;
-            llvm::Type *decl_type = (llvm::Type *)table.at("declaration_specifiers")(decl_spec, block);
+            auto decl_type = (llvm::Type *)table.at("declaration_specifiers")(decl_spec, block);
             if (!decl_type)
             {
                 return nullptr;
@@ -188,34 +223,24 @@ void ir::Generator::init()
             {
                 // [not implement] 'pointer' yet
                 // [not implement] 'array' yet
-                auto id_name = child->getNameChild("identifier")->value;
-                llvm::Value *init_val;
-                auto declarator = child;
+                auto &id_name = child->getNameChild("identifier")->value;
+                auto init_val = builder->CreateAlloca(decl_type, nullptr, id_name);
                 if (child->type == "init_declarator")
                 {
-                    declarator = child->children[0];
-                    auto expr = child->children[1];
                     // can be initializer_list or expression
                     // [not implement] 'initializer_list'
-                    init_val = table.at(expr->type)(expr, block);
-                }
-                else if (child->type == "declarator")
-                {
-                    // compute default value
-                    auto tmp = std::make_shared<ast::Node>(root_type_str, "0");
-                    init_val = table.at(root_type_str)(tmp, block);
+                    auto expr = child->children[1];
+                    auto res = builder->CreateStore(table.at(expr->type)(expr, block), init_val);
+                    if (!res)
+                    {
+                        return nullptr;
+                    }
                 }
 
                 // if init_val not correct
                 if (!init_val)
                 {
                     return nullptr;
-                }
-
-                // if type not compatitive
-                if (init_val->getType() != decl_type)
-                {
-                    return generator.LogError("[ir\\decl] id's type not match expression's type.");
                 }
 
                 // if variable already exists, error
@@ -233,32 +258,40 @@ void ir::Generator::init()
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> llvm::Value * {
             auto &children = node->children;
             auto expr = children[0];
-            llvm::Value *cond_value = table.at("expression")(expr, block);
+
+            // cond_value: int*
+            auto cond_value = table.at("expression")(expr, block);
             if (!cond_value)
             {
                 return nullptr;
             }
-
-            // Convert condition to a bool by comparing non-equal to 0.0.
+            // int <- int*
+            cond_value = builder->CreateLoad(cond_value);
+            // float <- int
+            cond_value = builder->CreateSIToFP(cond_value, llvm::Type::getFloatTy(*context));
+            // bool <- float
             cond_value = builder->CreateFCmpONE(
-                cond_value, llvm::ConstantFP::get(*context, llvm::APFloat(0.0)), "cond-value");
-
+                cond_value,
+                llvm::ConstantFP::get(*context, llvm::APFloat(0.0f)),
+                "cond-value");
             llvm::Function *block_fun = builder->GetInsertBlock()->getParent();
-            //then block
+            // then block
             llvm::BasicBlock *true_block = llvm::BasicBlock::Create(
                 *context,
                 llvm::Twine("ture_block"),
                 block_fun);
-            //else block
+            // else block
             llvm::BasicBlock *false_block = llvm::BasicBlock::Create(
                 *context,
                 llvm::Twine("false_block"));
-            //merge block
+            // merge block
             llvm::BasicBlock *merge_block = llvm::BasicBlock::Create(
                 *context,
                 llvm::Twine("merge_block"));
 
-            builder->CreateCondBr(cond_value, true_block, false_block);
+            builder->CreateCondBr(cond_value,
+                                  true_block,
+                                  false_block);
 
             // Emit then llvm::Value.
             auto true_stat = children[1];
@@ -398,7 +431,7 @@ void ir::Generator::init()
             }
 
             // check if argument's type == parameter's type
-            for (int i = 0; i < fun_type->getNumParams(); ++i)
+            for (unsigned i = 0; i < fun_type->getNumParams(); ++i)
             {
                 llvm::Type *para_type = fun_type->getFunctionParamType(i);
                 auto arg = arg_list[i];
@@ -408,7 +441,7 @@ void ir::Generator::init()
                 }
             }
 
-            return builder->CreateCall(fun, arg_list, "call_"+id_name);
+            return builder->CreateCall(fun, arg_list, "call_" + id_name);
         }));
 
     // [expression]
@@ -448,7 +481,7 @@ void ir::Generator::init()
         }));
 }
 
-llvm::Value *ir::Generator::generate(std::shared_ptr<ast::Node> &object)
+bool ir::Generator::generate(std::shared_ptr<ast::Node> &object)
 {
     auto &table = this->table;
     try
@@ -473,35 +506,30 @@ llvm::Value *ir::Generator::generate(std::shared_ptr<ast::Node> &object)
         }
 
         // Print ir
-        bool broken_debug_info = true;
         std::string err_str;
         llvm::raw_string_ostream es(err_str);
         bool module_broken = llvm::verifyModule(*module, &es);
         es.flush();
-        std::cout << "\n[main] module verification result: "
+        std::cout << "\n[ir] module verification result: "
                   << (module_broken ? "wrong" : "correct") << std::endl;
         if (module_broken)
         {
-            std::cout << "Error message:\n"
+            std::cout << "[ir] Error message:\n"
                       << err_str << std::endl;
+            return false;
         }
         else
         {
-            std::string out_str;
-            llvm::raw_string_ostream os(out_str);
-            os << *module;
-            os.flush();
-            std::cout << "\n[main] Generated IR:\n" + out_str << std::endl;
+            return true;
         }
-        return (llvm::Value *)1;
     }
     catch (char const *error)
     {
         // if an ast errors when generating IR
         std::cout << error;
         module->print(llvm::errs(), nullptr); // print error msg
+        return false;
     }
-    return nullptr;
 }
 
 // [IR]
@@ -510,13 +538,6 @@ void ir::createIrUnit()
     context = llvm::make_unique<llvm::LLVMContext>();
     builder = llvm::make_unique<llvm::IRBuilder<>>(*context);
     module = llvm::make_unique<llvm::Module>("my JIT", *context);
-}
-
-// [Value]
-void ir::CustomValue::setType(ir::Type *type)
-{
-    this->type = type;
-    this->pos = this->type->typeStack.size();
 }
 
 // [Block]
@@ -571,15 +592,20 @@ bool ir::Block::setSymbol(const std::string &name, llvm::Value *val)
         return true;
     }
 }
-llvm::Type *ir::Block::getCustomType(const std::string &type)
+
+static llvm::Type *ir::Type::getCustomType(const std::string &type)
 {
     if (type == "int")
     {
-        return std::move(llvm::Type::getInt32Ty(*context));
+        return llvm::Type::getInt32Ty(*context);
     }
     if (type == "char")
     {
-        return std::move(llvm::Type::getInt8Ty(*context));
+        return llvm::Type::getInt8Ty(*context);
+    }
+    if (type == "float")
+    {
+        return llvm::Type::getFloatTy(*context);
     }
     return nullptr;
 }
