@@ -1,8 +1,7 @@
 #include "ir.h"
 #include "block.h"
 #include "generator.h"
-#include "type.h"
-#include "value.h"
+#include "type/type.h"
 #include <exception>
 #include <iostream>
 #include <llvm/IR/IRBuilder.h>
@@ -105,7 +104,7 @@ void ir::Generator::init()
             // function return type
             auto func_decl = node;
             auto type_spec = func_decl->children[0]->getNameChild("type_specifier")->value;
-            auto ret_type = block.getCustomType(type_spec);
+            auto ret_type = ir::Type::getConstantType(type_spec);
 
             //  function name
             auto decl = func_decl->children[1];
@@ -391,7 +390,7 @@ void ir::Generator::init()
             // [not implement] static
             // [not implement] array
             auto root_type = node->getNameChild("type_specifier")->value;
-            auto ret_type = block.getCustomType(root_type);
+            auto ret_type = ir::Type::getConstantType(root_type);
             if (!ret_type)
             {
                 return generator.LogError("[ir\\block] getting error type.");
@@ -591,21 +590,4 @@ bool ir::Block::setSymbol(const std::string &name, llvm::Value *val)
         this->SymbolTable[name] = val;
         return true;
     }
-}
-
-static llvm::Type *ir::Type::getCustomType(const std::string &type)
-{
-    if (type == "int")
-    {
-        return llvm::Type::getInt32Ty(*context);
-    }
-    if (type == "char")
-    {
-        return llvm::Type::getInt8Ty(*context);
-    }
-    if (type == "float")
-    {
-        return llvm::Type::getFloatTy(*context);
-    }
-    return nullptr;
 }

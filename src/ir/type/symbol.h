@@ -1,3 +1,4 @@
+#pragma once
 #include "type.h"
 #include <ir.h>
 #include <stack>
@@ -8,7 +9,14 @@ class Symbol
 {
 public:
     std::string name;
+    ir::Type *type;
+    bool is_lvalue;
+    std::shared_ptr<ir::Symbol> LValue();
+    std::shared_ptr<ir::Symbol> RValue();
+    static std::shared_ptr<Symbol> get(std::vector<std::pair<bool, ir::TypeName>>);
+
+private:
     llvm::Value *value;
-    Symbol();
+    Symbol(ir::Type *type, const std::string &name, bool is_lvalue);
 };
 } // namespace ir
