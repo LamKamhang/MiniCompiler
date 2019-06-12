@@ -13,9 +13,9 @@ public:
     bool is_lvalue;
     std::shared_ptr<ir::Symbol> LValue();
     std::shared_ptr<ir::Symbol> RValue();
-    static std::shared_ptr<Symbol> get(std::vector<std::pair<bool, ir::TypeName>>);
+    static std::shared_ptr<ir::Symbol> get(ir::Type *type, const std::string &name);
 
-private:
+protected:
     llvm::Value *value;
     Symbol(ir::Type *type, const std::string &name, bool is_lvalue);
 };

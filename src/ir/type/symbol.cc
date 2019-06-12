@@ -9,26 +9,35 @@ ir::Symbol::Symbol(ir::Type *type, const std::string &name, bool is_lvalue) : ty
 }
 std::shared_ptr<ir::Symbol> ir::Symbol::LValue()
 {
+    if (this->is_lvalue)
+    {
+        return (std::shared_ptr<ir::Symbol>)this;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 std::shared_ptr<ir::Symbol> ir::Symbol::RValue()
 {
     if (this->is_lvalue)
     {
         // auto res = std::make_shared<ir::Symbol>(this->type, this->name, false);
-        // res->value = this->RValue();
+        // res->value = builder->CreateLoad(this->value);
         // return res;
-        return this->RValue();
+        auto res = new ir::Symbol(this->type, this->name, false);
+        res->value = builder->CreateLoad(this->value);
+        return (std::shared_ptr<ir::Symbol>)res;
     }
     else
     {
         return (std::shared_ptr<ir::Symbol>)this;
-        // return std::make_shared<ir::Symbol>(this);
     }
 }
-std::shared_ptr<ir::Symbol> ir::Symbol::get(std::vector<std::pair<bool, ir::TypeName>> types)
+std::shared_ptr<ir::Symbol> ir::Symbol::get(ir::Type *type, const std::string &name)
 {
-    return nullptr;
-    // auto base_type = types[0];
-    // auto type = dynamic_cast<ir::BaseType>types[0];
-    // return std::make_shared<ir::Symbol>();
+    // auto res = std::make_shared<ir::Symbol>(type, name, true);
+    // return res;
+    auto res = new ir::Symbol(type, name, true);
+    return (std::shared_ptr<ir::Symbol>)res;
 }

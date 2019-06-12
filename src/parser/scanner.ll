@@ -23,7 +23,7 @@ newline			\n
 whitespace		[\t ]+
 identifier		{letter}+({letter}|{digit})*
 string			\"([^\\"\n]|\\.)*\"
-comment			(\/\*([^*]*\*+[^/*])*([^*]*\*+)\/) | (//.*)
+comment			\/\*([^*]*\*+[^/*])*([^*]*\*+)\/
 
 char			\'(\\.|[^\\'])+\'
 num				{digit}+
