@@ -2,6 +2,6 @@
 #include "block.h"
 #include "generator.h"
 #include "ir.h"
-#include "type.h"
+#include "type/type.h"
 #include "value.h"
 #include "global.h"

@@ -1,6 +1,6 @@
 #pragma once
 #include "ir.h"
-#include "type.h"
+#include "type/type.h"
 #include <llvm/IR/BasicBlock.h>
 #include <unordered_map>
 namespace ir
