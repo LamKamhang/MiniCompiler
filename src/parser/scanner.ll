@@ -23,7 +23,9 @@ newline			\n
 whitespace		[\t ]+
 identifier		{letter}+({letter}|{digit})*
 string			\"([^\\"\n]|\\.)*\"
-comment			\/\*([^*]*\*+[^/*])*([^*]*\*+)\/
+line_comment	\/\/.*
+block_comment	\/\*([^*]*\*+[^/*])*([^*]*\*+)\/
+comment			{line_comment}|{block_comment}
 
 char			\'(\\.|[^\\'])+\'
 num				{digit}+
@@ -72,6 +74,8 @@ e_float			({num}|{float_num})[eE][+-]?{num}
 						yylineno++, ypos = 0;
 					else
 						ypos++;
+				ECHO;
+				printf("\n");
 				}
 {whitespace}	{ypos += yyleng; }
 {newline}		{ypos = 0;	yylineno++;}
