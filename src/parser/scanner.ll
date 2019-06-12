@@ -74,8 +74,6 @@ e_float			({num}|{float_num})[eE][+-]?{num}
 						yylineno++, ypos = 0;
 					else
 						ypos++;
-				ECHO;
-				printf("\n");
 				}
 {whitespace}	{ypos += yyleng; }
 {newline}		{ypos = 0;	yylineno++;}
