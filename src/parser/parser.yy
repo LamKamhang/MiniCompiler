@@ -8,9 +8,13 @@
 extern int yylex(void);
 void yyerror(const char *);
 
-YYSTYPE root;
 
+bool no_parse_error = true;
+bool parse_pass = false;
+YYSTYPE root;
+YYSTYPE current_pos;
 %}
+%error-verbose /* error message */
 
 %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
 %token PTR_OP INC_OP DEC_OP LEFT_SHIFT_OP RIGHT_SHIFT_OP LE_OP GE_OP EQ_OP NE_OP
@@ -35,6 +39,7 @@ program
   // Json::StyledStreamWriter writer(" ");
   // writer.write(std::cout, ast::exports($1));
   root = $1;
+  parse_pass = true;
  }
 ;
 
@@ -52,6 +57,10 @@ primary_expression
   $$ = std::make_shared<ast::Node>("primary_expression", $1->get_left(), $3->get_right());
   $$->children.emplace_back($2);
  }
+| '(' expression error ')' {
+  no_parse_error = false;
+  yyerrok;
+}
 ;
 
 postfix_expression
@@ -98,6 +107,26 @@ postfix_expression
 	$$->children.emplace_back($1);
 	$$->children.emplace_back($2);
 }
+| postfix_expression '[' expression error ']' {
+  no_parse_error = false;
+  yyerrok;
+}
+| postfix_expression '(' error ')' {
+  no_parse_error = false;
+  yyerrok;
+}
+| postfix_expression '(' argument_expression_list error ')' {
+  no_parse_error = false;
+  yyerrok;
+}
+| postfix_expression '.' error IDENTIFIER {
+  no_parse_error = false;
+  yyerrok;
+}
+| postfix_expression PTR_OP error IDENTIFIER {
+  no_parse_error = false;
+  yyerrok;
+}
 ;
 
 argument_expression_list
@@ -137,6 +166,10 @@ unary_expression
   $$ = std::make_shared<ast::Node>("sizeof_operator", $1->get_left(), $4->get_right());
   $$->children.emplace_back($3);
   }
+| SIZEOF '(' type_name error ')' {
+  no_parse_error = false;
+  yyerrok;
+}
 ;
 
 unary_operator
@@ -175,6 +208,10 @@ cast_expression
   $$->children.emplace_back($2);
   $$->children.emplace_back($4);
   }
+| '(' type_name error ')' {
+  no_parse_error = false;
+  yyerrok;
+}
 ;
 
 multiplicative_expression
@@ -337,6 +374,10 @@ conditional_expression
   $$->children.emplace_back($3);
   $$->children.emplace_back($5);
  }
+| logical_or_expression '?' expression error ':' {
+  no_parse_error = false;
+  yyerrok;
+}
 ;
 
 assignment_expression
@@ -433,6 +474,14 @@ declaration
 	$$ = std::make_shared<ast::Node>("declaration", $1->get_left(), $3->get_right());
 	$$->children.emplace_back($1);
 	$$->children.emplace_back($2);
+}
+| declaration_specifiers error ';' {
+  no_parse_error = false;
+  yyerrok;
+}
+| declaration_specifiers init_declarator_list error ';' {
+  no_parse_error = false;
+  yyerrok;
 }
 ;
 
@@ -583,6 +632,10 @@ struct_or_union_specifier
 	$$->children.emplace_back($1);
 	$$->children.emplace_back($2);
 }
+| struct_or_union IDENTIFIER '{' struct_declaration_list error '}' {
+  no_parse_error = false;
+  yyerrok;
+}
 ;
 
 struct_or_union
@@ -611,6 +664,10 @@ struct_declaration
 	$$ = std::make_shared<ast::Node>("struct_declaration", $1->get_left(), $3->get_right());
 	$$->children.emplace_back($1);
 	$$->children.emplace_back($2);
+}
+| specifier_qualifier_list struct_declarator_list error ';' {
+  no_parse_error = false;
+  yyerrok;
 }
 ;
 
@@ -675,6 +732,14 @@ enum_specifier
 | ENUM IDENTIFIER	{
 	$$ = std::make_shared<ast::Node>("enum_specifier", $1->get_left(), $2->get_right());
 	$$->children.emplace_back($2);
+}
+| ENUM '{' enumerator_list error '}' {
+  no_parse_error = false;
+  yyerrok;
+}
+| ENUM IDENTIFIER '{' enumerator_list error '}' {
+  no_parse_error = false;
+  yyerrok;
 }
 ;
 
@@ -776,6 +841,30 @@ direct_declarator
   $$->children.emplace_back($2);
   $$->children.emplace_back($3);
  }
+| '(' declarator error ')' {
+  no_parse_error = false;
+  yyerrok;
+}
+| direct_declarator '[' constant_expression error ']' {
+  no_parse_error = false;
+  yyerrok;
+} 
+| direct_declarator '[' error ']' {
+  no_parse_error = false;
+  yyerrok;
+}
+| direct_declarator '(' parameter_list error ')' {
+  no_parse_error = false;
+  yyerrok;
+}
+| direct_declarator '(' identifier_list error ')' {
+  no_parse_error = false;
+  yyerrok;
+}
+| direct_declarator '(' error ')' {
+  no_parse_error = false;
+  yyerrok;
+}
 ;
 
 pointer
@@ -1043,6 +1132,22 @@ compound_statement
   $$->children.emplace_back($2);
   $$->children.emplace_back($3);
   }
+| '{' error '}' {
+  no_parse_error = false;
+  yyerrok;
+}
+| '{' statement_list error '}' {
+  no_parse_error = false;
+  yyerrok;
+}
+| '{' declaration_list error '}' {
+  no_parse_error = false;
+  yyerrok;
+}
+|  '{' declaration_list statement_list error '}' {
+  no_parse_error = false;
+  yyerrok;
+}
 ;
 
 declaration_list
@@ -1074,6 +1179,10 @@ expression_statement
 | expression ';'	{
   $$ = $1;
   }
+| expression error ';' {
+  no_parse_error = false;
+  yyerrok;
+}
 ;
 
 selection_statement
@@ -1136,6 +1245,10 @@ jump_statement
   $$ = std::make_shared<ast::Node>("return_expr", $1->get_left(), $3->get_right());
   $$->children.emplace_back($2);
  }
+| RETURN expression error ';'{
+  no_parse_error = false;
+  yyerrok;
+}
 ;
 
 translation_unit
@@ -1171,5 +1284,7 @@ function_definition
 
 void yyerror(const char *s)
 {
-  printf("%s\n", s);
+  extern char *yytext;
+  extern int yylineno;
+  fprintf(stderr,"%s near token %s at line(%d)\n",s,yytext,yylineno);
 }
