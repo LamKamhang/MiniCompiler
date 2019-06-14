@@ -18,8 +18,8 @@ class RootType
 {
 public:
     TypeName type_name;
-    virtual llvm::Value *allocate(const std::string &name) { return nullptr; }
-    virtual llvm::Value *castTo(llvm::Value *value);
+    virtual llvm::Value *allocate(const std::string &name) = 0;
+    virtual llvm::Value *castTo(llvm::Value *value) = 0;
 
 protected:
     RootType(TypeName type_name) : type_name(type_name){};
@@ -27,14 +27,14 @@ protected:
 
 class BaseType : public RootType
 {
-protected:
-    BaseType(llvm::Type *type, TypeName type_name, bool is_const) : _ty(type), RootType(type_name), is_const(is_const){};
+public:
+    BaseType(llvm::Type *type, TypeName type_name, bool is_const);
 
 public:
     llvm::Type *_ty;
     bool is_const;
-    virtual llvm::Value *allocate(const std::string &name) { return nullptr; }
-    virtual llvm::Value *castTo(llvm::Value *value);
+    virtual llvm::Value *allocate(const std::string &name) = 0;
+    virtual llvm::Value *castTo(llvm::Value *value) = 0;
 };
 
 class ReferType : public RootType
@@ -53,7 +53,7 @@ private:
 
 public:
     llvm::Value *allocate(const std::string &name);
-    static ir::Type *get(std::vector<ir::RootType *>);
+    static ir::Type *get(std::vector<ir::RootType *> types);
     static llvm::Type *getConstantType(const std::string &type);
 };
 } // namespace ir

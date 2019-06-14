@@ -21,6 +21,7 @@ set(source_files
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
 include_directories(${PROJECT_SOURCE_DIR}/src/ir)
+include_directories(${PROJECT_SOURCE_DIR}/src/ir/type)
 include_directories(${PROJECT_SOURCE_DIR}/src/lib)
 include_directories(${PROJECT_SOURCE_DIR}/src/util)
 include_directories(${PROJECT_SOURCE_DIR}/src/ast)
