@@ -14,11 +14,14 @@ set(source_files
 	src/lib/json/jsoncpp.cc
 	src/ir/ir.cc
 	src/util/json.cc
-	src/tc/tc.cc
+    src/tc/tc.cc
+    src/ir/type/type.cc
+    src/ir/type/symbol.cc
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
 include_directories(${PROJECT_SOURCE_DIR}/src/ir)
+include_directories(${PROJECT_SOURCE_DIR}/src/ir/type)
 include_directories(${PROJECT_SOURCE_DIR}/src/lib)
 include_directories(${PROJECT_SOURCE_DIR}/src/util)
 include_directories(${PROJECT_SOURCE_DIR}/src/ast)
