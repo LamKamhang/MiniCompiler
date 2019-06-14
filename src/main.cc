@@ -28,11 +28,11 @@ int main(int argc, char **argv)
 {
     // int _argc = argc;
     // char **_argv = argv;
-    int _argc = 3;
-    char *_argv[] = {"ncc", "test/function_definition/2.c", "-t=ir"};
+    int _argc = 5;
+    string _argv[] = {"ncc", "test/function_definition/2.c", "-t=ir", "-t=json", "-t=obj"};
 
     vector<string> source_files;
-    unsigned options = IN_C | OUT_JSON;
+    unsigned options = IN_C;
 
     for (int i = 1; i < _argc; ++i)
     {
@@ -49,15 +49,15 @@ int main(int argc, char **argv)
                 std::string des_type = term.substr(3, term.size());
                 if (des_type == "json")
                 {
-                    options = IN_C | OUT_JSON;
+                    options |= OUT_JSON;
                 }
                 else if (des_type == "obj")
                 {
-                    options = IN_C | OUT_OBJ;
+                    options |= OUT_OBJ;
                 }
                 else if (des_type == "ir")
                 {
-                    options = IN_C | OUT_IR;
+                    options |= OUT_IR;
                 }
             }
         }
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
             }
 
             // Generate IR form AST
-            auto res = generator.generate(root);
+            auto res = generator.Generate(root);
             if (!res)
             {
                 cerr << "\n[main] error when generate ir.\n";

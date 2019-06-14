@@ -12,5 +12,5 @@ extern std::unique_ptr<llvm::IRBuilder<>> builder;
 extern std::unique_ptr<llvm::Module> module;
 namespace ir
 {
-void createIrUnit();
+void CreateIrUnit();
 } // namespace ir
