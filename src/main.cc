@@ -23,13 +23,15 @@ using namespace std;
 
 extern FILE *yyin;
 extern shared_ptr<ast::Node> root;
+extern bool no_parse_error;
+extern bool parse_pass;
 
-int main(int argc, char **argv)
+int main(int _argc, char **_argv)
 {
-    // int _argc = argc;
-    // char **_argv = argv;
-    int _argc = 5;
-    string _argv[] = {"ncc", "test/function_definition/2.c", "-t=ir", "-t=json", "-t=obj"};
+    int _argc = argc;
+    char **_argv = argv;
+    // int _argc = 5;
+    // string _argv[] = {"ncc", "test/function_definition/2.c", "-t=ir", "-t=json", "-t=obj"};
 
     vector<string> source_files;
     unsigned options = IN_C;
@@ -85,6 +87,10 @@ int main(int argc, char **argv)
             }
             yyparse();
             fclose(yyin);
+            if (!no_parse_error && parse_pass)
+            {
+                exit(1);
+            }
             if (options & OUT_JSON)
             {
                 ofstream ast_file(wo_ext + ".json");
