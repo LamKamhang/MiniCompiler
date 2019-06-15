@@ -2,17 +2,22 @@
 #include "../ast/ast.h"
 #include "block.h"
 #include "ir.h"
+#include "type/symbol.h"
 #include <functional>
 #include <map>
 namespace ir
 {
 class Generator
 {
+private:
+    std::map<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>> generate_code;
+    std::map<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>> resolve_symbol;
+
 public:
-    std::map<std::string, std::function<llvm::Value *(std::shared_ptr<ast::Node>, ir::Block &)>> table;
-    void init();
-    bool generate(std::shared_ptr<ast::Node> &object);
-    llvm::Value *LogError(const char *str);
-    Generator() { this->init(); };
+    void Init();
+    bool Generate(std::shared_ptr<ast::Node> &object);
+    bool Error(const std::string &str);
+    Generator() { this->Init(); };
 };
 } // namespace ir
+extern ir::Generator generator;

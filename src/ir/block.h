@@ -1,5 +1,6 @@
 #pragma once
 #include "ir.h"
+#include "type/symbol.h"
 #include <llvm/IR/BasicBlock.h>
 #include <unordered_map>
 namespace ir
@@ -7,13 +8,15 @@ namespace ir
 class Block
 {
 public:
-    std::unordered_map<std::string, llvm::Value *> SymbolTable;
+    std::unordered_map<std::string, std::shared_ptr<ir::Symbol>> SymbolTable;
     Block *parent = nullptr;
+
     Block() = default;
     Block(Block *parent) : parent(parent){};
-    llvm::Value *getSymbol(const std::string &name);
-    Block *getSymbolTable(const std::string &name);
-    bool defineSymbol(const std::string &name, llvm::Value *val);
-    bool setSymbol(const std::string &name, llvm::Value *val);
+    std::shared_ptr<ir::Symbol> getSymbol(const std::string &name);
+    ir::Block *GetSymbolBlock(const std::string &name);
+    bool HasSymbol(const std::string &name);
+    bool DefineSymbol(const std::string &name, std::shared_ptr<ir::Symbol> val);
+    bool SetSymbol(const std::string &name, std::shared_ptr<ir::Symbol> val);
 };
 } // namespace ir

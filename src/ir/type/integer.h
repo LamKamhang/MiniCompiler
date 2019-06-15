@@ -5,16 +5,22 @@ namespace ir
 {
 class IntegerTy : public BaseType
 {
+private:
+    IntegerTy() = default;
+
+public:
+    IntegerTy(int bits, bool is_sign, bool is_const = false);
+
 public:
     int bits;
     bool is_sign;
-    IntegerTy() = default;
-    IntegerTy(int bits, bool is_sign, bool is_const = false);
 
-    llvm::Value *allocate(const std::string &name);
+    llvm::Value *Allocate(const std::string &name);
 
     template <typename T>
-    llvm::Value *castTo(const T *type, llvm::Value *value);
-    static llvm::Type *get(int bits);
+    llvm::Value *CastTo(const T *type, llvm::Value *value);
+    static ir::IntegerTy *Get(int bits, bool is_sign, bool is_const);
+    static llvm::Type *GetLlvmType(int bits);
+    static llvm::Type *GetBitType(int bits);
 };
 } // namespace ir
