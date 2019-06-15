@@ -1,18 +1,22 @@
 %{
 #include <stdio.h>
 #include <memory>
+#include <string.h>
 #include "../ast/ast.h"
 #include "../lib/json/json.h"
+#include "../util/prettyPrint.h"
 
 #define YYSTYPE std::shared_ptr<ast::Node>
 extern int yylex(void);
 void yyerror(const char *);
 
 
-bool no_parse_error = true;
-bool parse_pass = false;
+bool parse_pass = true;
 YYSTYPE root;
-YYSTYPE current_pos;
+
+static std::pair<int, int> _left, _right;
+static std::string msg;
+
 %}
 %error-verbose /* error message */
 
@@ -39,7 +43,6 @@ program
   // Json::StyledStreamWriter writer(" ");
   // writer.write(std::cout, ast::exports($1));
   root = $1;
-  parse_pass = true;
  }
 ;
 
@@ -58,8 +61,7 @@ primary_expression
   $$->children.emplace_back($2);
  }
 | '(' expression error ')' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -108,24 +110,19 @@ postfix_expression
 	$$->children.emplace_back($2);
 }
 | postfix_expression '[' expression error ']' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | postfix_expression '(' error ')' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | postfix_expression '(' argument_expression_list error ')' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | postfix_expression '.' error IDENTIFIER {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | postfix_expression PTR_OP error IDENTIFIER {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -167,8 +164,7 @@ unary_expression
   $$->children.emplace_back($3);
   }
 | SIZEOF '(' type_name error ')' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -209,8 +205,7 @@ cast_expression
   $$->children.emplace_back($4);
   }
 | '(' type_name error ')' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -375,8 +370,7 @@ conditional_expression
   $$->children.emplace_back($5);
  }
 | logical_or_expression '?' expression error ':' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -476,11 +470,9 @@ declaration
 	$$->children.emplace_back($2);
 }
 | declaration_specifiers error ';' {
-  no_parse_error = false;
   yyerrok;
 }
 | declaration_specifiers init_declarator_list error ';' {
-  no_parse_error = false;
   yyerrok;
 }
 ;
@@ -633,8 +625,7 @@ struct_or_union_specifier
 	$$->children.emplace_back($2);
 }
 | struct_or_union IDENTIFIER '{' struct_declaration_list error '}' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -666,8 +657,7 @@ struct_declaration
 	$$->children.emplace_back($2);
 }
 | specifier_qualifier_list struct_declarator_list error ';' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -734,12 +724,10 @@ enum_specifier
 	$$->children.emplace_back($2);
 }
 | ENUM '{' enumerator_list error '}' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | ENUM IDENTIFIER '{' enumerator_list error '}' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -842,28 +830,22 @@ direct_declarator
   $$->children.emplace_back($3);
  }
 | '(' declarator error ')' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | direct_declarator '[' constant_expression error ']' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 } 
 | direct_declarator '[' error ']' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | direct_declarator '(' parameter_list error ')' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | direct_declarator '(' identifier_list error ')' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | direct_declarator '(' error ')' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -1133,20 +1115,16 @@ compound_statement
   $$->children.emplace_back($3);
   }
 | '{' error '}' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | '{' statement_list error '}' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 | '{' declaration_list error '}' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 |  '{' declaration_list statement_list error '}' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -1180,8 +1158,7 @@ expression_statement
   $$ = $1;
   }
 | expression error ';' {
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -1246,8 +1223,7 @@ jump_statement
   $$->children.emplace_back($2);
  }
 | RETURN expression error ';'{
-  no_parse_error = false;
-  yyerrok;
+    yyerrok;
 }
 ;
 
@@ -1284,7 +1260,14 @@ function_definition
 
 void yyerror(const char *s)
 {
+  parse_pass = false;
+  msg = std::string(s);
+  // pretty::pretty_print("Error", s, _left, _right);
   extern char *yytext;
   extern int yylineno;
-  fprintf(stderr,"%s near token %s at line(%d)\n",s,yytext,yylineno);
+  extern int ypos;
+  _left = std::make_pair(yylineno, ypos-strlen(yytext));
+  _right = std::make_pair(yylineno, ypos);
+  pretty::pretty_print("Error", s, _left, _right);
+  // fprintf(stderr,"%s near token %s at line(%d)\n",s,yytext,yylineno);
 }
