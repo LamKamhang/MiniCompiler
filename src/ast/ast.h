@@ -1,9 +1,9 @@
 #pragma once
-#include <string>
+#include "../lib/json/json.h"
 #include <iostream>
 #include <memory>
+#include <string>
 #include <vector>
-#include "../lib/json/json.h"
 
 namespace ast
 {

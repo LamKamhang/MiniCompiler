@@ -801,27 +801,38 @@ declarator
 
 direct_declarator
 : IDENTIFIER	{
-  $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $1->get_right());
-  $$->children.emplace_back($1);
+  $$ = $1;
+  //$$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $1->get_right());
+  //$$->children.emplace_back($1);
  }
 | '(' declarator ')'	{
-  $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $3->get_right());
-  $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
-  $$->children.emplace_back($3);
+    $$ = $2;
+  //$$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $3->get_right());
+  //$$->children.emplace_back($1);
+  //$$->children.emplace_back($2);
+  //$$->children.emplace_back($3);
  }
 | direct_declarator '[' constant_expression ']'	{
   $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $4->get_right());
   $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
-  $$->children.emplace_back($3);
-  $$->children.emplace_back($4);
+  YYSTYPE array = std::make_shared<ast::Node>("array", $2->get_left(), $4->get_right());
+  array->children.emplace_back($3);
+  $$->children.emplace_back(array);
+  //$$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $4->get_right());
+  //$$->children.emplace_back($1);
+  //$$->children.emplace_back($2);
+  //$$->children.emplace_back($3);
+  //$$->children.emplace_back($4);
  }
 | direct_declarator '[' ']'	{
   $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $3->get_right());
   $$->children.emplace_back($1);
-  $$->children.emplace_back($2);
-  $$->children.emplace_back($3);
+  YYSTYPE array = std::make_shared<ast::Node>("array", $2->get_left(), $3->get_right());
+  $$->children.emplace_back(array);
+  //$$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $3->get_right());
+  //$$->children.emplace_back($1);
+  //$$->children.emplace_back($2);
+  //$$->children.emplace_back($3);
  }
 | direct_declarator '(' parameter_list ')'	{
   $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $4->get_right());

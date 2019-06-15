@@ -34,3 +34,8 @@ A simple C-style Language Compiler.
 - Lin Jinkeng
 - Lin Candong
 - Xu Hongjia
+
+
+## problem in parser
+* duplicate const and unsigned warning
+* remove '()' and '[]'

@@ -16,11 +16,10 @@ public:
     bool is_sign;
 
     llvm::Value *Allocate(const std::string &name);
-
+    std::string TyInfo();
     template <typename T>
     llvm::Value *CastTo(const T *type, llvm::Value *value);
     static ir::IntegerTy *Get(int bits, bool is_sign, bool is_const);
-    static llvm::Type *GetLlvmType(int bits);
     static llvm::Type *GetBitType(int bits);
 };
 } // namespace ir

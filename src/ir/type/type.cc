@@ -1,6 +1,6 @@
-#include "type.h"
-#include "integer.h"
-#include "unordered_map"
+#include "index.h"
+#include <sstream>
+#include <unordered_map>
 
 // RootType
 
@@ -9,32 +9,36 @@ ir::BaseType::BaseType(llvm::Type *type, TypeName type_name, bool is_const) : _t
 
 llvm::Type *ir::Type::GetLlvmType(const std::string &type)
 {
-    return type == "int"
-               ? llvm::Type::getInt32Ty(*context)
-               : type == "char"
-                     ? llvm::Type::getInt8Ty(*context)
-                     : type == "float"
-                           ? llvm::Type::getFloatTy(*context)
-                           : type == "double"
-                                 ? llvm::Type::getDoubleTy(*context)
-                                 : type == "void"
-                                       ? llvm::Type::getVoidTy(*context)
-                                       : nullptr;
+    return type == "char"
+               ? llvm::Type::getInt8Ty(*context)
+               : type == "short"
+                     ? llvm::Type::getInt16Ty(*context)
+                     : type == "int"
+                           ? llvm::Type::getInt32Ty(*context)
+                           : type == "long"
+                                 ? llvm::Type::getInt64Ty(*context)
+                                 : type == "float"
+                                       ? llvm::Type::getFloatTy(*context)
+                                       : type == "double"
+                                             ? llvm::Type::getDoubleTy(*context)
+                                             : type == "void"
+                                                   ? llvm::Type::getVoidTy(*context)
+                                                   : nullptr;
 }
-ir::Type *ir::Type::GetConstantType(const std::string &type)
+std::shared_ptr<ir::Type> ir::Type::GetConstantType(const std::string &type)
 {
-    auto res = new ir::Type();
+    auto res = std::make_shared<ir::Type>();
     // [not implement] all other types
     res->_bty = type == "int" ? ir::IntegerTy::Get(32, true, true) : nullptr;
     return res;
 }
 llvm::Value *ir::Type::Allocate(const std::string &name)
 {
-    return this->_bty->Allocate(name);
+    return this->Top()->Allocate(name);
 }
-ir::Type *ir::Type::Get(std::vector<ir::RootType *> &types)
+std::shared_ptr<ir::Type> ir::Type::Get(std::vector<ir::RootType *> &types)
 {
-    auto res = new ir::Type();
+    auto res = std::make_shared<ir::Type>();
     res->_bty = dynamic_cast<ir::BaseType *>(types[0]);
     for (auto i = types.begin() + 1; i != types.end(); ++i)
         res->_tys.push_back((ir::ReferType *)*i);
@@ -56,7 +60,103 @@ ir::RootType *ir::Type::Top()
     else
         return this->_bty;
 }
-// integer
+std::string ir::Type::TyInfo()
+{
+    std::stringstream ss;
+    auto base_type = this->_bty;
+    auto types = this->_tys;
+    ss << base_type->TyInfo() << " ";
+    for (auto ty : types)
+    {
+        ss << ty->TyInfo() << " ";
+    }
+    return ss.str();
+}
+std::shared_ptr<ir::Type> ir::Type::CastTo(std::shared_ptr<ir::Type> type)
+{
+    // type check
+    auto from_type = this;
+    auto from_base = from_type->_bty;
+    auto &from_tys = from_type->_tys;
+
+    auto to_type = type;
+    auto to_base = to_type->_bty;
+    auto &to_tys = to_type->_tys;
+
+    bool valid = true;
+    std::stringstream ss;
+    ss << "type \' " << from_type->TyInfo() << "\' ==> \' " << to_type->TyInfo() << "\' is not compatible.\n";
+
+    // a small type can be cast to a bigger type
+    // void* can cast to any ptr, and there can't be sth like void****
+    if (from_base->type_name == ir::TypeName::Void)
+    {
+        valid = from_type->Top()->type_name == ir::Pointer &&
+                to_type->Top()->type_name == ir::Pointer &&
+                from_tys.size() <= to_tys.size();
+    }
+    // array type cann't be cast
+    else if (to_type->Top()->type_name == ir::TypeName::Array || from_type->Top()->type_name == ir::TypeName::Array)
+    {
+        valid = false;
+    }
+    // int->pointer
+    else if (dynamic_cast<ir::IntegerTy *>(from_base) && to_type->Top()->type_name == ir::TypeName::Pointer)
+    {
+        valid = true;
+    }
+    // in other case
+    else if (from_type->_tys.size() == to_type->_tys.size())
+    {
+        // if it's a base type cast
+        if (from_type->_tys.size() == 0)
+        {
+            valid = true;
+        }
+        // else it has to be a non-const to const cast
+        else
+        {
+            for (auto i = 0; i < from_tys.size(); ++i)
+            {
+                // the n-1 level must be same
+                auto f_ty = from_tys[i];
+                auto t_ty = to_tys[i];
+                // if not top level, const qualifier must be same
+                if (f_ty->type_name != t_ty->type_name ||
+                    i + 1 != from_tys.size() && f_ty->is_const != t_ty->is_const)
+                {
+                    valid = false;
+                    break;
+                }
+                // the top level: from: non-const, to: const
+                else if (f_ty->is_const || !t_ty->is_const)
+                {
+                    ss << "non-const type cannot cast to const type.\n";
+                    valid = false;
+                }
+            }
+        }
+    }
+    else
+    {
+        ss << "type length not match.\n";
+    }
+
+    if (valid)
+    {
+        auto res = std::make_shared<ir::Type>();
+        res->_bty = to_base;
+        res->_tys = to_tys;
+        return res;
+    }
+    else
+    {
+
+        return llvm::errs() << ss.str(), nullptr;
+    }
+}
+
+// [IntegerTy]
 static std::unordered_map<int, std::shared_ptr<ir::IntegerTy>> IntManager;
 llvm::Type *ir::IntegerTy::GetBitType(int bits)
 {
@@ -107,4 +207,58 @@ ir::IntegerTy *ir::IntegerTy::Get(int bits, bool is_sign, bool is_const)
         IntManager[real_bit] = std::move(res);
     }
     return IntManager.at(real_bit).get();
+}
+std::string ir::IntegerTy::TyInfo()
+{
+    auto bits = this->bits;
+    auto is_sign = this->is_sign;
+    std::stringstream ss;
+    ss << is_sign ? "unsigned" : "";
+    ss << " " << (bits == 8)
+        ? "char"
+        : (bits == 16)
+              ? "short"
+              : (bits == 32)
+                    ? "int"
+                    : (bits == 64)
+                          ? "long"
+                          : (bits == 128)
+                                ? "long long"
+                                : "";
+    return ss.str();
+}
+
+// [ReferType]
+ir::ReferType::ReferType(TypeName type_name, bool is_const) : ir::RootType(type_name, is_const) {}
+
+// [Function]
+ir::FunctionTy::FunctionTy(bool defined, const std::string &name) : defined(defined), ir::RootType(ir::TypeName::Function, true), name(name) {}
+std::shared_ptr<ir::FunctionTy> ir::FunctionTy::Get(bool defined, const std::string &name, std::vector<std::shared_ptr<ir::Type>> &types)
+{
+    auto res = std::make_shared<ir::FunctionTy>(defined, name);
+    res->ret_type = types[0];
+    res->para_type.insert(res->para_type.end(), types.begin() + 1, types.end());
+    return res;
+}
+llvm::Value *ir::FunctionTy::Allocate(const std::string &name)
+{
+    return nullptr;
+}
+std::string ir::FunctionTy::TyInfo()
+{
+    std::stringstream ss;
+    ss << this->ret_type->TyInfo();
+    ss << " " << this->name << " ( ";
+    for (auto para : this->para_type)
+    {
+        ss << para->TyInfo() << ", ";
+    }
+    ss << ")";
+    return ss.str();
+}
+
+// [Pointer]
+std::string ir::Pointer::TyInfo()
+{
+    return "*";
 }

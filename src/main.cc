@@ -28,17 +28,17 @@ extern bool parse_pass;
 
 int main(int _argc, char **_argv)
 {
-    int _argc = argc;
-    char **_argv = argv;
-    // int _argc = 5;
-    // string _argv[] = {"ncc", "test/function_definition/2.c", "-t=ir", "-t=json", "-t=obj"};
+    // int _argc = argc;
+    // char **_argv = argv;
+    int Argc = 5;
+    string Argv[5] = {"ncc", "test/function_definition/2.c", "-t=ir", "-t=json", "-t=obj"};
 
     vector<string> source_files;
     unsigned options = IN_C;
 
-    for (int i = 1; i < _argc; ++i)
+    for (int i = 1; i < Argc; ++i)
     {
-        string term(_argv[i]);
+        string term(Argv[i]);
         if (term.length() < 2)
         {
             cerr << "unknown options" << endl;
