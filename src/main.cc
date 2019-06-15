@@ -12,6 +12,7 @@
 #include "ir/ir.h"
 #include "parser/parser.hh"
 #include "tc/tc.h"
+#include "util/prettyPrint.h"
 
 #define IN_C (1 << 0)
 #define IN_JSON (1 << 1)
@@ -23,10 +24,10 @@ using namespace std;
 
 extern FILE *yyin;
 extern shared_ptr<ast::Node> root;
-extern bool no_parse_error;
 extern bool parse_pass;
+std::string current_file;
 
-int main(int _argc, char **_argv)
+int main(int argc, char **argv)
 {
     // int _argc = argc;
     // char **_argv = argv;
@@ -76,6 +77,7 @@ int main(int _argc, char **_argv)
     {
         for (auto &file : source_files)
         {
+            current_file = file;
             string wo_ext = file.substr(0, file.find_last_of('.'));
 
             // Parse AST from C code
@@ -87,7 +89,7 @@ int main(int _argc, char **_argv)
             }
             yyparse();
             fclose(yyin);
-            if (!no_parse_error && parse_pass)
+            if (!parse_pass)
             {
                 exit(1);
             }

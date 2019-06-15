@@ -10,7 +10,7 @@
 #include "parser.hh"
 
   // #define DEBUG_LEX
-static int ypos = 0;
+int ypos = 0;
 
 inline std::string hex2num();
 inline std::string e2float();
