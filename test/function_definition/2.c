@@ -5,6 +5,6 @@ int main()
 {
     int a(int b, int c);
     int *b;
-    return a;
+    return 2 + 3;
 }
 int a(int b, int c) { return 0; }
