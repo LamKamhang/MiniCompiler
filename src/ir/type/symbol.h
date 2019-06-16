@@ -18,6 +18,7 @@ public:
     bool is_lvalue;
     std::shared_ptr<ir::Symbol> LValue();
     std::shared_ptr<ir::Symbol> RValue();
+    std::shared_ptr<ir::Symbol> CastTo(ir::RootType *type);
     std::shared_ptr<ir::Symbol> DeReference();
     std::shared_ptr<ir::Symbol> Reference();
     std::shared_ptr<ir::Symbol> Error(ir::Symbol *symbol, ast::Node *node, const std::string &info);

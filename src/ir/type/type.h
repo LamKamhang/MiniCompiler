@@ -35,7 +35,7 @@ protected:
 
 public:
     virtual std::string TyInfo() = 0;
-    virtual llvm::Value *CastTo(llvm::Value *value) { return nullptr; };
+
 }; // namespace ir
 
 class ReferType : public RootType

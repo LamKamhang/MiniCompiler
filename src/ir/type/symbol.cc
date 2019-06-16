@@ -1,5 +1,6 @@
 #include "symbol.h"
 #include "../../util/prettyPrint.h"
+#include "index.h"
 #include "iostream"
 #include "memory"
 #include "sstream"
@@ -58,6 +59,33 @@ std::shared_ptr<ir::Symbol> ir::Symbol::RValue()
     else
         res->value = this->value;
     return res;
+}
+
+std::shared_ptr<ir::Symbol> ir::Symbol::CastTo(ir::RootType *type)
+{
+    if (this->is_lvalue)
+    {
+        return this->Error(this, nullptr, "LValue can't be cast.");
+    }
+    else
+    {
+        auto res = this->RValue();
+        auto ty = res->type->Top();
+        auto i_ty = dynamic_cast<ir::IntegerTy *>(ty);
+        auto f_ty = dynamic_cast<ir::FloatTy *>(ty);
+        switch (ty->type_name)
+        {
+        case ir::TypeName::Integer:
+            res->value = i_ty->CastTo(type, res->value);
+            break;
+        case ir::TypeName::Float:
+            res->value = f_ty->CastTo(type, res->value);
+            break;
+        default:
+            break;
+        }
+        return res;
+    }
 }
 std::shared_ptr<ir::Symbol> ir::Symbol::DeReference()
 {

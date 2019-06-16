@@ -123,7 +123,7 @@ int main(int _argc, char **_argv)
             if (options & OUT_OBJ)
             {
                 ofstream tc_file(wo_ext + ".o");
-                if (!tc::targetGenerate(tc_file))
+                if (!tc::targetGenerate(wo_ext + ".o"))
                 {
                     cout << "\n[main] error when generate target code.\n";
                     return 0;

@@ -94,6 +94,10 @@ std::shared_ptr<ir::Type> ir::Type::CastTo(std::shared_ptr<ir::Type> type)
     std::stringstream ss;
     ss << "type \' " << from_type->TyInfo() << "\' ==> \' " << to_type->TyInfo() << "\' is not compatible.\n";
 
+    auto res = std::make_shared<ir::Type>();
+    res->_bty = to_base;
+    res->_tys = to_tys;
+
     // a small type can be cast to a bigger type
     // void* can cast to any ptr, and there can't be sth like void****
     if (from_base->type_name == ir::TypeName::Void)
@@ -119,6 +123,10 @@ std::shared_ptr<ir::Type> ir::Type::CastTo(std::shared_ptr<ir::Type> type)
         if (from_type->_tys.size() == 0)
         {
             valid = true;
+            if (from_base->type_name == ir::TypeName::Float || to_base->type_name == ir::TypeName::Float)
+            {
+                res->_bty = from_base->type_name == ir::TypeName::Float ? from_base : to_base;
+            }
         }
         // else it has to be a non-const to const cast
         else
@@ -151,9 +159,7 @@ std::shared_ptr<ir::Type> ir::Type::CastTo(std::shared_ptr<ir::Type> type)
 
     if (valid)
     {
-        auto res = std::make_shared<ir::Type>();
-        res->_bty = to_base;
-        res->_tys = to_tys;
+
         return res;
     }
     else
@@ -186,8 +192,7 @@ llvm::Type *ir::IntegerTy::GetBitType(int bits)
 }
 ir::IntegerTy::IntegerTy(int bits, bool is_sign, bool is_const) : bits(bits), BaseType(ir::IntegerTy::GetBitType(bits), ir::TypeName::Integer, is_const) {}
 
-template <typename T>
-llvm::Value *ir::IntegerTy::CastTo(const T *type, llvm::Value *value)
+llvm::Value *ir::IntegerTy::CastTo(ir::RootType *type, llvm::Value *value)
 {
     auto dest_type = static_cast<ir::BaseType *>(type);
     if (!dest_type)
@@ -256,10 +261,9 @@ llvm::Type *ir::FloatTy::GetBitType(int bits)
                      ? llvm::Type::getDoubleTy(*context)
                      : nullptr;
 }
-ir::FloatTy::FloatTy(int bits, bool is_const) : bits(bits), ir::BaseType(ir::IntegerTy::GetBitType(bits), ir::TypeName::Float, is_const) {}
+ir::FloatTy::FloatTy(int bits, bool is_const) : bits(bits), ir::BaseType(ir::FloatTy::GetBitType(bits), ir::TypeName::Float, is_const) {}
 
-template <typename T>
-llvm::Value *ir::FloatTy::CastTo(const T *type, llvm::Value *value)
+llvm::Value *ir::FloatTy::CastTo(ir::RootType *type, llvm::Value *value)
 {
     auto dest_type = static_cast<ir::BaseType *>(type);
     llvm::Value *res = nullptr;

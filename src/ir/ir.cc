@@ -16,6 +16,7 @@ std::unique_ptr<llvm::IRBuilder<>> builder;
 std::unique_ptr<llvm::Module> module;
 ir::Generator generator;
 std::unordered_map<std::string, std::shared_ptr<ir::FunctionTy>> FunctionTable;
+std::shared_ptr<ir::FunctionTy> theFunction = nullptr;
 
 // Assistance
 std::string ScanType(llvm::Type *type)
@@ -289,9 +290,11 @@ void ir::Generator::Init()
                     return generator.Error(decl.get(), "[ir\\fun-def] define a same name function but with different type.");
             }
 
-            llvm::Function *function = llvm::Function::Create(
-                function_type, llvm::GlobalValue::ExternalLinkage, fun_name,
-                module.get());
+            llvm::Function *function = module->getFunction(fun_name);
+            if (!function)
+                function = llvm::Function::Create(
+                    function_type, llvm::GlobalValue::ExternalLinkage, fun_name,
+                    module.get());
             if (!function || !function_type)
                 return generator.Error(decl.get(), "[ir\\fun-def] can't create function.");
             // set parameter name
@@ -309,13 +312,39 @@ void ir::Generator::Init()
                 return generator.Error(decl.get(), "[ir\\fun-def] function can not be redefined.");
             }
 
+            // create own function representation
+            // check if function has defined first
+            if (block.HasFunction(fun_name))
+            {
+                auto that_fun = block.GetFunction(fun_name);
+                if (that_fun->defined)
+                {
+                    return generator.Error(decl.get(), "[ir\\fun_def] redefining a function.");
+                }
+            }
+
+            std::shared_ptr<ir::FunctionTy> own_fun;
+            std::vector<std::shared_ptr<ir::Type>> fun_ty;
+            fun_ty.push_back(ret_type);
+            fun_ty.insert(fun_ty.end(), para_type_list.begin(), para_type_list.end());
+            own_fun = ir::FunctionTy::Get(true, fun_name, fun_ty);
+
+            own_fun->value = function;
+            own_fun->defined = true;
+            if (!block.DefineFunction(own_fun, fun_name))
+            {
+                return generator.Error(decl.get(), "[ir\\fun_def] function name conflicts with an already exists symbol/function.");
+            }
+
             // compound statements
             auto comp_stat = func_decl->children[2];
             ir::Block comp_block(&block);
 
             // use a new basic block
-            auto comp_bb = llvm::BasicBlock::Create(*context, fun_name + "_block", function);
             // record old block
+            auto old_fun = theFunction;
+            theFunction = own_fun;
+            auto comp_bb = llvm::BasicBlock::Create(*context, fun_name + "_block", function);
             auto old_bb = builder->GetInsertBlock();
             builder->SetInsertPoint(comp_bb);
             //  create symbols for parameters
@@ -339,6 +368,7 @@ void ir::Generator::Init()
                 return generator.Error(comp_stat.get(), "[ir\\fun-def] fail to generate statements block.");
 
             builder->SetInsertPoint(old_bb);
+            theFunction = old_fun;
 
             // verify function
             std::string err_str;
@@ -352,32 +382,6 @@ void ir::Generator::Init()
                 std::cout << "[ir] Error message:\n"
                           << err_str << std::endl;
                 return false;
-            }
-
-            // create own function representation
-            // check if function has defined first
-            std::shared_ptr<ir::FunctionTy> own_fun;
-            if (block.HasFunction(fun_name))
-            {
-                own_fun = block.GetFunction(fun_name);
-                if (own_fun->defined)
-                {
-                    return generator.Error(decl.get(), "[ir\\fun_def] redefining a function.");
-                }
-            }
-            else
-            {
-                std::vector<std::shared_ptr<ir::Type>> fun_ty;
-                fun_ty.push_back(ret_type);
-                fun_ty.insert(fun_ty.end(), para_type_list.begin(), para_type_list.end());
-                own_fun = ir::FunctionTy::Get(true, fun_name, fun_ty);
-            }
-
-            own_fun->value = function;
-            own_fun->defined = true;
-            if (!block.DefineFunction(own_fun, fun_name))
-            {
-                return generator.Error(decl.get(), "[ir\\fun_def] function name conflicts with an already exists symbol/function.");
             }
 
             return true;
@@ -529,16 +533,12 @@ void ir::Generator::Init()
             auto &children = node->children;
             auto expr = children[0];
 
-            // cond_value: int*
             auto cond_symbol = resolve_symbol.at("expression")(expr, block);
             if (!cond_symbol)
                 return false;
-            auto cond_value = cond_symbol->RValue()->GetValue();
+            auto cond_tmp = cond_symbol->RValue()->CastTo(ir::FloatTy::Get(32, false));
+            auto cond_value = cond_tmp->GetValue();
 
-            // int <- int*
-            cond_value = builder->CreateLoad(cond_value);
-            // float <- int
-            cond_value = builder->CreateSIToFP(cond_value, llvm::Type::getFloatTy(*context));
             // bool <- float
             cond_value = builder->CreateFCmpONE(
                 cond_value,
@@ -579,21 +579,84 @@ void ir::Generator::Init()
             block_fun->getBasicBlockList().push_back(false_block);
 
             // Emit else block.
-            auto false_stat = children[2];
-            ir::Block false_b(&block);
-            old_bb = builder->GetInsertBlock();
-            builder->SetInsertPoint(false_block);
-            if (!generate_code.at("compound_statement")(false_stat, false_b))
-                return false;
+            if (children.size() == 3)
+            {
+                auto false_stat = children[2];
+                ir::Block false_b(&block);
+                old_bb = builder->GetInsertBlock();
+                builder->SetInsertPoint(false_block);
+                if (!generate_code.at("compound_statement")(false_stat, false_b))
+                    return false;
 
-            builder->CreateBr(merge_block);
-            // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
-            false_block = builder->GetInsertBlock();
-            builder->SetInsertPoint(old_bb);
+                builder->CreateBr(merge_block);
+                // Codegen of 'Else' can change the current block, update ElseBB for the PHI.
+                false_block = builder->GetInsertBlock();
+                builder->SetInsertPoint(old_bb);
+            }
 
             // Emit merge block.
             block_fun->getBasicBlockList().push_back(merge_block);
             builder->SetInsertPoint(merge_block);
+            return true;
+        }));
+
+    generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
+        "if_statement",
+        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            auto &children = node->children;
+            auto expr = children[0];
+
+            auto cond_symbol = resolve_symbol.at("expression")(expr, block);
+            if (!cond_symbol)
+                return false;
+            auto cond_tmp = cond_symbol->RValue()->CastTo(ir::FloatTy::Get(32, false));
+            auto cond_value = cond_tmp->GetValue();
+            if (cond_tmp->type->Top()->is_const)
+            {
+                auto true_stat = children[1];
+                if (!generate_code.at("compound_statement")(true_stat, block))
+                    return false;
+            }
+            else
+            {
+
+                // bool <- float
+                cond_value = builder->CreateFCmpONE(
+                    cond_value,
+                    llvm::ConstantFP::get(*context, llvm::APFloat(0.0f)),
+                    "cond-value");
+                llvm::Function *block_fun = builder->GetInsertBlock()->getParent();
+                // then block
+                llvm::BasicBlock *true_block = llvm::BasicBlock::Create(
+                    *context,
+                    llvm::Twine("ture_block"),
+                    block_fun);
+                // merge block
+                llvm::BasicBlock *merge_block = llvm::BasicBlock::Create(
+                    *context,
+                    llvm::Twine("merge_block"));
+
+                builder->CreateCondBr(cond_value,
+                                      true_block,
+                                      merge_block);
+
+                // Emit then llvm::Value.
+                auto true_stat = children[1];
+                ir::Block true_b(&block);
+                auto old_bb = builder->GetInsertBlock();
+                builder->SetInsertPoint(true_block);
+                if (!generate_code.at("compound_statement")(true_stat, true_b))
+                    return false;
+
+                builder->CreateBr(merge_block);
+                // Codegen of 'Then' can change the current block, update ThenBB for the PHI.
+                true_block = builder->GetInsertBlock();
+                builder->SetInsertPoint(old_bb);
+
+                // Emit merge block.
+                block_fun->getBasicBlockList().push_back(merge_block);
+                builder->SetInsertPoint(merge_block);
+            }
             return true;
         }));
     // [return]
@@ -604,8 +667,10 @@ void ir::Generator::Init()
             auto ret_symbol = resolve_symbol.at("expression")(expr_node, block);
             if (!ret_symbol)
                 return false;
-            // not check yet
-            return !builder->CreateRet(ret_symbol->RValue()->GetValue())
+            auto ret_value = ret_symbol->RValue()->CastTo(theFunction->ret_type->Top())->RValue();
+            if (!ret_value)
+                return generator.Error(expr_node.get(), "[ir\\ret] return value not match type.");
+            return !builder->CreateRet(ret_value->GetValue())
                        ? generator.Error(expr_node.get(), "[ir\\ret] can't create return instruction.")
                        : true;
         }));
@@ -707,6 +772,12 @@ void ir::Generator::Init()
             return resolve_symbol.at(child->type)(child, block);
         }));
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
+        "primary_expression",
+        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            auto child = node->children[0];
+            return resolve_symbol.at(child->type)(child, block);
+        }));
+    resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "int",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
             auto real_val = atoi(node->value.c_str());
@@ -758,11 +829,131 @@ void ir::Generator::Init()
             if (!best_type)
                 best_type = rhs_symbol->type->CastTo(lhs_symbol->type);
             if (!best_type)
-                return nullptr;
+                return lhs_symbol->Error(rhs_symbol.get(), node.get(), "type not match");
+            auto lhs_value = lhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
+            auto rhs_value = rhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
+
             auto res_symbol = ir::Symbol::Get(best_type, "add_result");
             auto tmp_symbol = ir::Symbol::Get(best_type, "add_tmp");
             // tmp_symbol has to hold a int
-            auto int_or_ptr = builder->CreateAdd(lhs_symbol->RValue()->GetValue(), rhs_symbol->RValue()->GetValue());
+            // auto int_or_ptr = builder->CreateAdd(lhs_symbol->RValue()->GetValue(), rhs_symbol->RValue()->GetValue());
+
+            auto int_or_ptr = best_type->_bty->type_name == ir::TypeName::Float
+                                  ? builder->CreateFAdd(lhs_value, rhs_value)
+                                  : builder->CreateAdd(lhs_value, rhs_value);
+
+            // // if createAdd returns a int*
+            // tmp_symbol->Store(builder->CreateLoad(int_or_ptr));
+
+            // if createAdd return a int
+            tmp_symbol->Store(int_or_ptr);
+
+            // if assign failure
+            if (!res_symbol->Assign(tmp_symbol))
+            {
+                return nullptr;
+            }
+            return res_symbol->RValue();
+        }));
+    resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
+        "sub_expression",
+        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            auto lhs_node = node->children[0];
+            auto lhs_symbol = resolve_symbol.at(lhs_node->type)(lhs_node, block);
+
+            auto rhs_node = node->children[1];
+            auto rhs_symbol = resolve_symbol.at(rhs_node->type)(rhs_node, block);
+
+            // [not implement] predict the best type
+            auto best_type = lhs_symbol->type->CastTo(rhs_symbol->type);
+            if (!best_type)
+                best_type = rhs_symbol->type->CastTo(lhs_symbol->type);
+            if (!best_type)
+                return lhs_symbol->Error(rhs_symbol.get(), node.get(), "type not match");
+            auto lhs_value = lhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
+            auto rhs_value = rhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
+
+            auto res_symbol = ir::Symbol::Get(best_type, "sub_result");
+            auto tmp_symbol = ir::Symbol::Get(best_type, "sub_tmp");
+            // tmp_symbol has to hold a int
+            auto int_or_ptr = best_type->_bty->type_name == ir::TypeName::Float
+                                  ? builder->CreateFSub(lhs_value, rhs_value)
+                                  : builder->CreateSub(lhs_value, rhs_value);
+
+            // // if createAdd returns a int*
+            // tmp_symbol->Store(builder->CreateLoad(int_or_ptr));
+
+            // if createAdd return a int
+            tmp_symbol->Store(int_or_ptr);
+
+            // if assign failure
+            if (!res_symbol->Assign(tmp_symbol))
+            {
+                return nullptr;
+            }
+            return res_symbol->RValue();
+        }));
+    resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
+        "mul_expression",
+        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            auto lhs_node = node->children[0];
+            auto lhs_symbol = resolve_symbol.at(lhs_node->type)(lhs_node, block);
+
+            auto rhs_node = node->children[1];
+            auto rhs_symbol = resolve_symbol.at(rhs_node->type)(rhs_node, block);
+
+            // [not implement] predict the best type
+            auto best_type = lhs_symbol->type->CastTo(rhs_symbol->type);
+            if (!best_type)
+                best_type = rhs_symbol->type->CastTo(lhs_symbol->type);
+            if (!best_type)
+                return lhs_symbol->Error(rhs_symbol.get(), node.get(), "type not match");
+            auto lhs_value = lhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
+            auto rhs_value = rhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
+
+            auto res_symbol = ir::Symbol::Get(best_type, "mul_result");
+            auto tmp_symbol = ir::Symbol::Get(best_type, "mul_tmp");
+            // tmp_symbol has to hold a int
+
+            auto int_or_ptr = best_type->_bty->type_name == ir::TypeName::Float
+                                  ? builder->CreateFMul(lhs_value, rhs_value)
+                                  : builder->CreateMul(lhs_value, rhs_value);
+            // // if createAdd returns a int*
+            // tmp_symbol->Store(builder->CreateLoad(int_or_ptr));
+
+            // if createAdd return a int
+            tmp_symbol->Store(int_or_ptr);
+
+            // if assign failure
+            if (!res_symbol->Assign(tmp_symbol))
+            {
+                return nullptr;
+            }
+            return res_symbol->RValue();
+        }));
+    resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
+        "div_expression",
+        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            auto lhs_node = node->children[0];
+            auto lhs_symbol = resolve_symbol.at(lhs_node->type)(lhs_node, block);
+
+            auto rhs_node = node->children[1];
+            auto rhs_symbol = resolve_symbol.at(rhs_node->type)(rhs_node, block);
+
+            // [not implement] predict the best type
+            auto best_type = lhs_symbol->type->CastTo(rhs_symbol->type);
+            if (!best_type)
+                best_type = rhs_symbol->type->CastTo(lhs_symbol->type);
+            if (!best_type)
+                return lhs_symbol->Error(rhs_symbol.get(), node.get(), "type not match");
+            auto lhs_value = lhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
+            auto rhs_value = rhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
+            auto res_symbol = ir::Symbol::Get(best_type, "div_result");
+            auto tmp_symbol = ir::Symbol::Get(best_type, "div_tmp");
+            // tmp_symbol has to hold a int
+            auto int_or_ptr = best_type->_bty->type_name == ir::TypeName::Float
+                                  ? builder->CreateFDiv(lhs_value, rhs_value)
+                                  : builder->CreateSDiv(lhs_value, rhs_value);
 
             // // if createAdd returns a int*
             // tmp_symbol->Store(builder->CreateLoad(int_or_ptr));
