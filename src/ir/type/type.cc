@@ -1,5 +1,6 @@
 #include "../global.h"
 #include "index.h"
+#include <llvm/Support/raw_ostream.h>
 #include <sstream>
 #include <unordered_map>
 
@@ -164,7 +165,6 @@ std::shared_ptr<ir::Type> ir::Type::CastTo(std::shared_ptr<ir::Type> type)
     }
     else
     {
-
         return llvm::errs() << ss.str(), nullptr;
     }
 }

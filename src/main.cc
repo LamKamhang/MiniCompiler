@@ -26,19 +26,19 @@ extern shared_ptr<ast::Node> root;
 extern bool parse_pass;
 std::string current_file;
 
-int main(int _argc, char **_argv)
+int main(int argc, char **argv)
 {
-    // int _argc = argc;
-    // char **_argv = argv;
-    int Argc = 5;
-    string Argv[5] = {"ncc", "test/function_definition/2.c", "-t=ir", "-t=json", "-t=obj"};
+    int _argc = argc;
+    char **_argv = argv;
+    // int _argc = 5;
+    // string _argv[5] = {"ncc", "test/function_definition/2.c", "-t=ir", "-t=json", "-t=obj"};
 
     vector<string> source_files;
     unsigned options = IN_C;
 
-    for (int i = 1; i < Argc; ++i)
+    for (int i = 1; i < _argc; ++i)
     {
-        string term(Argv[i]);
+        string term(_argv[i]);
         if (term.length() < 2)
         {
             cerr << "unknown options" << endl;
@@ -123,7 +123,7 @@ int main(int _argc, char **_argv)
             if (options & OUT_OBJ)
             {
                 ofstream tc_file(wo_ext + ".o");
-                if (!tc::targetGenerate(wo_ext + ".o"))
+                if (tc::targetGenerate(wo_ext + ".o"))
                 {
                     cout << "\n[main] error when generate target code.\n";
                     return 0;
