@@ -80,8 +80,8 @@ ir::BaseType *ParseBaseType(std::shared_ptr<ast::Node> node, ir::Block &block)
             is_const = false;
         }
     }
-    if (!base_type)
-    {
+    if (!base_type) {
+
         generator.Error("[ir\\decl] can't resolve base type.");
     }
     return base_type;
