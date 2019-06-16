@@ -59,3 +59,7 @@ parser.hh
 scanner.cpp
 scanner.cc
 
+# remove test cases
+*.ll
+*.json
+*.o
