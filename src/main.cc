@@ -31,8 +31,10 @@ int main(int argc, char **argv)
 {
     // int _argc = argc;
     // char **_argv = argv;
-    int Argc = 5;
-    string Argv[5] = {"ncc", "test/function_definition/2.c", "-t=ir", "-t=json", "-t=obj"};
+    int _argc = 5;
+    string _argv[] = {"ncc",
+                      "test/function_definition/2.c",
+                      "-t=ir", "-t=json", "-t=obj"};
 
     vector<string> source_files;
     unsigned options = IN_C;
@@ -45,95 +47,89 @@ int main(int argc, char **argv)
             cerr << "unknown options" << endl;
             exit(1);
         }
-        if (term.at(0) == '-')
+        if (des_type == "json")
         {
-            if (term.at(1) == 't' && term.at(2) == '=')
-            {
-                std::string des_type = term.substr(3, term.size());
-                if (des_type == "json")
-                {
-                    options |= OUT_JSON;
-                }
-                else if (des_type == "obj")
-                {
-                    options |= OUT_OBJ;
-                }
-                else if (des_type == "ir")
-                {
-                    options |= OUT_IR;
-                }
-            }
+            options |= OUT_JSON;
         }
-        else
+        else if (des_type == "obj")
         {
-            source_files.emplace_back(term);
+            options |= OUT_OBJ;
+        }
+        else if (des_type == "ir")
+        {
+            options |= OUT_IR;
         }
     }
+}
+else
+{
+    source_files.emplace_back(term);
+}
+}
 
-    Json::StyledStreamWriter writer(" ");
-
-    // c to obj
-    if ((options & IN_C))
+Json::StyledStreamWriter writer(" ");
+// c to obj
+if ((options & IN_C))
+{
+    for (auto &file : source_files)
     {
-        for (auto &file : source_files)
+        current_file = file;
+        string wo_ext = file.substr(0, file.find_last_of('.'));
+
+        // Parse AST from C code
+        yyin = fopen(file.c_str(), "r");
+        if (yyin == NULL)
         {
-            current_file = file;
-            string wo_ext = file.substr(0, file.find_last_of('.'));
+            cerr << "Cannot open file" << file << endl;
+            continue;
+        }
+        yyparse();
+        fclose(yyin);
+        if (!parse_pass)
+        {
+            exit(1);
+        }
+        if (options & OUT_JSON)
+        {
+            ofstream ast_file(wo_ext + ".json");
+            writer.write(ast_file, ast::exports(root));
+            ast_file.close();
+        }
 
-            // Parse AST from C code
-            yyin = fopen(file.c_str(), "r");
-            if (yyin == NULL)
-            {
-                cerr << "Cannot open file" << file << endl;
-                continue;
-            }
-            yyparse();
-            fclose(yyin);
-            if (!parse_pass)
-            {
-                exit(1);
-            }
-            if (options & OUT_JSON)
-            {
-                ofstream ast_file(wo_ext + ".json");
-                writer.write(ast_file, ast::exports(root));
-                ast_file.close();
-            }
+        // Generate IR form AST
+        auto res = generator.Generate(root);
+        if (!res)
+        {
+            cerr << "\n[main] error when generate ir.\n";
+            return 0;
+        }
+        // Save IR to file
+        if (options & OUT_IR)
+        {
+            string ir_code;
+            llvm::raw_string_ostream ros(ir_code);
+            ros << *module;
+            ros.flush();
+            std::cout << "\n[main] Generated IR:\n" + ir_code << std::endl;
+            ofstream ir_file(wo_ext + ".ll");
+            ir_file << ir_code;
+            ir_file.close();
+        }
 
-            // Generate IR form AST
-            auto res = generator.Generate(root);
-            if (!res)
+        // Generate target code from IR
+        if (options & OUT_OBJ)
+        {
+            // ofstream tc_file(wo_ext + ".o");
+            if (!tc::targetGenerate(wo_ext + ".o"))
             {
-                cerr << "\n[main] error when generate ir.\n";
+                cout << "\n[main] error when generate target code.\n";
                 return 0;
             }
-            // Save IR to file
-            if (options & OUT_IR)
-            {
-                string ir_code;
-                llvm::raw_string_ostream ros(ir_code);
-                ros << *module;
-                ros.flush();
-                std::cout << "\n[main] Generated IR:\n" + ir_code << std::endl;
-                ofstream ir_file(wo_ext + ".ll");
-                ir_file << ir_code;
-                ir_file.close();
-            }
-
-            // Generate target code from IR
-            if (options & OUT_OBJ)
-            {
-                ofstream tc_file(wo_ext + ".o");
-                if (!tc::targetGenerate(tc_file))
-                {
-                    cout << "\n[main] error when generate target code.\n";
-                    return 0;
-                }
-                tc_file.flush();
-                tc_file.close();
-            }
+            // tc_file.flush();
+            // tc_file.close();
         }
     }
+}
 
-    return 0;
+return 0;
 }

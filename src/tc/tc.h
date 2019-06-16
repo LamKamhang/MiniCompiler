@@ -12,14 +12,15 @@
 #include <cctype>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
 #include <system_error>
 #include <utility>
 #include <vector>
-#include <iostream>
-namespace tc
-{
+namespace tc {
+
+bool targetGenerate(const std::string &filename);
 bool targetGenerate(std::ostream &os);
-}
+}  // namespace tc
