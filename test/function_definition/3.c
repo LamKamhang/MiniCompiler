@@ -1,4 +1,14 @@
-int main(int argc, char const *argv[])
+// void a()
+// {
+//     // return;
+// }
+int main()
 {
-    return 0;
+    // void *const p;
+    const int a;
+    a = 3;
+    return 100;
+    // return 1;
+    // return b(3, 4);
 }
+preety print, only a terminater

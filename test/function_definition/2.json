@@ -12,12 +12,12 @@
      [
       
       {
-       "pos" : [ 5, 0, 5, 3 ],
+       "pos" : [ 1, 0, 1, 3 ],
        "type" : "type_specifier",
        "value" : "int"
       }
      ],
-     "pos" : [ 5, 0, 5, 3 ],
+     "pos" : [ 1, 0, 1, 3 ],
      "type" : "declaration_specifiers"
     },
     
@@ -30,28 +30,28 @@
        [
         
         {
-         "pos" : [ 5, 4, 5, 8 ],
+         "pos" : [ 1, 4, 1, 8 ],
          "type" : "identifier",
          "value" : "main"
         }
        ],
-       "pos" : [ 5, 4, 5, 8 ],
+       "pos" : [ 1, 4, 1, 8 ],
        "type" : "direct_declarator"
       },
       
       {
-       "pos" : [ 5, 8, 5, 9 ],
+       "pos" : [ 1, 8, 1, 9 ],
        "type" : "(",
        "value" : "("
       },
       
       {
-       "pos" : [ 5, 9, 5, 10 ],
+       "pos" : [ 1, 9, 1, 10 ],
        "type" : ")",
        "value" : ")"
       }
      ],
-     "pos" : [ 5, 4, 5, 10 ],
+     "pos" : [ 1, 4, 1, 10 ],
      "type" : "declarator"
     },
     
@@ -72,12 +72,18 @@
            [
             
             {
-             "pos" : [ 7, 4, 7, 7 ],
+             "pos" : [ 3, 4, 3, 9 ],
+             "type" : "type_qualifier",
+             "value" : "const"
+            },
+            
+            {
+             "pos" : [ 3, 10, 3, 13 ],
              "type" : "type_specifier",
              "value" : "int"
             }
            ],
-           "pos" : [ 7, 4, 7, 7 ],
+           "pos" : [ 3, 4, 3, 13 ],
            "type" : "declaration_specifiers"
           },
           
@@ -90,80 +96,24 @@
              [
               
               {
-               "pos" : [ 7, 8, 7, 9 ],
-               "type" : "*",
-               "value" : "*"
-              },
-              
-              {
-               "pos" : [ 7, 9, 7, 10 ],
+               "pos" : [ 3, 14, 3, 15 ],
                "type" : "identifier",
                "value" : "a"
               }
              ],
-             "pos" : [ 7, 8, 7, 10 ],
+             "pos" : [ 3, 14, 3, 15 ],
              "type" : "declarator"
             }
            ],
-           "pos" : [ 7, 8, 7, 10 ],
+           "pos" : [ 3, 14, 3, 15 ],
            "type" : "init_declarator_list"
           }
          ],
-         "pos" : [ 7, 4, 7, 11 ],
-         "type" : "declaration"
-        },
-        
-        {
-         "children" : 
-         [
-          
-          {
-           "children" : 
-           [
-            
-            {
-             "pos" : [ 8, 4, 8, 9 ],
-             "type" : "type_specifier",
-             "value" : "float"
-            }
-           ],
-           "pos" : [ 8, 4, 8, 9 ],
-           "type" : "declaration_specifiers"
-          },
-          
-          {
-           "children" : 
-           [
-            
-            {
-             "children" : 
-             [
-              
-              {
-               "pos" : [ 8, 10, 8, 11 ],
-               "type" : "*",
-               "value" : "*"
-              },
-              
-              {
-               "pos" : [ 8, 11, 8, 12 ],
-               "type" : "identifier",
-               "value" : "b"
-              }
-             ],
-             "pos" : [ 8, 10, 8, 12 ],
-             "type" : "declarator"
-            }
-           ],
-           "pos" : [ 8, 10, 8, 12 ],
-           "type" : "init_declarator_list"
-          }
-         ],
-         "pos" : [ 8, 4, 8, 13 ],
+         "pos" : [ 3, 4, 3, 16 ],
          "type" : "declaration"
         }
        ],
-       "pos" : [ 7, 4, 7, 11 ],
+       "pos" : [ 3, 4, 3, 16 ],
        "type" : "declaration_list"
       },
       
@@ -180,22 +130,22 @@
            [
             
             {
-             "pos" : [ 9, 4, 9, 5 ],
+             "pos" : [ 4, 4, 4, 5 ],
              "type" : "identifier",
              "value" : "a"
             },
             
             {
-             "pos" : [ 9, 8, 9, 9 ],
-             "type" : "identifier",
-             "value" : "b"
+             "pos" : [ 4, 8, 4, 9 ],
+             "type" : "int",
+             "value" : "3"
             }
            ],
-           "pos" : [ 9, 4, 9, 9 ],
+           "pos" : [ 4, 4, 4, 9 ],
            "type" : "assign_expr"
           }
          ],
-         "pos" : [ 9, 4, 9, 9 ],
+         "pos" : [ 4, 4, 4, 9 ],
          "type" : "expression"
         },
         
@@ -208,31 +158,31 @@
            [
             
             {
-             "pos" : [ 10, 11, 10, 14 ],
+             "pos" : [ 5, 11, 5, 14 ],
              "type" : "int",
              "value" : "100"
             }
            ],
-           "pos" : [ 10, 11, 10, 14 ],
+           "pos" : [ 5, 11, 5, 14 ],
            "type" : "expression"
           }
          ],
-         "pos" : [ 10, 4, 10, 15 ],
+         "pos" : [ 5, 4, 5, 15 ],
          "type" : "return_expr"
         }
        ],
-       "pos" : [ 9, 4, 9, 9 ],
+       "pos" : [ 4, 4, 4, 9 ],
        "type" : "statement_list"
       }
      ],
-     "pos" : [ 6, 0, 13, 1 ],
+     "pos" : [ 2, 0, 8, 1 ],
      "type" : "compound_statement"
     }
    ],
-   "pos" : [ 5, 0, 13, 1 ],
+   "pos" : [ 1, 0, 8, 1 ],
    "type" : "function_definition"
   }
  ],
- "pos" : [ 5, 0, 13, 1 ],
+ "pos" : [ 1, 0, 8, 1 ],
  "type" : "translation_unit"
 }

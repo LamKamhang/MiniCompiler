@@ -170,6 +170,7 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "translation_unit",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            current_node = node.get();
             for (auto child : node->children)
             {
                 if (child->type == "expression")
@@ -185,6 +186,7 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "statement_list",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            current_node = node.get();
             for (auto stat : node->children)
             {
                 if (stat->type == "expression")
@@ -200,11 +202,12 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "compound_statement",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            current_node = node.get();
             for (auto stat : node->children)
             {
                 if (stat->type == "expression")
                 {
-                    if (resolve_symbol.at("expression")(stat, block))
+                    if (!resolve_symbol.at("expression")(stat, block))
                         return false;
                 }
                 else if (!generate_code.at(stat->type)(stat, block))
@@ -216,12 +219,14 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "compound_statement",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            current_node = node.get();
             for (auto stat : node->children)
             {
                 if (stat->type == "expression")
                 {
-                    if (resolve_symbol.at("expression")(stat, block))
+                    if (!resolve_symbol.at("expression")(stat, block))
                         return false;
+                    // Warning(stat)
                 }
                 else if (!generate_code.at(stat->type)(stat, block))
                     return false;
@@ -232,7 +237,7 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "function_definition",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
-            // function return typeparse
+            current_node = node.get(); // function return typeparse
             auto func_decl = node;
             // [not implement] detail type parse
             auto ret_type_stack = ParseFullType(node.get(), block);
@@ -384,6 +389,7 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "declaration_list",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            current_node = node.get();
             for (auto decl : node->children)
             {
                 if (!generate_code.at("declaration")(decl, block))
@@ -394,6 +400,7 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "declaration",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            current_node = node.get();
             auto decl_spec = node->children[0]; // node: declaration_specifier
             // if so, it is declaring a function, not a symbol
             // [not implement]  declare function without parameter's name
@@ -540,6 +547,7 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "if_else_statement",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            current_node = node.get();
             auto &children = node->children;
             auto expr = children[0];
 
@@ -613,6 +621,7 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "if_statement",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            current_node = node.get();
             auto &children = node->children;
             auto expr = children[0];
 
@@ -673,6 +682,7 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "return_expr",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            current_node = node.get();
             auto ret_type = theFunction->ret_type;
             // check if ret_type is void
             auto expr_node = node->children[0];
@@ -693,6 +703,7 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "return_only",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            current_node = node.get();
             auto ret_type = theFunction->ret_type;
             // check if ret_type is void
             if (ret_type->Top()->type_name != ir::TypeName::Void)
@@ -707,6 +718,7 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "assign_expr",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto lhs_node = node->children[0];
             auto lhs_symbol = resolve_symbol.at(lhs_node->type)(lhs_node, block);
             if (!lhs_symbol)
@@ -735,6 +747,7 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "function_call",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto &fun_name = node->children[0]->value;
             auto fun = module->getFunction(fun_name);
             if (!fun)
@@ -795,18 +808,21 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "expression",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto child = node->children[0];
             return resolve_symbol.at(child->type)(child, block);
         }));
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "primary_expression",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto child = node->children[0];
             return resolve_symbol.at(child->type)(child, block);
         }));
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "int",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto real_val = atoi(node->value.c_str());
             auto val = llvm::ConstantInt::get(*context, llvm::APInt(32, real_val, true));
             auto type = ir::Type::GetConstantType("int");
@@ -816,6 +832,7 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "float",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto real_val = atof(node->value.c_str());
             auto val = llvm::ConstantFP::get(*context, llvm::APFloat(real_val));
             auto type = ir::Type::GetConstantType("float");
@@ -825,6 +842,7 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "char",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto real_val = node->value.c_str()[1] - '\0';
             auto val = llvm::ConstantInt::get(*context, llvm::APInt(8, real_val, false));
             auto type = ir::Type::GetConstantType("char");
@@ -834,6 +852,7 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "identifier",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto &symbol_name = node->value;
             auto symbol = block.GetSymbol(symbol_name);
             if (!symbol)
@@ -845,6 +864,7 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "add_expression",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto lhs_node = node->children[0];
             auto lhs_symbol = resolve_symbol.at(lhs_node->type)(lhs_node, block);
 
@@ -887,6 +907,7 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "sub_expression",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto lhs_node = node->children[0];
             auto lhs_symbol = resolve_symbol.at(lhs_node->type)(lhs_node, block);
 
@@ -927,6 +948,7 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "mul_expression",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto lhs_node = node->children[0];
             auto lhs_symbol = resolve_symbol.at(lhs_node->type)(lhs_node, block);
 
@@ -967,6 +989,7 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "div_expression",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
+            current_node = node.get();
             auto lhs_node = node->children[0];
             auto lhs_symbol = resolve_symbol.at(lhs_node->type)(lhs_node, block);
 
@@ -1014,6 +1037,7 @@ bool ir::Generator::Generate(std::shared_ptr<ast::Node> &object)
         // Create infrastructure
         ir::CreateIrUnit();
         ir::Block global;
+        current_node = nullptr;
         FunctionTable.clear();
         auto &root = object;
         auto &type = root->type;

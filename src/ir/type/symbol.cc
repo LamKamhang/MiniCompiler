@@ -107,20 +107,39 @@ llvm::Value *ir::Symbol::Assign(std::shared_ptr<ir::Symbol> val)
 
     std::stringstream ss;
     ss << "error at assignment to \'" << lhs_symbol->name << "\'\n";
-    ss << "incompatible pointer types assigning to"
-       << "\'" << rhs_type->TyInfo() << "\' from \'" << lhs_type->TyInfo() << "\' and \' " << rhs_type->TyInfo() << "\'.\n";
 
-    if (!lhs_type->Top()->is_const)
-        if (lhs_type->_bty->type_id >= rhs_type->_bty->type_id &&
-                lhs_type->_tys.size() == rhs_type->_tys.size() ||
-            lhs_type->Top()->type_name == ir::TypeName::Pointer && rhs_type->Top()->type_name == ir::TypeName::Pointer)
+    if (lhs_type->Top()->is_const)
+    {
+        ss << "\'" + this->name + "\' : const symbol can't be assigned.";
+        ss << "symbol type: " << this->type->TyInfo() << "\n";
+        Errors(nullptr, ss.str());
+    }
+    else if (lhs_type->Top()->type_name == ir::TypeName::Array)
+    {
+        ss << "\'" + this->name + "\' : array symbol can't be assigned.";
+        ss << "symbol type: " << this->type->TyInfo() << "\n";
+        Errors(nullptr, ss.str());
+    }
+    else if (lhs_type->Top()->type_name == ir::TypeName::Pointer && rhs_type->Top()->type_name == ir::TypeName::Pointer)
+    {
+        if (lhs_type->_bty->type_name == ir::TypeName::Void)
         {
+            if (rhs_type->_tys.size() < lhs_type->_tys.size())
+            {
+                ss << "incompatible pointer types assigning to"
+                   << "\'" << rhs_type->TyInfo() << "\' from \'" << lhs_type->TyInfo() << "\' and \' " << rhs_type->TyInfo() << "\'.\n";
+                Errors(nullptr, ss.str());
+            }
+        }
+        else
             for (auto i = 0; i < lhs_type->_tys.size(); ++i)
             {
                 auto l_ty = lhs_type->_tys[i];
                 auto r_ty = rhs_type->_tys[i];
                 if (l_ty->type_name != r_ty->type_name)
                 {
+                    ss << "incompatible pointer types assigning to"
+                       << "\'" << rhs_type->TyInfo() << "\' from \'" << lhs_type->TyInfo() << "\' and \' " << rhs_type->TyInfo() << "\'.\n";
                     Errors(nullptr, ss.str());
                 }
                 // if top level is const
@@ -131,9 +150,20 @@ llvm::Value *ir::Symbol::Assign(std::shared_ptr<ir::Symbol> val)
                     Errors(nullptr, ss.str());
                 }
             }
-            return this->Store(rhs_val);
-        }
-    return nullptr;
+    }
+    else if (lhs_type->_bty->type_id < rhs_type->_bty->type_id)
+    {
+        ss << "a more precised type is no assignable to a less precised type.";
+        ss << "LValue type: " << lhs_type->TyInfo() << " , RValue type: " << rhs_type->TyInfo() << "\n";
+        Errors(nullptr, ss.str());
+    }
+    else if (lhs_type->_tys.size() != rhs_type->_tys.size())
+    {
+        ss << "incompatible pointer types assigning to"
+           << "\'" << rhs_type->TyInfo() << "\' from \'" << lhs_type->TyInfo() << "\' and \' " << rhs_type->TyInfo() << "\'.\n";
+        Errors(nullptr, ss.str());
+    }
+    return this->Store(rhs_val);
 }
 bool ir::Symbol::IsValid()
 {
