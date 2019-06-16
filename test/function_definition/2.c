@@ -4,15 +4,8 @@ int b(int a, int b)
 }
 int main()
 {
-    if (2)
-    {
-        return 100;
-    }
-    else
-    {
-        return 200;
-    }
-
+    int a = 1;
+    const int b = 3;
     return 100;
     // return 1;
     // return b(3, 4);

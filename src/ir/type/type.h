@@ -34,6 +34,7 @@ protected:
     BaseType(llvm::Type *type, TypeName type_name, bool is_const);
 
 public:
+    int type_id;
     virtual std::string TyInfo() = 0;
 
 }; // namespace ir

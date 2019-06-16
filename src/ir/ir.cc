@@ -505,10 +505,17 @@ void ir::Generator::Init()
                         if (!assign_symbol)
                             return false;
                         auto assign_value = assign_symbol->RValue();
+                        symbol->type->Top()->is_const = false;
                         if (!symbol->Assign(assign_value))
                         {
                             return generator.Error(child.get(), "[ir\\decl] can't store value to symbol.");
                         }
+                        symbol->type->Top()->is_const = true;
+                    }
+                    // if it's a const symbol, but not initialize, it's error
+                    else if (symbol->type->Top()->is_const)
+                    {
+                        return generator.Error(child.get(), "[ir\\decl] declare a const symbol but not initialize it.");
                     }
                     // if init_val not correct
                     if (!symbol->IsValid())
@@ -849,10 +856,12 @@ void ir::Generator::Init()
             tmp_symbol->Store(int_or_ptr);
 
             // if assign failure
+            res_symbol->type->Top()->is_const = false;
             if (!res_symbol->Assign(tmp_symbol))
             {
                 return nullptr;
             }
+            res_symbol->type->Top()->is_const = true;
             return res_symbol->RValue();
         }));
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
@@ -887,10 +896,12 @@ void ir::Generator::Init()
             tmp_symbol->Store(int_or_ptr);
 
             // if assign failure
+            res_symbol->type->Top()->is_const = false;
             if (!res_symbol->Assign(tmp_symbol))
             {
                 return nullptr;
             }
+            res_symbol->type->Top()->is_const = true;
             return res_symbol->RValue();
         }));
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
@@ -925,10 +936,12 @@ void ir::Generator::Init()
             tmp_symbol->Store(int_or_ptr);
 
             // if assign failure
+            res_symbol->type->Top()->is_const = false;
             if (!res_symbol->Assign(tmp_symbol))
             {
                 return nullptr;
             }
+            res_symbol->type->Top()->is_const = true;
             return res_symbol->RValue();
         }));
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
@@ -962,10 +975,12 @@ void ir::Generator::Init()
             tmp_symbol->Store(int_or_ptr);
 
             // if assign failure
+            res_symbol->type->Top()->is_const = false;
             if (!res_symbol->Assign(tmp_symbol))
             {
                 return nullptr;
             }
+            res_symbol->type->Top()->is_const = true;
             return res_symbol->RValue();
         }));
 }

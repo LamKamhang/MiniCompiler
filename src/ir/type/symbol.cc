@@ -123,27 +123,29 @@ llvm::Value *ir::Symbol::Assign(std::shared_ptr<ir::Symbol> val)
     auto lhs_type = lhs_symbol->type;
 
     std::stringstream ss;
-    if (lhs_type->_bty == rhs_type->_bty &&
-        lhs_type->_tys.size() == rhs_type->_tys.size())
-    {
-        for (auto i = 0; i < lhs_type->_tys.size(); ++i)
+    if (!lhs_type->Top()->is_const)
+        if (lhs_type->_bty->type_id >= rhs_type->_bty->type_id &&
+                lhs_type->_tys.size() == rhs_type->_tys.size() ||
+            lhs_type->Top()->type_name == ir::TypeName::Pointer && rhs_type->Top()->type_name == ir::TypeName::Pointer)
         {
-            auto l_ty = lhs_type->_tys[i];
-            auto r_ty = rhs_type->_tys[i];
-            if (l_ty->type_name != r_ty->type_name)
+            for (auto i = 0; i < lhs_type->_tys.size(); ++i)
             {
-                ss << "type \' " << lhs_type->TyInfo() << "\' and \' " << rhs_type->TyInfo() << "\' is not compatible to assign.\n";
-                goto fail;
+                auto l_ty = lhs_type->_tys[i];
+                auto r_ty = rhs_type->_tys[i];
+                if (l_ty->type_name != r_ty->type_name)
+                {
+                    ss << "type \' " << lhs_type->TyInfo() << "\' and \' " << rhs_type->TyInfo() << "\' is not compatible to assign.\n";
+                    goto fail;
+                }
+                // if top level is const
+                else if (i + 1 == lhs_type->_tys.size() && l_ty->is_const)
+                {
+                    ss << "\'" << rhs_type->TyInfo() << "\' cannot assign to variable with const-qualified type \'" << lhs_type->TyInfo() << "\'\n";
+                    goto fail;
+                }
             }
-            // if top level is const
-            else if (i + 1 == lhs_type->_tys.size() && l_ty->is_const)
-            {
-                ss << "\'" << rhs_type->TyInfo() << "\' cannot assign to variable with const-qualified type \'" << lhs_type->TyInfo() << "\'\n";
-                goto fail;
-            }
+            return this->Store(rhs_val);
         }
-        return this->Store(rhs_val);
-    }
 fail:
     return this->Error(this, nullptr, ss.str()), nullptr;
 }

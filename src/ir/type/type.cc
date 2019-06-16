@@ -219,12 +219,15 @@ llvm::Value *ir::IntegerTy::CastTo(ir::RootType *type, llvm::Value *value)
 ir::IntegerTy *ir::IntegerTy::Get(int bits, bool is_sign, bool is_const)
 {
     // bits is assumed to be less than 128, 2^8, 9 bit
-    int is_sign_bit = (is_sign ? 1 : 0) << 10;
-    int is_const_bit = (is_const ? 1 : 0) << 11;
-    int real_bit = bits | is_sign_bit | is_const_bit;
+    int is_sign_bit = is_sign ? bits << 1 : bits;
+    // int is_const_bit = is_const ? 0xa0000000 : 0;
+    // int is_const_bit = is_const ? 0xa0000000 : 0;
+    int real_bit = bits | is_sign_bit;
+    // int real_bit = bits | is_sign_bit | is_const_bit;
     if (!IntManager.count(real_bit))
     {
         auto res = std::make_shared<ir::IntegerTy>(bits, is_sign, is_const);
+        res->type_id = real_bit;
         IntManager[real_bit] = std::move(res);
     }
     return IntManager.at(real_bit).get();
@@ -289,11 +292,13 @@ llvm::Value *ir::FloatTy::CastTo(ir::RootType *type, llvm::Value *value)
 ir::FloatTy *ir::FloatTy::Get(int bits, bool is_const)
 {
     // bits is assumed to be less than 64, 2^8, 9 bit
-    int is_const_bit = (is_const ? 1 : 0) << 10;
-    int real_bit = bits | is_const_bit;
+    // int is_const_bit = is_const ? 0xa0000000 : 0;
+    // int real_bit = bits << 2 | is_const_bit;
+    int real_bit = bits << 2;
     if (!FloatManager.count(real_bit))
     {
         auto res = std::make_shared<ir::FloatTy>(bits, is_const);
+        res->type_id = real_bit;
         FloatManager[real_bit] = std::move(res);
     }
     return FloatManager.at(real_bit).get();

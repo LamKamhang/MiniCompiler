@@ -31,6 +31,9 @@ b_block:
 
 define i32 @main() {
 main_block:
-  %call_b = call i32 @b(i32 3, i32 4)
-  ret i32 %call_b
+  %a = alloca i32
+  store i32 1, i32* %a
+  %b = alloca i32
+  store i32 3, i32* %b
+  ret i32 100
 }
