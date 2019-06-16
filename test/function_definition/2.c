@@ -1,10 +1,12 @@
-int c(int);
-int d(int *);
-
+int b(int a, int b)
+{
+    return (a + 100.5) / b;
+}
 int main()
 {
-    int a(int b, int c);
-    int *b;
-    return 2 + 3;
+    // if (1)
+    // {
+    //     return 1;
+    // }
+    return b(3, 4);
 }
-int a(int b, int c) { return 0; }
