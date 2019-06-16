@@ -3,7 +3,8 @@
 
 using namespace llvm;
 
-bool tc::targetGenerate(std::ostream &os) {
+bool tc::targetGenerate(std::ostream &os)
+{
   llvm::InitializeAllTargetInfos();
   llvm::InitializeAllTargets();
   llvm::InitializeAllTargetMCs();
@@ -19,7 +20,8 @@ bool tc::targetGenerate(std::ostream &os) {
   // Print an error and exit if we couldn't find the requested target.
   // This generally occurs if we've forgotten to initialise the
   // TargetRegistry or we have a bogus target triple.
-  if (!target) {
+  if (!target)
+  {
     llvm::errs() << error;
     return false;
   }
@@ -62,7 +64,8 @@ bool tc::targetGenerate(std::ostream &os) {
   return true;
 }
 
-bool tc::targetGenerate(const std::string &filename) {
+bool tc::targetGenerate(const std::string &filename)
+{
   // Initialize the target registry etc.
   InitializeAllTargetInfos();
   InitializeAllTargets();
@@ -79,7 +82,8 @@ bool tc::targetGenerate(const std::string &filename) {
   // Print an error and exit if we couldn't find the requested target.
   // This generally occurs if we've forgotten to initialise the
   // TargetRegistry or we have a bogus target triple.
-  if (!Target) {
+  if (!Target)
+  {
     errs() << Error;
     return 1;
   }
@@ -97,7 +101,8 @@ bool tc::targetGenerate(const std::string &filename) {
   std::error_code EC;
   raw_fd_ostream dest(filename, EC, sys::fs::F_None);
 
-  if (EC) {
+  if (EC)
+  {
     errs() << "Could not open file: " << EC.message();
     return 1;
   }
@@ -105,7 +110,12 @@ bool tc::targetGenerate(const std::string &filename) {
   legacy::PassManager pass;
   auto FileType = TargetMachine::CGFT_ObjectFile;
 
-  if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType)) {
+#if LLVM_VERSION_MAJOR == 6
+  if (TheTargetMachine->addPassesToEmitFile(pass, dest, FileType))
+#else
+  if (TheTargetMachine->addPassesToEmitFile(pass, dest, nullptr, FileType))
+#endif
+  {
     errs() << "TheTargetMachine can't emit a file of this type";
     return 1;
   }
