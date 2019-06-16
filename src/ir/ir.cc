@@ -1,3 +1,4 @@
+#include "../util/prettyPrint.h"
 #include "index.h"
 #include "type/index.h"
 #include <exception>
@@ -66,41 +67,50 @@ ir::BaseType *ParseBaseType(ast::Node *node, ir::Block &block)
     bool is_sign = true;
     ir::BaseType *base_type = nullptr;
     std::string base_type_val;
-    for (auto child : node->children)
+    if (node)
     {
-        auto &type_name = child->type;
-        auto &type_val = child->value;
-        if (type_name == "type_qualifier")
+
+        for (auto child : node->children)
         {
-            if (type_val == "const")
-                is_const = true;
-        }
-        else if (type_name == "type_specifier")
-        {
-            if (type_val == "unsigned")
+            auto &type_name = child->type;
+            auto &type_val = child->value;
+            if (type_name == "type_qualifier")
             {
-                is_sign = false;
+                if (type_val == "const")
+                    is_const = true;
             }
-            else
-                base_type_val = type_val;
+            else if (type_name == "type_specifier")
+            {
+                if (type_val == "unsigned")
+                {
+                    is_sign = false;
+                }
+                else
+                    base_type_val = type_val;
+            }
         }
-    }
-    // [not implement] other type
-    base_type =
-        base_type_val == "long"
-            ? ir::IntegerTy::Get(64, is_sign, is_const)
-            : base_type_val == "int"
-                  ? ir::IntegerTy::Get(32, is_sign, is_const)
-                  : base_type_val == "short"
-                        ? ir::IntegerTy::Get(16, is_sign, is_const)
-                        : base_type_val == "char"
-                              ? ir::IntegerTy::Get(8, is_sign, is_const)
-                              : nullptr;
-    if (!base_type)
-    {
-        // 'unsinged' is default to be i32
-        base_type = ir::IntegerTy::Get(32, is_sign, is_const);
-        // generator.Error("[ir\\decl] can't resolve base type.");
+
+        base_type =
+            base_type_val == "long"
+                ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(64, is_sign, is_const))
+                : base_type_val == "int"
+                      ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(32, is_sign, is_const))
+                      : base_type_val == "short"
+                            ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(16, is_sign, is_const))
+                            : base_type_val == "char"
+                                  ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(8, is_sign, is_const))
+                                  : base_type_val == "bool"
+                                        ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(1, false, is_const))
+                                        : base_type_val == "float"
+                                              ? dynamic_cast<ir::BaseType *>(ir::FloatTy::Get(32, is_const))
+                                              : base_type_val == "double"
+                                                    ? dynamic_cast<ir::BaseType *>(ir::FloatTy::Get(64, is_const))
+                                                    : nullptr;
+        if (!base_type)
+        {
+            // 'unsinged' is default to be i32
+            base_type = ir::IntegerTy::Get(32, is_sign, is_const);
+        }
     }
     return base_type;
 }
@@ -109,17 +119,20 @@ ir::BaseType *ParseBaseType(ast::Node *node, ir::Block &block)
 std::vector<ir::ReferType *> ParseReferType(ast::Node *node, ir::Block &block)
 {
     std::vector<ir::ReferType *> res;
-    auto &children = node->children;
-    for (auto child : children)
+    if (node)
     {
-        auto &type = child->type;
-        auto &value = child->value;
-        // if (type == "declarator")
-        // {
-        // }
-        // else if (type == "*")
-        // {
-        // }
+        auto &children = node->children;
+        for (auto child : children)
+        {
+            auto &type = child->type;
+            auto &value = child->value;
+            // if (type == "declarator")
+            // {
+            // }
+            // else if (type == "*")
+            // {
+            // }
+        }
     }
     return std::move(res);
 }
@@ -128,17 +141,27 @@ std::vector<ir::ReferType *> ParseReferType(ast::Node *node, ir::Block &block)
 std::vector<ir::RootType *> ParseFullType(ast::Node *node, ir::Block &block)
 {
     std::vector<ir::RootType *> res;
-    auto base_type = ParseBaseType(node->getNameChild("declaration_specifier"), block);
-    res.push_back(base_type);
-    auto ref_type = ParseReferType(node->getNameChild("declarator"), block);
-    res.insert(res.end(), ref_type.begin(), ref_type.end());
+    if (node)
+    {
+        auto base_type = ParseBaseType(node->getNameChild("declaration_specifiers"), block);
+        res.push_back(base_type);
+        auto ref_type = ParseReferType(node->getNameChild("declarator"), block);
+        res.insert(res.end(), ref_type.begin(), ref_type.end());
+    }
     return std::move(res);
 }
 
 // [Generator]
-bool ir::Generator::Error(const std::string &str)
+bool ir::Generator::Error(ast::Node *node, const std::string &str)
 {
-    std::cout << str << std::endl;
+    if (node)
+    {
+        pretty::pretty_print("Error", str, node->get_left(), node->get_right());
+    }
+    else
+    {
+        std::cout << str << std::endl;
+    }
     return false;
 }
 
@@ -153,8 +176,11 @@ void ir::Generator::Init()
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
             for (auto child : node->children)
             {
-                if (child->type == "expression" && !resolve_symbol.at("expression")(child, block))
-                    return false;
+                if (child->type == "expression")
+                {
+                    if (!resolve_symbol.at("expression")(child, block))
+                        return false;
+                }
                 else if (!generate_code.at(child->type)(child, block))
                     return false;
             }
@@ -165,8 +191,11 @@ void ir::Generator::Init()
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
             for (auto stat : node->children)
             {
-                if (stat->type == "expression" && !resolve_symbol.at("expression")(stat, block))
-                    return false;
+                if (stat->type == "expression")
+                {
+                    if (!resolve_symbol.at("expression")(stat, block))
+                        return false;
+                }
                 else if (!generate_code.at(stat->type)(stat, block))
                     return false;
             }
@@ -177,20 +206,40 @@ void ir::Generator::Init()
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
             for (auto stat : node->children)
             {
-                if (stat->type == "expression" && !resolve_symbol.at("expression")(stat, block))
-                    return false;
+                if (stat->type == "expression")
+                {
+                    if (resolve_symbol.at("expression")(stat, block))
+                        return false;
+                }
                 else if (!generate_code.at(stat->type)(stat, block))
                     return false;
             }
             return true;
         }));
+
+    generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
+        "compound_statement",
+        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            for (auto stat : node->children)
+            {
+                if (stat->type == "expression")
+                {
+                    if (resolve_symbol.at("expression")(stat, block))
+                        return false;
+                }
+                else if (!generate_code.at(stat->type)(stat, block))
+                    return false;
+            }
+            return true;
+        }));
+
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "function_definition",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
-            // function return type
+            // function return typeparse
             auto func_decl = node;
             // [not implement] detail type parse
-            auto ret_type_stack = ParseFullType(node, block);
+            auto ret_type_stack = ParseFullType(node.get(), block);
             auto ret_type = ir::Type::Get(ret_type_stack);
 
             //  function name
@@ -237,14 +286,14 @@ void ir::Generator::Init()
             if (maybe_fun)
             {
                 if (maybe_fun->getFunctionType() != function_type)
-                    return generator.Error("[ir\\fun-def] define a same name function but with different type.");
+                    return generator.Error(decl.get(), "[ir\\fun-def] define a same name function but with different type.");
             }
 
             llvm::Function *function = llvm::Function::Create(
                 function_type, llvm::GlobalValue::ExternalLinkage, fun_name,
                 module.get());
             if (!function || !function_type)
-                return generator.Error("[ir\\fun-def] can't create function.");
+                return generator.Error(decl.get(), "[ir\\fun-def] can't create function.");
             // set parameter name
             unsigned idx = 0;
             for (auto &arg : function->args())
@@ -253,11 +302,11 @@ void ir::Generator::Init()
             }
             if (!function)
             {
-                return generator.Error("[ir\\fun-def] fail to generate function.");
+                return generator.Error(decl.get(), "[ir\\fun-def] fail to generate function.");
             }
             if (!function->empty())
             {
-                return generator.Error("[ir\\fun-def] function can not be redefined.");
+                return generator.Error(decl.get(), "[ir\\fun-def] function can not be redefined.");
             }
 
             // compound statements
@@ -280,14 +329,14 @@ void ir::Generator::Init()
                 auto symbol = ir::Symbol::Get(full_type, arg_name);
                 if (!symbol->Store(arg_val))
                 {
-                    return generator.Error("[ir\\fun-def] argument's type is not match the function declaration.");
+                    return generator.Error(para_list.get(), "[ir\\fun-def] argument's type is not match the function declaration.");
                 }
                 comp_block.DefineSymbol(arg_name, symbol);
                 ++idx;
             }
             // parse statements
             if (!generate_code.at("compound_statement")(comp_stat, comp_block))
-                return generator.Error("[ir\\fun-def] fail to generate statements block.");
+                return generator.Error(comp_stat.get(), "[ir\\fun-def] fail to generate statements block.");
 
             builder->SetInsertPoint(old_bb);
 
@@ -306,14 +355,29 @@ void ir::Generator::Init()
             }
 
             // create own function representation
-            std::vector<std::shared_ptr<ir::Type>> fun_ty;
-            fun_ty.push_back(ret_type);
-            fun_ty.insert(fun_ty.end(), para_type_list.begin(), para_type_list.end());
-            auto own_fun = ir::FunctionTy::Get(true, fun_name, fun_ty);
+            // check if function has defined first
+            std::shared_ptr<ir::FunctionTy> own_fun;
+            if (block.HasFunction(fun_name))
+            {
+                own_fun = block.GetFunction(fun_name);
+                if (own_fun->defined)
+                {
+                    return generator.Error(decl.get(), "[ir\\fun_def] redefining a function.");
+                }
+            }
+            else
+            {
+                std::vector<std::shared_ptr<ir::Type>> fun_ty;
+                fun_ty.push_back(ret_type);
+                fun_ty.insert(fun_ty.end(), para_type_list.begin(), para_type_list.end());
+                own_fun = ir::FunctionTy::Get(true, fun_name, fun_ty);
+            }
+
             own_fun->value = function;
+            own_fun->defined = true;
             if (!block.DefineFunction(own_fun, fun_name))
             {
-                return generator.Error("[ir\\fun_def] function name conflicts with an already exists symbol/function.");
+                return generator.Error(decl.get(), "[ir\\fun_def] function name conflicts with an already exists symbol/function.");
             }
 
             return true;
@@ -334,50 +398,128 @@ void ir::Generator::Init()
         "declaration",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
             auto decl_spec = node->children[0]; // node: declaration_specifier
-            auto base_type = ParseBaseType(decl_spec.get(), block);
-            if (!base_type)
+            // if so, it is declaring a function, not a symbol
+            // [not implement]  declare function without parameter's name
+            if (node->getNameChild("(") || node->getNameChild("parameter_list"))
             {
-                return false;
-            }
+                auto func_decl = node;
+                auto ret_type_stack = ParseFullType(func_decl.get(), block);
+                auto ret_type = ir::Type::Get(ret_type_stack);
 
-            auto init_decl_list = node->children[1];
-            for (auto child : init_decl_list->children)
-            {
-                // [not implement] 'pointer' yet
-                // [not implement] 'array' yet
-                auto &id_name = child->getNameChild("identifier")->value;
-                std::vector<ir::RootType *> type_stack;
-                type_stack.push_back(base_type);
-                auto full_type = ir::Type::Get(type_stack);
-                auto symbol = ir::Symbol::Get(full_type, id_name);
+                //  function name
+                auto direct_decl = func_decl->children[1];
+                auto decl = direct_decl->children[0];
+                const std::string &fun_name = decl->children[0]->getNameChild("identifier")->value;
 
-                if (child->type == "init_declarator")
+                // parameter list
+                std::vector<llvm::Type *> para_type;
+                std::vector<std::shared_ptr<ir::Type>> para_type_list;
+                // if it is a function with parameter
+                if (!node->getNameChild("("))
                 {
-                    // can be initializer_list or expression
-                    // [not implement] 'initializer_list' for array
-                    auto expr = child->children[1];
-                    auto assign_symbol = resolve_symbol.at(expr->type)(expr, block);
-                    if (!assign_symbol)
-                        return false;
-                    auto assign_value = assign_symbol->RValue();
-                    if (!symbol->Assign(assign_value))
+
+                    auto para_list = decl->children[1];
+                    for (auto para_decl : para_list->children)
                     {
-                        return generator.Error("[ir\\decl] can't store value to symbol.");
+                        // don't care id
+                        auto type_stack = ParseFullType(para_decl.get(), block);
+                        auto base_type = dynamic_cast<ir::BaseType *>(type_stack[0]);
+                        auto full_type = ir::Type::Get(type_stack);
+                        para_type_list.push_back(full_type);
+                        para_type.push_back(base_type->_ty);
                     }
                 }
-                // if init_val not correct
-                if (!symbol->IsValid())
+
+                // create function prototype
+                llvm::FunctionType *function_type =
+                    llvm::FunctionType::get(ret_type->BaseTy()->_ty, para_type, false);
+                // check if exists a same name but different type function, which should be error
+                auto maybe_fun = module->getFunction(fun_name);
+                if (maybe_fun)
                 {
-                    return generator.Error("[ir\\decl] created symbol is not valid.");
+                    if (maybe_fun->getFunctionType() != function_type)
+                        return generator.Error(decl.get(), "[ir\\fun-def] define a same name function but with different type.");
                 }
 
-                // if variable already exists, error
-                if (!block.DefineSymbol(id_name, symbol))
+                llvm::Function *function = llvm::Function::Create(
+                    function_type, llvm::GlobalValue::ExternalLinkage, fun_name,
+                    module.get());
+                if (!function || !function_type)
+                    return generator.Error(decl.get(), "[ir\\fun-def] can't create function.");
+
+                // create own function representation
+                // check if function has defined first
+                std::shared_ptr<ir::FunctionTy> own_fun;
+                std::vector<std::shared_ptr<ir::Type>> fun_ty;
+                fun_ty.push_back(ret_type);
+                fun_ty.insert(fun_ty.end(), para_type_list.begin(), para_type_list.end());
+                own_fun = ir::FunctionTy::Get(false, fun_name, fun_ty);
+                if (block.HasFunction(fun_name))
                 {
-                    return generator.Error("[ir\\decl] variable exits.");
+                    auto that_fun = block.GetFunction(fun_name);
+                    if (!own_fun->Equal(that_fun))
+                    {
+                        return generator.Error(decl.get(), "[ir\\fun_def] re-declare a function with different type.");
+                    }
                 }
+                else if (!block.DefineFunction(own_fun, fun_name))
+                {
+                    return generator.Error(decl.get(), "[ir\\fun_def] function name conflicts with an already exists symbol/function.");
+                }
+
+                return true;
             }
-            return true;
+
+            // else declaring a symbol
+            else
+            {
+                auto base_type = ParseBaseType(decl_spec.get(), block);
+                if (!base_type)
+                {
+                    return false;
+                }
+                auto init_decl_list = node->children[1];
+                for (auto child : init_decl_list->children)
+                {
+                    // [not implement] 'pointer' yet
+                    // [not implement] 'array' yet
+                    auto &id_name = child->getNameChild("identifier")->value;
+                    auto declarator = child->getNameChild("declarator");
+                    auto ref_stack = ParseReferType(declarator, block);
+                    std::vector<ir::RootType *> type_stack;
+                    type_stack.push_back(base_type);
+                    type_stack.insert(type_stack.end(), ref_stack.begin(), ref_stack.end());
+                    auto full_type = ir::Type::Get(type_stack);
+                    auto symbol = ir::Symbol::Get(full_type, id_name);
+
+                    if (child->type == "init_declarator")
+                    {
+                        // can be initializer_list or expression
+                        // [not implement] 'initializer_list' for array
+                        auto expr = child->children[1];
+                        auto assign_symbol = resolve_symbol.at(expr->type)(expr, block);
+                        if (!assign_symbol)
+                            return false;
+                        auto assign_value = assign_symbol->RValue();
+                        if (!symbol->Assign(assign_value))
+                        {
+                            return generator.Error(child.get(), "[ir\\decl] can't store value to symbol.");
+                        }
+                    }
+                    // if init_val not correct
+                    if (!symbol->IsValid())
+                    {
+                        return generator.Error(child.get(), "[ir\\decl] created symbol is not valid.");
+                    }
+
+                    // if variable already exists, error
+                    if (!block.DefineSymbol(id_name, symbol))
+                    {
+                        return generator.Error(child.get(), "[ir\\decl] variable exits.");
+                    }
+                }
+                return true;
+            }
         }));
 
     // [flow control]
@@ -464,7 +606,7 @@ void ir::Generator::Init()
                 return false;
             // not check yet
             return !builder->CreateRet(ret_symbol->RValue()->GetValue())
-                       ? generator.Error("[ir\\ret] can't create return instruction.")
+                       ? generator.Error(expr_node.get(), "[ir\\ret] can't create return instruction.")
                        : true;
         }));
 
@@ -505,7 +647,7 @@ void ir::Generator::Init()
             auto fun = module->getFunction(fun_name);
             if (!fun)
             {
-                generator.Error("[ir\\fun-call] calling a not defined function.");
+                generator.Error(node.get(), "[ir\\fun-call] calling a not defined function.");
                 return nullptr;
             }
 
@@ -534,7 +676,7 @@ void ir::Generator::Init()
             // check if argument's num == parameter's num
             if (own_fun->para_type.size() != symbol_list.size())
             {
-                generator.Error("[ir\\fun-call] number of arguments not match.");
+                generator.Error(node.get(), "[ir\\fun-call] number of arguments not match.");
                 return nullptr;
             }
 
@@ -547,7 +689,7 @@ void ir::Generator::Init()
                 // type_check
                 if (!arg_type->CastTo(para_type))
                 {
-                    generator.Error("[ir\\fun-call] parameter type not match.");
+                    generator.Error(node.get(), "[ir\\fun-call] parameter type not match.");
                     return nullptr;
                 }
             }
@@ -578,7 +720,7 @@ void ir::Generator::Init()
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
             auto real_val = atof(node->value.c_str());
             auto val = llvm::ConstantFP::get(*context, llvm::APFloat(real_val));
-            auto type = ir::Type::GetConstantType("int");
+            auto type = ir::Type::GetConstantType("float");
             auto symbol = ir::Symbol::GetConstant(type, val);
             return symbol;
         }));
@@ -587,7 +729,7 @@ void ir::Generator::Init()
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
             auto real_val = atoi(node->value.c_str());
             auto val = llvm::ConstantInt::get(*context, llvm::APInt(8, real_val, false));
-            auto type = ir::Type::GetConstantType("int");
+            auto type = ir::Type::GetConstantType("char");
             auto symbol = ir::Symbol::GetConstant(type, val);
             return symbol;
         }));
@@ -598,7 +740,7 @@ void ir::Generator::Init()
             auto symbol = block.GetSymbol(symbol_name);
             if (!symbol)
             {
-                return symbol->Error("cannot find such identifier.");
+                return symbol->Error(nullptr, node.get(), "cannot find such identifier: " + symbol_name);
             }
             return symbol;
         }));
@@ -669,8 +811,9 @@ bool ir::Generator::Generate(std::shared_ptr<ast::Node> &object)
                   << (module_broken ? "wrong" : "correct") << std::endl;
         if (module_broken)
         {
-            std::cout << "[ir] Error message:\n"
-                      << err_str << std::endl;
+            // std::cout << "[ir] Error message:\n"
+            //           << err_str << std::endl;
+            generator.Error(nullptr, "[ir] Error message:\n" + err_str);
             return false;
         }
         else
@@ -711,7 +854,7 @@ std::shared_ptr<ir::Symbol> ir::Block::GetSymbol(const std::string &name)
     Block *node = this;
     while (node)
     {
-        if (this->HasSymbol(name))
+        if (node->HasSymbol(name))
             return node->SymbolTable.at(name);
         node = node->parent;
     }
@@ -740,7 +883,7 @@ bool ir::Block::SetSymbol(const std::string &name, std::shared_ptr<ir::Symbol> v
 }
 bool ir::Block::HasSymbol(const std::string &name)
 {
-    return this->SymbolTable.count(name) != 0 || this->HasFunction(name);
+    return this->SymbolTable.count(name) != 0;
 }
 bool ir::Block::HasFunction(const std::string &name)
 {
@@ -748,15 +891,19 @@ bool ir::Block::HasFunction(const std::string &name)
 }
 bool ir::Block::DefineFunction(std::shared_ptr<ir::FunctionTy> function, const std::string &name)
 {
-    if (this->HasSymbol(name))
+    if (this->HasFunction(name))
     {
-        return false;
+        auto that_fun = this->GetFunction(name);
+        if (that_fun->defined)
+        {
+            return generator.Error(nullptr, "[fun-def] re-define a function.");
+        }
+        else if (!function->Equal(that_fun))
+            return generator.Error(nullptr, "[fun-def] define a function not match previous declaration.");
     }
-    else
-    {
-        FunctionTable[name] = function;
-        return true;
-    }
+
+    FunctionTable[name] = function;
+    return true;
 }
 std::shared_ptr<ir::FunctionTy> ir::Block::GetFunction(const std::string &name)
 {

@@ -1,5 +1,10 @@
-int a(int b, int c) { return b + c; }
+int c(int);
+int d(int *);
+
 int main()
 {
-    return a(1, 2);
+    int a(int b, int c);
+    int *b;
+    return a;
 }
+int a(int b, int c) { return 0; }

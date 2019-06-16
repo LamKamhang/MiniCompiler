@@ -1,0 +1,1 @@
+* parseFullType() node valid?

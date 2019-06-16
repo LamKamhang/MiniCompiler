@@ -15,8 +15,8 @@ public:
     std::shared_ptr<ir::Type> ret_type;
     std::vector<std::shared_ptr<ir::Type>> para_type;
     llvm::Value *value;
-    llvm::Value *Allocate(const std::string &name);
     std::string TyInfo();
+    bool Equal(std::shared_ptr<ir::FunctionTy> function);
     static std::shared_ptr<ir::FunctionTy> Get(bool defined, const std::string &name, std::vector<std::shared_ptr<ir::Type>> &types);
 };
 } // namespace ir

@@ -789,9 +789,8 @@ declarator
 
 direct_declarator
 : IDENTIFIER	{
-  $$ = $1;
-  //$$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $1->get_right());
-  //$$->children.emplace_back($1);
+  $$ = std::make_shared<ast::Node>("direct_declarator", $1->get_left(), $1->get_right());
+  $$->children.emplace_back($1);
  }
 | '(' declarator ')'	{
     $$ = $2;
@@ -920,32 +919,37 @@ parameter_list
 parameter_declaration
 : declaration_specifiers declarator	{
   $$ = std::make_shared<ast::Node>("parameter_declaration", $1->get_left(), $1->get_right());
-  for (auto & child : $1->children)
-  {
-      $$->children.emplace_back(child);
-  }
-  for (auto & child : $2->children)
-  {
-      $$->children.emplace_back(child);
-  }
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+//  for (auto & child : $1->children)
+//  {
+//      $$->children.emplace_back(child);
+//  }
+//  for (auto & child : $2->children)
+//  {
+//      $$->children.emplace_back(child);
+//  }
  }
 | declaration_specifiers abstract_declarator	{
   $$ = std::make_shared<ast::Node>("parameter_declaration", $1->get_left(), $1->get_right());
-  for (auto & child : $1->children)
-  {
-      $$->children.emplace_back(child);
-  }
-  for (auto & child : $2->children)
-  {
-      $$->children.emplace_back(child);
-  }
+  $$->children.emplace_back($1);
+  $$->children.emplace_back($2);
+ // for (auto & child : $1->children)
+ // {
+ //     $$->children.emplace_back(child);
+ // }
+ // for (auto & child : $2->children)
+ // {
+ //     $$->children.emplace_back(child);
+ // }
  }
 | declaration_specifiers	{
   $$ = std::make_shared<ast::Node>("parameter_declaration", $1->get_left(), $1->get_right());
-  for (auto & child : $1->children)
-  {
-      $$->children.emplace_back(child);
-  }
+  $$->children.emplace_back($1);
+  //for (auto & child : $1->children)
+  //{
+  //    $$->children.emplace_back(child);
+  //}
  }
 ;
 

@@ -1,10 +1,28 @@
 #include "symbol.h"
+#include "../../util/prettyPrint.h"
 #include "iostream"
 #include "memory"
 #include "sstream"
-std::shared_ptr<ir::Symbol> ir::Symbol::Error(const std::string &info)
+std::shared_ptr<ir::Symbol> ir::Symbol::Error(ir::Symbol *symbol, ast::Node *node, const std::string &info)
 {
-    std::cout << "[symbol: " << this->name << "] " << info << std::endl;
+    if (symbol)
+    {
+        std::stringstream ss;
+        ss << "[symbol: " << symbol->name << "] " << info << "\n";
+        if (node)
+        {
+            pretty::pretty_print("Error", ss.str(), node->get_left(), node->get_right());
+        }
+        else
+        {
+            std::cout << ss.str() << std::endl;
+        }
+    }
+    else
+    {
+        pretty::pretty_print("Error", info, node->get_left(), node->get_right());
+    }
+
     return nullptr;
 }
 ir::Symbol::Symbol(std::shared_ptr<ir::Type> type) : type(type), is_lvalue(false)
@@ -18,13 +36,13 @@ ir::Symbol::Symbol(std::shared_ptr<ir::Type> type, const std::string &name, bool
     this->is_lvalue = is_lvalue;
     if (this->is_lvalue)
     {
-        this->value = this->type->Allocate(this->name);
+        this->value = this->Allocate(this->name);
     }
 }
 std::shared_ptr<ir::Symbol> ir::Symbol::LValue()
 {
     if (!this->is_lvalue)
-        return this->Error("use a RValue as LValue.");
+        return this->Error(this, nullptr, "use a RValue as LValue.");
     auto res = std::make_shared<ir::Symbol>(this->type, this->name + "_LValue", true);
     res->is_lvalue = true;
     res->value = this->value;
@@ -44,10 +62,10 @@ std::shared_ptr<ir::Symbol> ir::Symbol::RValue()
 std::shared_ptr<ir::Symbol> ir::Symbol::DeReference()
 {
     if (this->is_lvalue)
-        return (std::shared_ptr<ir::Symbol>)this->Error("deference a LValue.");
+        return (std::shared_ptr<ir::Symbol>)this->Error(this, nullptr, "deference a LValue.");
     auto res = std::make_shared<ir::Symbol>(this->type, this->name + "_RValue", false);
     return res->type->DeReference() ? res
-                                    : this->Error("dereference a non-pointer type symbol.");
+                                    : this->Error(this, nullptr, "dereference a non-pointer type symbol.");
 }
 llvm::Value *ir::Symbol::GetValue()
 {
@@ -68,7 +86,7 @@ llvm::Value *ir::Symbol::Store(llvm::Value *val)
 llvm::Value *ir::Symbol::Assign(std::shared_ptr<ir::Symbol> val)
 {
     if (!this->is_lvalue)
-        return this->Error("a RValue can't be assigned."), nullptr;
+        return this->Error(this, nullptr, "a RValue can't be assigned."), nullptr;
     auto rhs_symbol = val->RValue();
     auto rhs_type = val->type;
     auto rhs_val = rhs_symbol->value;
@@ -99,7 +117,7 @@ llvm::Value *ir::Symbol::Assign(std::shared_ptr<ir::Symbol> val)
         return this->Store(rhs_val);
     }
 fail:
-    return this->Error(ss.str()), nullptr;
+    return this->Error(this, nullptr, ss.str()), nullptr;
 }
 bool ir::Symbol::IsValid()
 {
@@ -115,4 +133,10 @@ std::shared_ptr<ir::Symbol> ir::Symbol::GetConstant(std::shared_ptr<ir::Type> ty
     auto res = std::make_shared<ir::Symbol>(type);
     res->value = val;
     return (std::shared_ptr<ir::Symbol>)res;
+}
+
+llvm::Value *ir::Symbol::Allocate(const std::string &name)
+{
+    auto _ty = this->type->Top()->_ty;
+    return builder->CreateAlloca(_ty, nullptr, name);
 }

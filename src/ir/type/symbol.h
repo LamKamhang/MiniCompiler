@@ -1,4 +1,5 @@
 #pragma once
+#include "../ast/ast.h"
 #include "type.h"
 #include <ir.h>
 #include <stack>
@@ -9,6 +10,7 @@ class Symbol
 {
 protected:
     llvm::Value *value;
+    llvm::Value *Allocate(const std::string &name);
 
 public:
     std::string name;
@@ -18,7 +20,7 @@ public:
     std::shared_ptr<ir::Symbol> RValue();
     std::shared_ptr<ir::Symbol> DeReference();
     std::shared_ptr<ir::Symbol> Reference();
-    std::shared_ptr<ir::Symbol> Error(const std::string &info);
+    std::shared_ptr<ir::Symbol> Error(ir::Symbol *symbol, ast::Node *node, const std::string &info);
     llvm::Value *Store(llvm::Value *val);                 // unsafe assignment
     llvm::Value *Assign(std::shared_ptr<ir::Symbol> val); // type check assignment
     llvm::Value *GetValue();

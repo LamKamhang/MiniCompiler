@@ -16,7 +16,7 @@ private:
 public:
     void Init();
     bool Generate(std::shared_ptr<ast::Node> &object);
-    bool Error(const std::string &str);
+    bool Error(ast::Node *node, const std::string &str);
     Generator() { this->Init(); };
 };
 } // namespace ir
