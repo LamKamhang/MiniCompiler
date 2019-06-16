@@ -32,15 +32,17 @@ std::shared_ptr<ir::Type> ir::Type::GetConstantType(const std::string &type)
     auto res = std::make_shared<ir::Type>();
     // [not implement] all other types
     res->_bty =
-        type == "bool"
-            ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(1, false, true))
-            : type == "char"
-                  ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(8, false, true))
-                  : type == "int"
-                        ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(32, true, true))
-                        : type == "float"
-                              ? dynamic_cast<ir::BaseType *>(ir::FloatTy::Get(32, true))
-                              : nullptr;
+        type == "void"
+            ? dynamic_cast<ir::BaseType *>(ir::VoidTy::Get())
+            : type == "bool"
+                  ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(1, false, true))
+                  : type == "char"
+                        ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(8, false, true))
+                        : type == "int"
+                              ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(32, true, true))
+                              : type == "float"
+                                    ? dynamic_cast<ir::BaseType *>(ir::FloatTy::Get(32, true))
+                                    : nullptr;
     return res;
 }
 
@@ -313,6 +315,16 @@ std::string ir::FloatTy::TyInfo()
               ? "double"
               : "";
     return ss.str();
+}
+std::string ir::VoidTy::TyInfo()
+{
+    return "void";
+}
+static std::shared_ptr<ir::VoidTy> vty = nullptr;
+ir::VoidTy *ir::VoidTy::Get()
+{
+    vty = std::make_shared<ir::VoidTy>();
+    return vty.get();
 }
 
 // [ReferType]

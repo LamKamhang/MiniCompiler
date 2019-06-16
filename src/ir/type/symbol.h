@@ -21,7 +21,6 @@ public:
     std::shared_ptr<ir::Symbol> CastTo(ir::RootType *type);
     std::shared_ptr<ir::Symbol> DeReference();
     std::shared_ptr<ir::Symbol> Reference();
-    std::shared_ptr<ir::Symbol> Error(ir::Symbol *symbol, ast::Node *node, const std::string &info);
     llvm::Value *Store(llvm::Value *val);                 // unsafe assignment
     llvm::Value *Assign(std::shared_ptr<ir::Symbol> val); // type check assignment
     llvm::Value *GetValue();

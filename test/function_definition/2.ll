@@ -29,11 +29,11 @@ b_block:
   ret i32 %f2ui_tmp
 }
 
+declare i32 @a(i32)
+
 define i32 @main() {
 main_block:
-  %a = alloca i32
-  store i32 1, i32* %a
-  %b = alloca i32
-  store i32 3, i32* %b
+  %a = alloca i8
+  store i8 99, i8* %a
   ret i32 100
 }

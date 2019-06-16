@@ -17,7 +17,8 @@ set(source_files
     src/tc/tc.cc
     src/ir/type/type.cc
 	src/ir/type/symbol.cc
-	src/util/prettyPrint.cc
+    src/util/prettyPrint.cc
+    src/ir/global.cc
 )
 
 include_directories(${PROJECT_SOURCE_DIR}/src)

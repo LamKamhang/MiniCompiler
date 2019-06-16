@@ -14,8 +14,6 @@
 std::unique_ptr<llvm::LLVMContext> context;
 std::unique_ptr<llvm::IRBuilder<>> builder;
 std::unique_ptr<llvm::Module> module;
-ir::Generator generator;
-std::unordered_map<std::string, std::shared_ptr<ir::FunctionTy>> FunctionTable;
 std::shared_ptr<ir::FunctionTy> theFunction = nullptr;
 
 // Assistance
@@ -92,25 +90,35 @@ ir::BaseType *ParseBaseType(ast::Node *node, ir::Block &block)
         }
 
         base_type =
-            base_type_val == "long"
-                ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(64, is_sign, is_const))
-                : base_type_val == "int"
-                      ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(32, is_sign, is_const))
-                      : base_type_val == "short"
-                            ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(16, is_sign, is_const))
-                            : base_type_val == "char"
-                                  ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(8, is_sign, is_const))
-                                  : base_type_val == "bool"
-                                        ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(1, false, is_const))
-                                        : base_type_val == "float"
-                                              ? dynamic_cast<ir::BaseType *>(ir::FloatTy::Get(32, is_const))
-                                              : base_type_val == "double"
-                                                    ? dynamic_cast<ir::BaseType *>(ir::FloatTy::Get(64, is_const))
-                                                    : nullptr;
+            base_type_val == "void"
+                ? dynamic_cast<ir::BaseType *>(ir::VoidTy::Get())
+                : base_type_val == "long"
+                      ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(64, is_sign, is_const))
+                      : base_type_val == "int"
+                            ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(32, is_sign, is_const))
+                            : base_type_val == "short"
+                                  ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(16, is_sign, is_const))
+                                  : base_type_val == "char"
+                                        ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(8, is_sign, is_const))
+                                        : base_type_val == "bool"
+                                              ? dynamic_cast<ir::BaseType *>(ir::IntegerTy::Get(1, false, is_const))
+                                              : base_type_val == "float"
+                                                    ? dynamic_cast<ir::BaseType *>(ir::FloatTy::Get(32, is_const))
+                                                    : base_type_val == "double"
+                                                          ? dynamic_cast<ir::BaseType *>(ir::FloatTy::Get(64, is_const))
+                                                          : nullptr;
         if (!base_type)
         {
             // 'unsinged' is default to be i32
             base_type = ir::IntegerTy::Get(32, is_sign, is_const);
+        }
+        // void type check
+        if (base_type->type_name == ir::TypeName::Void)
+        {
+            if (is_const || !is_sign)
+            {
+                Warning(node, "\'void\' can not be qualified as \'const\' or \'unsgined\', they are ignored.");
+            }
         }
     }
     return base_type;
@@ -153,19 +161,6 @@ std::vector<ir::RootType *> ParseFullType(ast::Node *node, ir::Block &block)
 }
 
 // [Generator]
-bool ir::Generator::Error(ast::Node *node, const std::string &str)
-{
-    if (node)
-    {
-        pretty::pretty_print("Error", str, node->get_left(), node->get_right());
-    }
-    else
-    {
-        std::cout << str << std::endl;
-    }
-    return false;
-}
-
 void ir::Generator::Init()
 {
     auto &generate_code = this->generate_code;
@@ -252,31 +247,24 @@ void ir::Generator::Init()
             std::vector<llvm::Type *> para_type;
             std::vector<std::shared_ptr<ir::Type>> para_type_list;
             std::vector<std::string> para_name;
+            bool is_void_para = false;
             for (auto para_decl : para_list->children)
             {
-                //   parameter id
-                // [not implement] pointer analysis
-                const std::string &para_id = para_decl->getNameChild("identifier")->value;
-                para_name.push_back(para_id);
-
-                // parameter type
-                // auto base_type = ParseBaseType(para_decl.get(), block);
-                // if (!base_type)
-                // {
-                //     return false;
-                // }
-
-                // std::vector<ir::RootType *> type_stack;
-                // type_stack.push_back(base_type);
-                // auto full_type = ir::Type::Get(type_stack);
-
+                // don't care id
                 auto type_stack = ParseFullType(para_decl.get(), block);
                 auto base_type = dynamic_cast<ir::BaseType *>(type_stack[0]);
                 auto full_type = ir::Type::Get(type_stack);
-                para_type_list.push_back(full_type);
-                para_type.push_back(base_type->_ty);
-                // para_type.push_back(llvm::Type::getInt32Ty(*context));
-                // LogType(llvm::Type::getInt32Ty(*context));
+                if (is_void_para)
+                    Errors(decl.get(), "[ir\\fun-def] \'void\' must be the first and only parameter if specified.");
+                if (full_type->Top()->type_name == ir::TypeName::Void)
+                {
+                    is_void_para = true;
+                }
+                else
+                {
+                    para_type_list.push_back(full_type);
+                    para_type.push_back(base_type->_ty);
+                }
             }
 
             // create function prototype
@@ -287,7 +275,7 @@ void ir::Generator::Init()
             if (maybe_fun)
             {
                 if (maybe_fun->getFunctionType() != function_type)
-                    return generator.Error(decl.get(), "[ir\\fun-def] define a same name function but with different type.");
+                    Errors(decl.get(), "[ir\\fun-def] define a same name function but with different type.");
             }
 
             llvm::Function *function = module->getFunction(fun_name);
@@ -296,7 +284,7 @@ void ir::Generator::Init()
                     function_type, llvm::GlobalValue::ExternalLinkage, fun_name,
                     module.get());
             if (!function || !function_type)
-                return generator.Error(decl.get(), "[ir\\fun-def] can't create function.");
+                Errors(decl.get(), "[ir\\fun-def\\llvm] can't create function.");
             // set parameter name
             unsigned idx = 0;
             for (auto &arg : function->args())
@@ -305,11 +293,11 @@ void ir::Generator::Init()
             }
             if (!function)
             {
-                return generator.Error(decl.get(), "[ir\\fun-def] fail to generate function.");
+                Errors(decl.get(), "[ir\\fun-def] fail to generate function.");
             }
             if (!function->empty())
             {
-                return generator.Error(decl.get(), "[ir\\fun-def] function can not be redefined.");
+                Errors(decl.get(), "[ir\\fun-def] function can not be redefined.");
             }
 
             // create own function representation
@@ -319,7 +307,7 @@ void ir::Generator::Init()
                 auto that_fun = block.GetFunction(fun_name);
                 if (that_fun->defined)
                 {
-                    return generator.Error(decl.get(), "[ir\\fun_def] redefining a function.");
+                    Errors(decl.get(), "[ir\\fun_def] redefining a function.");
                 }
             }
 
@@ -333,7 +321,7 @@ void ir::Generator::Init()
             own_fun->defined = true;
             if (!block.DefineFunction(own_fun, fun_name))
             {
-                return generator.Error(decl.get(), "[ir\\fun_def] function name conflicts with an already exists symbol/function.");
+                Errors(decl.get(), "[ir\\fun_def] function name conflicts with an already exists symbol/function.");
             }
 
             // compound statements
@@ -358,15 +346,20 @@ void ir::Generator::Init()
                 auto symbol = ir::Symbol::Get(full_type, arg_name);
                 if (!symbol->Store(arg_val))
                 {
-                    return generator.Error(para_list.get(), "[ir\\fun-def] argument's type is not match the function declaration.");
+                    Errors(para_list.get(), "[ir\\fun-def] argument's type is not match the function declaration.");
                 }
                 comp_block.DefineSymbol(arg_name, symbol);
                 ++idx;
             }
             // parse statements
             if (!generate_code.at("compound_statement")(comp_stat, comp_block))
-                return generator.Error(comp_stat.get(), "[ir\\fun-def] fail to generate statements block.");
+                Errors(comp_stat.get(), "[ir\\fun-def] fail to generate statements block.");
 
+            // if ret_type is void, llvm needs a handful return expr
+            if (ret_type->Top()->type_name == ir::TypeName::Void)
+            {
+                builder->CreateRetVoid();
+            }
             builder->SetInsertPoint(old_bb);
             theFunction = old_fun;
 
@@ -379,7 +372,7 @@ void ir::Generator::Init()
                       << (function_broken ? "wrong" : "correct") << std::endl;
             if (function_broken)
             {
-                std::cout << "[ir] Error message:\n"
+                std::cout << "[ir] Errors message:\n"
                           << err_str << std::endl;
                 return false;
             }
@@ -423,14 +416,24 @@ void ir::Generator::Init()
                 {
 
                     auto para_list = decl->children[1];
+                    bool is_void_para = false;
                     for (auto para_decl : para_list->children)
                     {
                         // don't care id
                         auto type_stack = ParseFullType(para_decl.get(), block);
                         auto base_type = dynamic_cast<ir::BaseType *>(type_stack[0]);
                         auto full_type = ir::Type::Get(type_stack);
-                        para_type_list.push_back(full_type);
-                        para_type.push_back(base_type->_ty);
+                        if (is_void_para)
+                            Errors(decl.get(), "[ir\\fun-def] \'void\' must be the first and only parameter if specified.");
+                        if (full_type->Top()->type_name == ir::TypeName::Void)
+                        {
+                            is_void_para = true;
+                        }
+                        else
+                        {
+                            para_type_list.push_back(full_type);
+                            para_type.push_back(base_type->_ty);
+                        }
                     }
                 }
 
@@ -442,14 +445,14 @@ void ir::Generator::Init()
                 if (maybe_fun)
                 {
                     if (maybe_fun->getFunctionType() != function_type)
-                        return generator.Error(decl.get(), "[ir\\fun-def] define a same name function but with different type.");
+                        Errors(decl.get(), "[ir\\fun-def] define a same name function but with different type.");
                 }
 
                 llvm::Function *function = llvm::Function::Create(
                     function_type, llvm::GlobalValue::ExternalLinkage, fun_name,
                     module.get());
                 if (!function || !function_type)
-                    return generator.Error(decl.get(), "[ir\\fun-def] can't create function.");
+                    Errors(decl.get(), "[ir\\fun-def\\llvm] can't create function.");
 
                 // create own function representation
                 // check if function has defined first
@@ -463,12 +466,12 @@ void ir::Generator::Init()
                     auto that_fun = block.GetFunction(fun_name);
                     if (!own_fun->Equal(that_fun))
                     {
-                        return generator.Error(decl.get(), "[ir\\fun_def] re-declare a function with different type.");
+                        Errors(decl.get(), "[ir\\fun_def] re-declare a function with different type.");
                     }
                 }
                 else if (!block.DefineFunction(own_fun, fun_name))
                 {
-                    return generator.Error(decl.get(), "[ir\\fun_def] function name conflicts with an already exists symbol/function.");
+                    Errors(decl.get(), "[ir\\fun_def] function name conflicts with an already exists symbol/function.");
                 }
 
                 return true;
@@ -508,25 +511,25 @@ void ir::Generator::Init()
                         symbol->type->Top()->is_const = false;
                         if (!symbol->Assign(assign_value))
                         {
-                            return generator.Error(child.get(), "[ir\\decl] can't store value to symbol.");
+                            Errors(child.get(), "[ir\\decl] can't store value to symbol.");
                         }
                         symbol->type->Top()->is_const = true;
                     }
                     // if it's a const symbol, but not initialize, it's error
                     else if (symbol->type->Top()->is_const)
                     {
-                        return generator.Error(child.get(), "[ir\\decl] declare a const symbol but not initialize it.");
+                        Warning(child.get(), "[ir\\decl] declare a const symbol but not initialize it.");
                     }
                     // if init_val not correct
                     if (!symbol->IsValid())
                     {
-                        return generator.Error(child.get(), "[ir\\decl] created symbol is not valid.");
+                        Errors(child.get(), "[ir\\decl] created symbol is not valid.");
                     }
 
                     // if variable already exists, error
                     if (!block.DefineSymbol(id_name, symbol))
                     {
-                        return generator.Error(child.get(), "[ir\\decl] variable exits.");
+                        Errors(child.get(), "[ir\\decl] variable exits.");
                     }
                 }
                 return true;
@@ -670,20 +673,37 @@ void ir::Generator::Init()
     generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "return_expr",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            auto ret_type = theFunction->ret_type;
+            // check if ret_type is void
             auto expr_node = node->children[0];
+            if (ret_type->Top()->type_name == ir::TypeName::Void)
+            {
+                Errors(expr_node.get(), "[ir\\ret] a void function can't return any value.");
+            }
             auto ret_symbol = resolve_symbol.at("expression")(expr_node, block);
             if (!ret_symbol)
                 return false;
             auto ret_value = ret_symbol->RValue()->CastTo(theFunction->ret_type->Top())->RValue();
             if (!ret_value)
-                return generator.Error(expr_node.get(), "[ir\\ret] return value not match type.");
-            return !builder->CreateRet(ret_value->GetValue())
-                       ? generator.Error(expr_node.get(), "[ir\\ret] can't create return instruction.")
-                       : true;
+                Errors(expr_node.get(), "[ir\\ret] return value not match required type.");
+            if (!builder->CreateRet(ret_value->GetValue()))
+                Errors(expr_node.get(), "[ir\\ret] can't create return instruction.");
+            return true;
+        }));
+    generate_code.insert(std::pair<std::string, std::function<bool(std::shared_ptr<ast::Node>, ir::Block &)>>(
+        "return_only",
+        [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> bool {
+            auto ret_type = theFunction->ret_type;
+            // check if ret_type is void
+            if (ret_type->Top()->type_name != ir::TypeName::Void)
+            {
+                Errors(node.get(), "[ir\\ret] needs return value here.");
+            }
+            builder->CreateRetVoid();
+            return true;
         }));
 
     // [assignment]
-    // [not implement] type check
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "assign_expr",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
@@ -719,7 +739,7 @@ void ir::Generator::Init()
             auto fun = module->getFunction(fun_name);
             if (!fun)
             {
-                generator.Error(node.get(), "[ir\\fun-call] calling a not defined function.");
+                Errors(node.get(), "[ir\\fun-call] calling a not defined function.");
                 return nullptr;
             }
 
@@ -748,7 +768,7 @@ void ir::Generator::Init()
             // check if argument's num == parameter's num
             if (own_fun->para_type.size() != symbol_list.size())
             {
-                generator.Error(node.get(), "[ir\\fun-call] number of arguments not match.");
+                Errors(node.get(), "[ir\\fun-call] number of arguments not match.");
                 return nullptr;
             }
 
@@ -761,7 +781,7 @@ void ir::Generator::Init()
                 // type_check
                 if (!arg_type->CastTo(para_type))
                 {
-                    generator.Error(node.get(), "[ir\\fun-call] parameter type not match.");
+                    Errors(node.get(), "[ir\\fun-call] parameter type not match.");
                     return nullptr;
                 }
             }
@@ -805,7 +825,7 @@ void ir::Generator::Init()
     resolve_symbol.insert(std::pair<std::string, std::function<std::shared_ptr<ir::Symbol>(std::shared_ptr<ast::Node>, ir::Block &)>>(
         "char",
         [&](std::shared_ptr<ast::Node> node, ir::Block &block) -> std::shared_ptr<ir::Symbol> {
-            auto real_val = atoi(node->value.c_str());
+            auto real_val = node->value.c_str()[1] - '\0';
             auto val = llvm::ConstantInt::get(*context, llvm::APInt(8, real_val, false));
             auto type = ir::Type::GetConstantType("char");
             auto symbol = ir::Symbol::GetConstant(type, val);
@@ -818,7 +838,7 @@ void ir::Generator::Init()
             auto symbol = block.GetSymbol(symbol_name);
             if (!symbol)
             {
-                return symbol->Error(nullptr, node.get(), "cannot find such identifier: " + symbol_name);
+                Errors(node.get(), "\'" + symbol_name + "\' : cannot find such identifier.");
             }
             return symbol;
         }));
@@ -836,7 +856,7 @@ void ir::Generator::Init()
             if (!best_type)
                 best_type = rhs_symbol->type->CastTo(lhs_symbol->type);
             if (!best_type)
-                return lhs_symbol->Error(rhs_symbol.get(), node.get(), "type not match");
+                Errors(node.get(), "\'binary operator\' : opearnd type not match.");
             auto lhs_value = lhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
             auto rhs_value = rhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
 
@@ -878,7 +898,7 @@ void ir::Generator::Init()
             if (!best_type)
                 best_type = rhs_symbol->type->CastTo(lhs_symbol->type);
             if (!best_type)
-                return lhs_symbol->Error(rhs_symbol.get(), node.get(), "type not match");
+                Errors(node.get(), "\'binary operator\' : opearnd type not match.");
             auto lhs_value = lhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
             auto rhs_value = rhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
 
@@ -918,7 +938,7 @@ void ir::Generator::Init()
             if (!best_type)
                 best_type = rhs_symbol->type->CastTo(lhs_symbol->type);
             if (!best_type)
-                return lhs_symbol->Error(rhs_symbol.get(), node.get(), "type not match");
+                Errors(node.get(), "\'binary operator\' : opearnd type not match.");
             auto lhs_value = lhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
             auto rhs_value = rhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
 
@@ -958,7 +978,7 @@ void ir::Generator::Init()
             if (!best_type)
                 best_type = rhs_symbol->type->CastTo(lhs_symbol->type);
             if (!best_type)
-                return lhs_symbol->Error(rhs_symbol.get(), node.get(), "type not match");
+                Errors(node.get(), "\'binary operator\' : opearnd type not match.");
             auto lhs_value = lhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
             auto rhs_value = rhs_symbol->RValue()->CastTo(best_type->Top())->RValue()->GetValue();
             auto res_symbol = ir::Symbol::Get(best_type, "div_result");
@@ -999,13 +1019,13 @@ bool ir::Generator::Generate(std::shared_ptr<ast::Node> &object)
         auto &type = root->type;
         if (type != "translation_unit")
         {
-            throw "\n[ir] error: type is not translation_unit\n";
+            Errors(root.get(), "Ast root has to be a translation_unit.");
         }
 
         // Generate ir from a tree
         if (!generate_code.at("translation_unit")(root, global))
         {
-            throw "\n[ir] error at parsing a unit.\n";
+            Errors(root.get(), "");
         }
 
         // Print ir
@@ -1017,9 +1037,9 @@ bool ir::Generator::Generate(std::shared_ptr<ast::Node> &object)
                   << (module_broken ? "wrong" : "correct") << std::endl;
         if (module_broken)
         {
-            // std::cout << "[ir] Error message:\n"
+            // std::cout << "[ir] Errors message:\n"
             //           << err_str << std::endl;
-            generator.Error(nullptr, "[ir] Error message:\n" + err_str);
+            Errors(nullptr, "[llvm-module] module broken, reasons:\n" + err_str + "\n");
             return false;
         }
         else
@@ -1030,8 +1050,9 @@ bool ir::Generator::Generate(std::shared_ptr<ast::Node> &object)
     catch (const char *error)
     {
         // if an ast errors when generating IR
-        std::cout << error;
         module->print(llvm::errs(), nullptr); // print error msg
+        std::cout << "[IR-Errors] IR-Generation is pasued due to previous error.\n"
+                  << error << "\n";
         return false;
     }
 }
@@ -1102,10 +1123,10 @@ bool ir::Block::DefineFunction(std::shared_ptr<ir::FunctionTy> function, const s
         auto that_fun = this->GetFunction(name);
         if (that_fun->defined)
         {
-            return generator.Error(nullptr, "[fun-def] re-define a function.");
+            Errors(nullptr, "[fun-def] re-define a function.");
         }
         else if (!function->Equal(that_fun))
-            return generator.Error(nullptr, "[fun-def] define a function not match previous declaration.");
+            Errors(nullptr, "[fun-def] define a function not match previous declaration.");
     }
 
     FunctionTable[name] = function;

@@ -6,28 +6,34 @@ A simple C-style Language Compiler.
 ## To Do List
 
 - [x] Produce a parser for a subset of C
-- [x] Generate LLVM IR and target code
+- [x] Generate LLVM-IR and target code
+- [ ] C language characteristics
+    - [ ] Basic type
+        - [x] (bool), char, int, unsgined, long ...
+        - [x] float, double
+        - [ ] void
   - [x] control flow
   - [ ] loop
-  - [ ] assignment expression
+  - [x] assignment expression
   - [ ] colon expression
   - [ ] question expression
-  - [ ] basic operations: +, -, *, /
+  - [x] basic operations: +, -, *, /
   - [ ] logical operations: &&, ||
   - [ ] bit operation: <<, >>, |, &
   - [ ] compare: >, ==, < , !=, >=, <=
   - [x] function call
-  - [ ] unspecified parameter
-  - [ ] auto format transformation
-  - [ ] const, static, extern
-  - [ ] variable definition
+  - [x] unspecified parameter
+  - [x] auto format transformation
+  - [x] const
+  - [ ] static, extern
+  - [x] variable definition
   - [ ] pointer type 
   - [ ] dereference: '*', '.', '->'
   - [ ] array type
   - [ ] struct and union
   - [ ] list initialization
-- [x] Support including standard library and macros
-- [ ] Error check
+- [x] Error check
+- [ ] Support including standard library and macros
 
 ## Contributors
 

@@ -1,31 +1,11 @@
 #include "symbol.h"
 #include "../../util/prettyPrint.h"
+#include "../global.h"
 #include "index.h"
 #include "iostream"
 #include "memory"
 #include "sstream"
-std::shared_ptr<ir::Symbol> ir::Symbol::Error(ir::Symbol *symbol, ast::Node *node, const std::string &info)
-{
-    if (symbol)
-    {
-        std::stringstream ss;
-        ss << "[symbol: " << symbol->name << "] " << info << "\n";
-        if (node)
-        {
-            pretty::pretty_print("Error", ss.str(), node->get_left(), node->get_right());
-        }
-        else
-        {
-            std::cout << ss.str() << std::endl;
-        }
-    }
-    else
-    {
-        pretty::pretty_print("Error", info, node->get_left(), node->get_right());
-    }
 
-    return nullptr;
-}
 ir::Symbol::Symbol(std::shared_ptr<ir::Type> type) : type(type), is_lvalue(false)
 {
     std::stringstream ss;
@@ -43,7 +23,7 @@ ir::Symbol::Symbol(std::shared_ptr<ir::Type> type, const std::string &name, bool
 std::shared_ptr<ir::Symbol> ir::Symbol::LValue()
 {
     if (!this->is_lvalue)
-        return this->Error(this, nullptr, "use a RValue as LValue.");
+        Errors(nullptr, "\'" + this->name + "\' : use a RValue as LValue.");
     auto res = std::make_shared<ir::Symbol>(this->type, this->name + "_LValue", true);
     res->is_lvalue = true;
     res->value = this->value;
@@ -65,7 +45,7 @@ std::shared_ptr<ir::Symbol> ir::Symbol::CastTo(ir::RootType *type)
 {
     if (this->is_lvalue)
     {
-        return this->Error(this, nullptr, "LValue can't be cast.");
+        Errors(nullptr, "LValue can't be cast.");
     }
     else
     {
@@ -90,10 +70,13 @@ std::shared_ptr<ir::Symbol> ir::Symbol::CastTo(ir::RootType *type)
 std::shared_ptr<ir::Symbol> ir::Symbol::DeReference()
 {
     if (this->is_lvalue)
-        return (std::shared_ptr<ir::Symbol>)this->Error(this, nullptr, "deference a LValue.");
+        Errors(nullptr, "deference a LValue.");
     auto res = std::make_shared<ir::Symbol>(this->type, this->name + "_RValue", false);
-    return res->type->DeReference() ? res
-                                    : this->Error(this, nullptr, "dereference a non-pointer type symbol.");
+    if (!res->type->DeReference())
+    {
+        Errors(nullptr, "\'" + this->name + "\' : dereference a non-pointer type symbol.");
+    }
+    return res;
 }
 llvm::Value *ir::Symbol::GetValue()
 {
@@ -114,7 +97,7 @@ llvm::Value *ir::Symbol::Store(llvm::Value *val)
 llvm::Value *ir::Symbol::Assign(std::shared_ptr<ir::Symbol> val)
 {
     if (!this->is_lvalue)
-        return this->Error(this, nullptr, "a RValue can't be assigned."), nullptr;
+        Errors(nullptr, "\'" + this->name + "\' : a RValue can't be assigned.");
     auto rhs_symbol = val->RValue();
     auto rhs_type = val->type;
     auto rhs_val = rhs_symbol->value;
@@ -123,6 +106,10 @@ llvm::Value *ir::Symbol::Assign(std::shared_ptr<ir::Symbol> val)
     auto lhs_type = lhs_symbol->type;
 
     std::stringstream ss;
+    ss << "error at assignment to \'" << lhs_symbol->name << "\'\n";
+    ss << "incompatible pointer types assigning to"
+       << "\'" << rhs_type->TyInfo() << "\' from \'" << lhs_type->TyInfo() << "\' and \' " << rhs_type->TyInfo() << "\'.\n";
+
     if (!lhs_type->Top()->is_const)
         if (lhs_type->_bty->type_id >= rhs_type->_bty->type_id &&
                 lhs_type->_tys.size() == rhs_type->_tys.size() ||
@@ -134,20 +121,19 @@ llvm::Value *ir::Symbol::Assign(std::shared_ptr<ir::Symbol> val)
                 auto r_ty = rhs_type->_tys[i];
                 if (l_ty->type_name != r_ty->type_name)
                 {
-                    ss << "type \' " << lhs_type->TyInfo() << "\' and \' " << rhs_type->TyInfo() << "\' is not compatible to assign.\n";
-                    goto fail;
+                    Errors(nullptr, ss.str());
                 }
                 // if top level is const
                 else if (i + 1 == lhs_type->_tys.size() && l_ty->is_const)
                 {
-                    ss << "\'" << rhs_type->TyInfo() << "\' cannot assign to variable with const-qualified type \'" << lhs_type->TyInfo() << "\'\n";
-                    goto fail;
+                    ss.clear();
+                    ss << "cannot assign to variable \'" << lhs_symbol->name << "\' with const - qualified type '" << lhs_type->TyInfo() << "'\n ";
+                    Errors(nullptr, ss.str());
                 }
             }
             return this->Store(rhs_val);
         }
-fail:
-    return this->Error(this, nullptr, ss.str()), nullptr;
+    return nullptr;
 }
 bool ir::Symbol::IsValid()
 {
