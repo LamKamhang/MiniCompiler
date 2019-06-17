@@ -6,11 +6,11 @@ ast::Node *current_node;
 void Warning(ast::Node *node, const std::string &info)
 {
     ast::Node *_node = !node ? current_node : node;
-    pretty::pretty_print("Warning", info, node->get_left(), node->get_right());
+    pretty::pretty_print("Warning", info, _node->get_left(), _node->get_right());
 }
 void Errors(ast::Node *node, const std::string &info) throw(const char *)
 {
     ast::Node *_node = !node ? current_node : node;
-    pretty::pretty_print("Errors", info, node->get_left(), node->get_right());
+    pretty::pretty_print("Errors", info, _node->get_left(), _node->get_right());
     throw "";
 }
