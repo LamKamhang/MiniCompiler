@@ -239,20 +239,8 @@ std::string ir::IntegerTy::TyInfo()
     auto bits = this->bits;
     auto is_sign = this->is_sign;
     std::stringstream ss;
-    ss << is_sign ? "unsigned" : "";
-    ss << " " << (bits == 1)
-        ? "bool"
-        : (bits == 8)
-              ? "char"
-              : (bits == 16)
-                    ? "short"
-                    : (bits == 32)
-                          ? "int"
-                          : (bits == 64)
-                                ? "long"
-                                : (bits == 128)
-                                      ? "long long"
-                                      : "";
+    ss << (is_sign ? "unsigned" : "");
+    ss << " " << ((bits == 1) ? "bool" : (bits == 8) ? "char" : (bits == 16) ? "short" : (bits == 32) ? "int" : (bits == 64) ? "long" : (bits == 128) ? "long long" : "");
     return ss.str();
 }
 
@@ -310,11 +298,7 @@ std::string ir::FloatTy::TyInfo()
 {
     auto bits = this->bits;
     std::stringstream ss;
-    ss << " " << (bits == 16)
-        ? "float"
-        : (bits == 32)
-              ? "double"
-              : "";
+    ss << " " << ((bits == 16) ? "float" : (bits == 32) ? "double" : "");
     return ss.str();
 }
 std::string ir::VoidTy::TyInfo()

@@ -13,6 +13,8 @@
 #include "parser/parser.hh"
 #include "tc/tc.h"
 
+// #define _DEBUG_
+
 #define IN_C (1 << 0)
 #define IN_JSON (1 << 1)
 #define OUT_JSON (1 << 2)
@@ -28,10 +30,13 @@ std::string current_file;
 
 int main(int argc, char **argv)
 {
-    // int _argc = argc;
-    // char **_argv = argv;
+#ifndef _DEBUG_
+    int _argc = argc;
+    char **_argv = argv;
+#else
     int _argc = 5;
     string _argv[5] = {"ncc", "test/function_definition/2.c", "-t=ir", "-t=json", "-t=obj"};
+#endif
 
     vector<string> source_files;
     unsigned options = IN_C;

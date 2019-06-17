@@ -11,6 +11,6 @@ void Warning(ast::Node *node, const std::string &info)
 void Errors(ast::Node *node, const std::string &info) throw(const char *)
 {
     ast::Node *_node = !node ? current_node : node;
-    pretty::pretty_print("Errors", info, _node->get_left(), _node->get_right());
+    pretty::pretty_print("Error", info, _node->get_left(), _node->get_right());
     throw "";
 }
