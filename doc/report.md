@@ -335,19 +335,25 @@ selection_statement
 ## 六、目标代码生成与运行
 ###目标代码生成
 LLVM支持交叉编译，可以指定架构编译成目标代码
->target triple ：<arch><sub>-<vendor>-<sys>-<abi>
->x86_64-unknown-linux-gnu
+'''C
+target triple ：<arch><sub>-<vendor>-<sys>-<abi>
+x86_64-unknown-linux-gnu
+'''
 目标三元组是目标机器架构的表示方式，llvm提供了函数接口以直接获取本机的架构
->auto TargetTriple = sys::getDefaultTargetTriple();
->module->setTargetTriple(TargetTriple);
+'''C
+auto TargetTriple = sys::getDefaultTargetTriple();
+module->setTargetTriple(TargetTriple);
+'''
 llvm还可以指定目标CPU，比如“x86-64”/“i386”等等，这使得我们有丰富的目标代码生成的选择。
->auto CPU = "generic";
->    auto Features = "";
->    TargetOptions opt;
->    auto RM = Optional<Reloc::Model>();
->    auto TheTargetMachine =
->        Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
->    module->setDataLayout(TheTargetMachine->createDataLayout());
+'''C
+auto CPU = "generic";
+    auto Features = "";
+    TargetOptions opt;
+    auto RM = Optional<Reloc::Model>();
+    auto TheTargetMachine =
+        Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
+    module->setDataLayout(TheTargetMachine->createDataLayout());
+'''
 llvm8为我们提供了强大的后端，目标代码生成的主要考虑就是初始化要指定的体系结构。在生成了中间代码之后，我们用
 > llvm::legacy::PassManager
 这个llvm提供的类去load中间代码，在指定体系结构后调用llvm后端运行这个PassManager对象就可以生成Object Code。由于我们没有支持extern，所以并不需要链接任何标准库。这样做的坏处就是没法调用printf这样的库函数来输出。我们通过运行程序后在命令行查看main函数的返回值来查看程序运行的结果。
@@ -358,19 +364,27 @@ llvm8为我们提供了强大的后端，目标代码生成的主要考虑就是
   - 我们在中间代码生成时，对所有的symble都会加上const标签，以便检查优化。我们对常量表达式的定义如下：表达式中只含有常量，或是在初始化之后从没有被再次赋值的变量。
   - if-else优化
 	 if-else语句原本会产生三个代码块，分别是if内的块，else内的块以及ifelse外的代码块。这里如果我们检查到if中的条件表达式全由常量组成的话，那么我们认为这块代码的执行顺序是固定的，就可以少生成一段代码。
->if(1)
->    {...code1...}
->else
->    {...code2...}
+'''C
+if(1)
+    {...code1...}
+else
+    {...code2...}
+'''
 优化成：
->code1
+'''C
+code1
+'''
   - 常量引用优化
 如果常量被赋值前引用，那么直接用表达式对应的常数来替换
->int a = 1+2*3;
->int b = a;
+'''C
+int a = 1+2*3;
+int b = a;
+'''
 优化为
->int a = 1+2*3;
->int b = 7;
+'''C
+int a = 1+2*3;
+int b = 7;
+'''
 ### 死代码的删除优化
   - 常量引用优化
 如果函数或者变量在代码生成完之后依旧保持常量属性，即被初始化或者被定义但是没有一处调用，那么我们就删除这些常量或者函数重新生成中间代码以提高目标代码执行效率
