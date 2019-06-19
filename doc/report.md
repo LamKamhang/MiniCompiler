@@ -595,7 +595,7 @@ map<string, std::function<Symbol*(Node*, Block &)>> resolve_symbol;
 
 有了这两种跳转表，我们要做的就是在初始化阶段，往表中插入各种类型的节点对应的分析函数即可：
 
-![1560968603637](report.assets/1560968603637.png)
+![1560968603637](./figure/1560968603637.png)
 
 ### 中间代码生成
 
