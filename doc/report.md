@@ -347,17 +347,21 @@ module->setTargetTriple(TargetTriple);
 llvm还可以指定目标CPU，比如“x86-64”/“i386”等等，这使得我们有丰富的目标代码生成的选择。
 ```C
 auto CPU = "generic";
-    auto Features = "";
-    TargetOptions opt;
-    auto RM = Optional<Reloc::Model>();
-    auto TheTargetMachine =
-        Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
-    module->setDataLayout(TheTargetMachine->createDataLayout());
+auto Features = "";
+TargetOptions opt;
+auto RM = Optional<Reloc::Model>();
+auto TheTargetMachine =
+Target->createTargetMachine(TargetTriple, CPU, Features, opt, RM);
+module->setDataLayout(TheTargetMachine->createDataLayout());
 ```
 llvm8为我们提供了强大的后端，目标代码生成的主要考虑就是初始化要指定的体系结构。在生成了中间代码之后，我们用
-> llvm::legacy::PassManager
+```
+llvm::legacy::PassManager
+```
 这个llvm提供的类去load中间代码，在指定体系结构后调用llvm后端运行这个PassManager对象就可以生成Object Code。由于我们没有支持extern，所以并不需要链接任何标准库。这样做的坏处就是没法调用printf这样的库函数来输出。我们通过运行程序后在命令行查看main函数的返回值来查看程序运行的结果。
->--$echo $?
+```
+--$echo $?
+```
 ## 七、优化考虑
 
 ### 常量表达式的优化
