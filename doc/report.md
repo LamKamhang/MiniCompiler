@@ -333,6 +333,7 @@ selection_statement
 ### ...
 
 ## 六、目标代码生成与运行
+###目标代码生成
 LLVM支持交叉编译，可以指定架构编译成目标代码
 >target triple ：<arch><sub>-<vendor>-<sys>-<abi>
 >x86_64-unknown-linux-gnu
