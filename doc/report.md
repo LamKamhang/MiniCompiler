@@ -891,6 +891,33 @@ int main()
 
 ## 十、测试结果
 
+- 基础语法错误测试条目：
+
+  | 测试样例                | 测试目的             | 测试结果  |
+  | ---------------------- | ---------------------- | -------|
+  | basic_operation.c      | 加减乘除运算             | pass  |
+  | control_flow.c         | if-else流程             | pass  |
+  | format_transform.c     | 类型转换                 | pass  |
+  | function_call.c        | 函数调用                 | pass  |
+  | function_definition.c  | 函数定义                 | pass  |
+  | function_definition2.c | 错误/不匹配/重复的函数定义  | pending  |
+  | pointer_type.c         | 指针类型                 | pass  |
+- 语义错误测试条目：
+
+  | 测试样例                | 测试目的             | 测试结果  |
+  | ---------------------- | ---------------------- | -------|
+  | duplicate_definition.c | 类型不匹配的变量/函数重复定义| pass  |
+  | assignment.c         | 变量赋值类型不匹配             | pass  |
+  | function_call2.c       | 参数数量/类型不匹配        | pass  |
+- 错误测试条目：
+
+  | 测试样例                | 测试目的             | 测试结果  |
+  | -----------------| ---------------------- | -------|
+  | single_error.c | 更多的语法错误，如缺少分号逗号等| pass  |
+  | more_error.c         | 同一文件中出现多处不同类型错误   | pass  |
+  | function_call2.c       | 参数数量/类型不匹配        | pass  |
+
+
 ## 十一、总结
 
 ## 附录
